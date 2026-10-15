@@ -45,7 +45,9 @@
   --color-pine: var(--pine);
   --color-pine-deep: var(--pine-deep);
   --color-sand: var(--sand);
-  --color-coral: var(--coral);
+  --color-neon: var(--neon);
+  --color-neon-soft: var(--neon-soft);
+  --color-glow: var(--glow);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -56,45 +58,47 @@
 }
 
 :root {
-  /* Musas: niebla fría + pino — confianza inmobiliaria LatAm (sin cream/terracota) */
-  --background: #eef2f1;
-  --foreground: #14221f;
-  --ink: #0c1a18;
-  --mist: #e2e9e7;
-  --pine: #1a554c;
-  --pine-deep: #0f322d;
-  --sand: #c5d0cc;
-  --coral: #2a6b62;
-  --card: #f7faf9;
-  --card-foreground: #14221f;
-  --popover: #f7faf9;
-  --popover-foreground: #14221f;
-  --primary: #1a554c;
-  --primary-foreground: #f3f7f6;
-  --secondary: #dde6e3;
-  --secondary-foreground: #0f322d;
-  --muted: #e3ebe8;
-  --muted-foreground: #4a5c57;
-  --accent: #d7e3df;
-  --accent-foreground: #0f322d;
-  --destructive: #b42318;
-  --border: #cfdad6;
-  --input: #cfdad6;
-  --ring: #1a554c;
-  --chart-1: #1a554c;
-  --chart-2: #3d7a70;
-  --chart-3: #6b8580;
-  --chart-4: #c5d0cc;
-  --chart-5: #0f322d;
-  --radius: 0.5rem;
-  --sidebar: #eef2f1;
-  --sidebar-foreground: #14221f;
-  --sidebar-primary: #1a554c;
-  --sidebar-primary-foreground: #f3f7f6;
-  --sidebar-accent: #dde6e3;
-  --sidebar-accent-foreground: #0f322d;
-  --sidebar-border: #cfdad6;
-  --sidebar-ring: #1a554c;
+  /* Musas v2 — deep dark cinematic + teal neon (no purple SaaS) */
+  --background: #05080a;
+  --foreground: #e7eeeb;
+  --ink: #030506;
+  --mist: #9aaba4;
+  --pine: #3d9f8f;
+  --pine-deep: #0a1f1c;
+  --sand: #c5d4ce;
+  --neon: #5ef0d4;
+  --neon-soft: #2a8f82;
+  --glow: #7dffd6;
+  --card: #0c1210;
+  --card-foreground: #e7eeeb;
+  --popover: #0c1210;
+  --popover-foreground: #e7eeeb;
+  --primary: #5ef0d4;
+  --primary-foreground: #04110e;
+  --secondary: #121a18;
+  --secondary-foreground: #d5e0db;
+  --muted: #101816;
+  --muted-foreground: #8fa39b;
+  --accent: #142421;
+  --accent-foreground: #e7eeeb;
+  --destructive: #f07167;
+  --border: rgba(126, 168, 158, 0.18);
+  --input: rgba(126, 168, 158, 0.22);
+  --ring: #5ef0d4;
+  --chart-1: #5ef0d4;
+  --chart-2: #3d9f8f;
+  --chart-3: #8fa39b;
+  --chart-4: #c5d4ce;
+  --chart-5: #1a554c;
+  --radius: 0.625rem;
+  --sidebar: #05080a;
+  --sidebar-foreground: #e7eeeb;
+  --sidebar-primary: #5ef0d4;
+  --sidebar-primary-foreground: #04110e;
+  --sidebar-accent: #121a18;
+  --sidebar-accent-foreground: #e7eeeb;
+  --sidebar-border: rgba(126, 168, 158, 0.18);
+  --sidebar-ring: #5ef0d4;
 }
 
 @layer base {
@@ -117,9 +121,41 @@
   .atmosphere {
     background-color: var(--background);
     background-image:
-      radial-gradient(ellipse 80% 50% at 8% -8%, color-mix(in srgb, var(--pine) 16%, transparent), transparent 55%),
-      radial-gradient(ellipse 65% 40% at 100% 0%, color-mix(in srgb, #8fb4ae 28%, transparent), transparent 48%),
-      linear-gradient(180deg, #f4f7f6 0%, var(--background) 42%, #e4ebe8 100%);
+      radial-gradient(ellipse 70% 45% at 12% -10%, color-mix(in srgb, var(--neon) 14%, transparent), transparent 55%),
+      radial-gradient(ellipse 55% 40% at 92% 8%, color-mix(in srgb, #8fd4c4 10%, transparent), transparent 50%),
+      radial-gradient(ellipse 50% 35% at 50% 100%, color-mix(in srgb, var(--neon-soft) 12%, transparent), transparent 60%),
+      linear-gradient(180deg, #05080a 0%, #070c0b 45%, #05080a 100%);
+    background-attachment: fixed;
+  }
+
+  .neon-orb {
+    pointer-events: none;
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(72px);
+    opacity: 0.45;
+    will-change: transform;
+  }
+
+  .neon-orb-a {
+    width: min(42vw, 28rem);
+    height: min(42vw, 28rem);
+    background: color-mix(in srgb, var(--neon) 55%, transparent);
+    animation: musas-drift-a 18s ease-in-out infinite alternate;
+  }
+
+  .neon-orb-b {
+    width: min(36vw, 22rem);
+    height: min(36vw, 22rem);
+    background: color-mix(in srgb, #a8ffe8 35%, transparent);
+    animation: musas-drift-b 22s ease-in-out infinite alternate;
+  }
+
+  .glass {
+    background: color-mix(in srgb, #0c1412 72%, transparent);
+    border: 1px solid color-mix(in srgb, var(--neon) 14%, transparent);
+    backdrop-filter: blur(18px) saturate(1.2);
+    -webkit-backdrop-filter: blur(18px) saturate(1.2);
   }
 
   .grain::before {
@@ -127,73 +163,61 @@
     pointer-events: none;
     position: absolute;
     inset: 0;
-    opacity: 0.035;
+    opacity: 0.04;
+    mix-blend-mode: soft-light;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
-  .reveal {
-    animation: musas-reveal 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  .interactive-surface {
+    transition:
+      transform 500ms cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 500ms cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 500ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 500ms cubic-bezier(0.22, 1, 0.36, 1),
+      color 500ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 500ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  .reveal-delay-1 {
-    animation-delay: 0.12s;
+  .interactive-surface:active {
+    transform: scale(0.985);
   }
 
-  .reveal-delay-2 {
-    animation-delay: 0.24s;
-  }
-
-  .reveal-delay-3 {
-    animation-delay: 0.36s;
-  }
-
-  .kenburns {
-    animation: musas-kenburns 18s ease-out both;
-  }
-
-  .rise-in {
-    animation: musas-rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  .text-balance {
+    text-wrap: balance;
   }
 }
 
-@keyframes musas-reveal {
+@keyframes musas-drift-a {
   from {
-    opacity: 0;
-    transform: translateY(1.25rem);
+    transform: translate3d(0, 0, 0) scale(1);
   }
   to {
-    opacity: 1;
-    transform: translateY(0);
+    transform: translate3d(8%, 12%, 0) scale(1.08);
   }
 }
 
-@keyframes musas-kenburns {
+@keyframes musas-drift-b {
   from {
-    transform: scale(1.08) translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0) scale(1.05);
   }
   to {
-    transform: scale(1) translate3d(0, -1.5%, 0);
-  }
-}
-
-@keyframes musas-rise {
-  from {
-    opacity: 0;
-    transform: translateY(2rem);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+    transform: translate3d(-10%, -8%, 0) scale(1);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .reveal,
-  .reveal-delay-1,
-  .reveal-delay-2,
-  .reveal-delay-3,
-  .kenburns,
-  .rise-in {
+  .neon-orb-a,
+  .neon-orb-b,
+  .interactive-surface {
     animation: none !important;
+    transition: none !important;
+  }
+
+  .interactive-surface:active {
+    transform: none;
+  }
+
+  html {
+    scroll-behavior: auto;
   }
 }

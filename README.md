@@ -6,18 +6,25 @@ Landing de marketing para **Musas**, una app que simplifica y revoluciona la ven
 
 - Next.js (App Router) + TypeScript
 - Tailwind CSS + shadcn/ui
+- Framer Motion (scroll, reveal, parallax)
 - Español (LatAm)
 
 Clerk auth is planned later. Deploy target: Vercel (GitHub `main`).
+
+## Diseño (landing v2)
+
+- Deep dark cinematic UI, teal neon accents, backdrop blur
+- Soft parallax on property imagery; masked text reveals; chained section motion
+- Brand-first full-bleed hero; respects `prefers-reduced-motion`
 
 ## Desarrollo local
 
 ```bash
 npm install
-npm run dev -- --port 4317 --hostname 0.0.0.0
+npm run dev -- --port 4321 --hostname 127.0.0.1
 ```
 
-Abre [http://127.0.0.1:4317](http://127.0.0.1:4317).
+Abre [http://127.0.0.1:4321](http://127.0.0.1:4321/).
 
 ## Vercel
 

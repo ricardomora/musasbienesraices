@@ -1,3 +1,9 @@
+"use client";
+
+import { Reveal } from "@/components/motion/reveal";
+import { TextReveal } from "@/components/motion/text-reveal";
+import { NeonField } from "@/components/motion/neon-field";
+
 export function Difference() {
   const points = [
     {
@@ -17,33 +23,42 @@ export function Difference() {
   return (
     <section
       id="diferencia"
-      className="relative border-b border-pine/10 bg-pine-deep py-20 text-primary-foreground sm:py-28"
+      className="relative overflow-hidden border-b border-white/5 bg-pine-deep/40 py-20 sm:py-28"
     >
-      <div className="mx-auto max-w-6xl px-5 sm:px-8">
-        <p className="text-sm font-medium tracking-wide text-sand/90 uppercase">
-          Por qué Musas
-        </p>
-        <h2 className="mt-3 max-w-2xl font-display text-3xl leading-tight tracking-tight sm:text-4xl">
-          Distinto de raíz: menos intermediarios abusivos, más control tuyo.
-        </h2>
-        <p className="mt-5 max-w-xl text-base leading-relaxed text-white/75 sm:text-lg">
-          Musas no es otro listado infinito. Es una forma de vender donde la
-          plataforma trabaja para quien publica — no al revés.
-        </p>
+      <NeonField />
+      <div className="grain absolute inset-0" aria-hidden />
+      <div className="relative mx-auto max-w-6xl px-5 sm:px-8">
+        <Reveal>
+          <p className="text-sm font-medium tracking-[0.18em] text-neon/90 uppercase">
+            Por qué Musas
+          </p>
+        </Reveal>
+        <TextReveal
+          as="h2"
+          text="Distinto de raíz: menos intermediarios abusivos, más control tuyo."
+          className="mt-3 max-w-2xl font-display text-3xl leading-tight tracking-tight text-white sm:text-4xl"
+          delay={0.06}
+        />
+        <Reveal delay={0.12}>
+          <p className="mt-5 max-w-xl text-base leading-relaxed text-white/70 sm:text-lg">
+            Musas no es otro listado infinito. Es una forma de vender donde la
+            plataforma trabaja para quien publica — no al revés.
+          </p>
+        </Reveal>
         <div className="mt-14 grid gap-10 sm:grid-cols-3 sm:gap-8">
           {points.map((point, index) => (
-            <article
+            <Reveal
               key={point.title}
-              className="rise-in border-t border-white/20 pt-6"
-              style={{ animationDelay: `${index * 0.12}s` }}
+              delay={0.1 + index * 0.1}
+              className="border-t border-white/15 pt-6"
             >
               <h3 className="font-display text-xl tracking-tight text-white">
                 {point.title}
               </h3>
-              <p className="mt-3 text-sm leading-relaxed text-white/70 sm:text-base">
+              <p className="mt-3 text-sm leading-relaxed text-white/65 sm:text-base">
                 {point.body}
               </p>
-            </article>
+            </Reveal>
           ))}
         </div>
       </div>

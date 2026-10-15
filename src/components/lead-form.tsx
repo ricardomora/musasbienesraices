@@ -1,22 +1,24 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 export function LeadForm() {
+  const reduce = useReducedMotion();
   const [status, setStatus] = useState<"idle" | "sending" | "ok" | "error">(
     "idle",
   );
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const form = event.currentTarget;
     setStatus("sending");
     // Mock local capture — backend arrives later with Clerk/Vercel
     await new Promise((resolve) => setTimeout(resolve, 650));
-    const form = event.currentTarget;
     const data = new FormData(form);
     if (!data.get("email") || !data.get("name")) {
       setStatus("error");
@@ -28,11 +30,14 @@ export function LeadForm() {
 
   if (status === "ok") {
     return (
-      <div
-        className="rounded-xl border border-pine/20 bg-white/70 p-6 text-left shadow-sm backdrop-blur-sm"
+      <motion.div
+        className="glass rounded-xl p-6 text-left"
         role="status"
+        initial={reduce ? false : { opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       >
-        <p className="font-display text-2xl text-pine-deep">Listo.</p>
+        <p className="font-display text-2xl text-neon">Listo.</p>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Recibimos tu interés. Cuando abramos acceso, te escribimos con los
           siguientes pasos — sin spam ni llamadas agresivas.
@@ -40,19 +45,19 @@ export function LeadForm() {
         <Button
           type="button"
           variant="outline"
-          className="mt-5"
+          className="interactive-surface mt-5 border-white/15 bg-transparent hover:bg-white/5"
           onClick={() => setStatus("idle")}
         >
           Enviar otra consulta
         </Button>
-      </div>
+      </motion.div>
     );
   }
 
   return (
     <form
       onSubmit={onSubmit}
-      className="space-y-4 rounded-xl border border-pine/15 bg-white/70 p-6 shadow-sm backdrop-blur-sm"
+      className="glass space-y-4 rounded-xl p-6"
       noValidate
     >
       <div className="grid gap-4 sm:grid-cols-2">
@@ -65,6 +70,7 @@ export function LeadForm() {
             placeholder="Ana Ruiz"
             required
             disabled={status === "sending"}
+            className="interactive-surface border-white/10 bg-background/40"
           />
         </div>
         <div className="space-y-2">
@@ -77,6 +83,7 @@ export function LeadForm() {
             placeholder="ana@correo.com"
             required
             disabled={status === "sending"}
+            className="interactive-surface border-white/10 bg-background/40"
           />
         </div>
       </div>
@@ -88,6 +95,7 @@ export function LeadForm() {
           autoComplete="address-level2"
           placeholder="Ciudad de México"
           disabled={status === "sending"}
+          className="interactive-surface border-white/10 bg-background/40"
         />
       </div>
       <div className="space-y-2">
@@ -98,6 +106,7 @@ export function LeadForm() {
           rows={3}
           placeholder="Departamento en Polanco, casa en GDL, terreno…"
           disabled={status === "sending"}
+          className="interactive-surface border-white/10 bg-background/40"
         />
       </div>
       {status === "error" ? (
@@ -108,7 +117,7 @@ export function LeadForm() {
       <Button
         type="submit"
         size="lg"
-        className="h-11 w-full bg-pine text-primary-foreground hover:bg-pine-deep sm:w-auto sm:px-8"
+        className="interactive-surface h-11 w-full bg-neon text-primary-foreground shadow-[0_0_36px_-14px_color-mix(in_srgb,var(--neon)_75%,transparent)] hover:bg-white hover:text-ink sm:w-auto sm:px-8"
         disabled={status === "sending"}
       >
         {status === "sending" ? "Enviando…" : "Quiero acceso anticipado"}

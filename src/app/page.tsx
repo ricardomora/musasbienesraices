@@ -7,7 +7,7 @@ import { SiteFooter } from "@/components/landing/site-footer";
 
 export default function Home() {
   return (
-    <main className="flex-1">
+    <main className="relative flex-1 overflow-x-hidden">
       <Hero />
       <Problem />
       <Difference />
