@@ -8,7 +8,9 @@ type TextRevealProps = {
   className?: string;
   as?: "h1" | "h2" | "h3" | "p" | "span";
   delay?: number;
+  stagger?: number;
   mode?: "words" | "lines";
+  trigger?: "view" | "mount";
 };
 
 export function TextReveal({
@@ -16,7 +18,9 @@ export function TextReveal({
   className,
   as: Tag = "p",
   delay = 0,
+  stagger = 0.055,
   mode = "words",
+  trigger = "view",
 }: TextRevealProps) {
   const reduce = useReducedMotion();
   const parts =
@@ -26,21 +30,34 @@ export function TextReveal({
     return <Tag className={className}>{text}</Tag>;
   }
 
+  const motionProps =
+    trigger === "mount"
+      ? {
+          initial: { y: "118%", opacity: 0 },
+          animate: { y: "0%", opacity: 1 },
+        }
+      : {
+          initial: { y: "118%", opacity: 0 },
+          whileInView: { y: "0%", opacity: 1 },
+          viewport: { once: true, amount: 0.55 },
+        };
+
   return (
     <Tag className={cn(className)}>
       <span className="sr-only">{text}</span>
       <span aria-hidden className="flex flex-wrap">
         {parts.map((part, index) => (
-          <span key={`${part}-${index}`} className="overflow-hidden inline-block">
+          <span
+            key={`${part}-${index}`}
+            className="overflow-hidden inline-block [clip-path:inset(0_-2%_-8%_-2%)]"
+          >
             <motion.span
               className="inline-block will-change-transform"
-              initial={{ y: "110%", opacity: 0 }}
-              whileInView={{ y: "0%", opacity: 1 }}
-              viewport={{ once: true, amount: 0.6 }}
+              {...motionProps}
               transition={{
-                duration: 0.75,
-                delay: delay + index * 0.045,
-                ease: [0.22, 1, 0.36, 1],
+                duration: 0.95,
+                delay: delay + index * stagger,
+                ease: [0.16, 1, 0.3, 1],
               }}
             >
               {part}

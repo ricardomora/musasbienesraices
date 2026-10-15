@@ -1,29 +1,80 @@
 "use client";
 
+import Image from "next/image";
+import { useLayoutEffect, useRef } from "react";
+import { useReducedMotion } from "framer-motion";
+import { getGsap } from "@/lib/gsap-client";
 import { Reveal } from "@/components/motion/reveal";
 import { TextReveal } from "@/components/motion/text-reveal";
-import { NeonField } from "@/components/motion/neon-field";
 import { LeadForm } from "@/components/lead-form";
 
 export function Cta() {
+  const rootRef = useRef<HTMLElement>(null);
+  const mediaRef = useRef<HTMLDivElement>(null);
+  const reduce = useReducedMotion();
+
+  useLayoutEffect(() => {
+    if (reduce || !rootRef.current || !mediaRef.current) return;
+    const { gsap } = getGsap();
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        mediaRef.current,
+        { scale: 1.12, yPercent: -4 },
+        {
+          scale: 1,
+          yPercent: 4,
+          ease: "none",
+          scrollTrigger: {
+            trigger: rootRef.current,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: true,
+          },
+        },
+      );
+    }, rootRef);
+    return () => ctx.revert();
+  }, [reduce]);
+
   return (
-    <section id="acceso" className="relative overflow-hidden py-20 sm:py-28">
-      <NeonField />
+    <section
+      ref={rootRef}
+      id="acceso"
+      className="relative overflow-hidden py-24 sm:py-32"
+    >
+      <div className="absolute inset-0">
+        <div ref={mediaRef} className="absolute inset-[-8%]">
+          <Image
+            src="/villa-dusk.png"
+            alt=""
+            fill
+            className="object-cover object-[50%_35%] opacity-45"
+            sizes="100vw"
+            aria-hidden
+          />
+        </div>
+        <div className="absolute inset-0 bg-background/75 backdrop-blur-[2px]" aria-hidden />
+        <div
+          className="absolute inset-0 bg-gradient-to-b from-background via-background/80 to-background"
+          aria-hidden
+        />
+      </div>
+
       <div className="relative mx-auto grid max-w-6xl gap-12 px-5 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start lg:gap-16">
         <div>
           <Reveal>
-            <p className="text-sm font-medium tracking-[0.18em] text-neon/90 uppercase">
+            <p className="text-xs font-medium tracking-[0.22em] text-neon uppercase">
               Acceso anticipado
             </p>
           </Reveal>
           <TextReveal
             as="h2"
             text="Sé de las primeras personas en vender con Musas."
-            className="mt-3 font-display text-3xl leading-tight tracking-tight text-foreground sm:text-4xl"
-            delay={0.06}
+            className="mt-4 font-display text-[clamp(2rem,4.5vw,3.25rem)] leading-tight tracking-tight text-white"
+            delay={0.05}
           />
           <Reveal delay={0.12}>
-            <p className="mt-5 max-w-md text-base leading-relaxed text-muted-foreground sm:text-lg">
+            <p className="mt-5 max-w-md text-base leading-relaxed text-white/65 sm:text-lg">
               Estamos construyendo la primera versión. Déjanos tu correo y te
               avisamos cuando puedas publicar — sin compromiso y sin llamadas
               insistentes.
