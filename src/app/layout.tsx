@@ -20,19 +20,24 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Musas Bienes Raíces — Vende sin abusos",
+  title: {
+    default: "Musas Bienes Raíces",
+    template: "%s · Musas",
+  },
   description:
-    "Musas simplifica y revoluciona la venta de propiedades. Publica, conecta y cierra con claridad — sin comisiones opacas ni presión de las inmobiliarias de siempre.",
+    "Musas simplifica la compra y venta de propiedades en Venezuela: claridad, control y trato justo.",
   openGraph: {
     title: "Musas Bienes Raíces",
     description:
-      "La forma justa y moderna de vender propiedades en Latinoamérica.",
-    locale: "es_LA",
+      "La forma justa y moderna de encontrar y publicar propiedades.",
+    locale: "es_VE",
     type: "website",
   },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html
       lang="es"

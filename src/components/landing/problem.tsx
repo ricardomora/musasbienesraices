@@ -4,29 +4,24 @@ import Image from "next/image";
 import { useLayoutEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { getGsap } from "@/lib/gsap-client";
+import { MediaOverlay } from "./media-overlay";
 
 const STAGES = [
   {
     kicker: "01 — Opacidad",
     title: "Te cobran de más y te explican de menos.",
-    body: "Comisiones que aparecen tarde, letra chica y presión para bajar el precio. Vender no debería sentirse como negociar contra tu propio lado.",
+    body: "Comisiones tardías, letra chica y presión para bajar el precio. Vender no debería sentirse como negociar contra tu propio lado.",
   },
   {
-    kicker: "02 — Ruido",
-    title: "Portales saturados donde tu casa desaparece.",
-    body: "Listados infinitos, leads fríos y cero claridad sobre quién mira tu propiedad — o por qué nunca contestan.",
-  },
-  {
-    kicker: "03 — Ceguera",
-    title: "Procesos largos sin mapa en la mano.",
-    body: "Nunca sabes en qué etapa estás. Musas existe para que el proceso sea visible, justo y bajo tu control.",
+    kicker: "02 — Ceguera",
+    title: "Portales saturados y procesos sin mapa.",
+    body: "Tu casa se pierde en el ruido y nunca sabes en qué etapa estás. Musas existe para que el proceso sea visible y justo.",
   },
 ];
 
 export function Problem() {
   const rootRef = useRef<HTMLElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
-  const imageRef = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
   const [stage, setStage] = useState(0);
 
@@ -35,13 +30,13 @@ export function Problem() {
     const { gsap } = getGsap();
 
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({
+      gsap.timeline({
         scrollTrigger: {
           trigger: rootRef.current,
           start: "top top",
-          end: "+=260%",
+          end: "+=140%",
           pin: pinRef.current,
-          scrub: 0.8,
+          scrub: 0.7,
           anticipatePin: 1,
           onUpdate: (self) => {
             const next = Math.min(
@@ -52,15 +47,6 @@ export function Problem() {
           },
         },
       });
-
-      if (imageRef.current) {
-        tl.fromTo(
-          imageRef.current,
-          { scale: 1.28, xPercent: 4 },
-          { scale: 1.02, xPercent: -2, ease: "none" },
-          0,
-        );
-      }
     }, rootRef);
 
     return () => ctx.revert();
@@ -80,38 +66,31 @@ export function Problem() {
         className="relative flex min-h-[100svh] items-center overflow-hidden"
       >
         <div className="absolute inset-0">
-          <div ref={imageRef} className="absolute inset-[-10%]">
+          <div className="absolute inset-0 w-full">
             <Image
               src="/villa-day.png"
               alt="Villa de día con piscina y montañas"
               fill
-              className="object-cover object-center"
+              quality={96}
+              className="h-full w-full object-cover object-[50%_40%]"
               sizes="100vw"
-              priority={false}
             />
           </div>
-          <div
-            className="absolute inset-0 bg-gradient-to-r from-ink/92 via-ink/70 to-ink/25"
-            aria-hidden
-          />
-          <div
-            className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-ink/40"
-            aria-hidden
-          />
+          <MediaOverlay />
         </div>
 
         <div className="relative z-10 mx-auto grid w-full max-w-6xl gap-10 px-5 py-24 sm:px-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
-          <div className="min-h-[16rem]">
+          <div className="min-h-[14rem]">
             <p className="text-xs font-medium tracking-[0.22em] text-neon uppercase">
               El mercado de siempre
             </p>
             <AnimatePresence mode="wait">
               <motion.div
                 key={active.kicker}
-                initial={reduce ? false : { opacity: 0, y: 28 }}
+                initial={reduce ? false : { opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={reduce ? undefined : { opacity: 0, y: -18 }}
-                transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                exit={reduce ? undefined : { opacity: 0, y: -16 }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
               >
                 <p className="mt-5 text-sm tracking-[0.16em] text-white/55 uppercase">
                   {active.kicker}
@@ -119,7 +98,7 @@ export function Problem() {
                 <h2 className="mt-3 max-w-xl font-display text-3xl leading-tight tracking-tight text-white sm:text-5xl">
                   {active.title}
                 </h2>
-                <p className="mt-5 max-w-md text-base leading-relaxed text-white/72 sm:text-lg">
+                <p className="mt-5 max-w-md text-base leading-relaxed text-white/80 sm:text-lg">
                   {active.body}
                 </p>
               </motion.div>
@@ -137,7 +116,7 @@ export function Problem() {
                   className="h-full bg-neon"
                   animate={{ scaleX: index <= stage ? 1 : 0 }}
                   style={{ originX: 0 }}
-                  transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                 />
               </div>
             ))}

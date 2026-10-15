@@ -4,29 +4,24 @@ import Image from "next/image";
 import { useLayoutEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { getGsap } from "@/lib/gsap-client";
+import { MediaOverlay } from "./media-overlay";
 
 const STEPS = [
   {
     n: "01",
     title: "Creas el listado en minutos",
-    body: "Fotos reales, precio y condiciones que tú eliges — sin que nadie te empuje a firmar de prisa.",
+    body: "Fotos reales, precio y condiciones que tú eliges — sin presión para firmar de prisa.",
   },
   {
     n: "02",
-    title: "Recibes interés filtrado",
-    body: "Menos ruido, más conversaciones serias. Ves quién mira y por qué importa.",
-  },
-  {
-    n: "03",
-    title: "Cierras con historial claro",
-    body: "El mismo mapa para ti y para el comprador. Cada movimiento queda a la vista.",
+    title: "Conectas y cierras con mapa claro",
+    body: "Interés filtrado e historial visible: el mismo recorrido para ti y para quien compra.",
   },
 ];
 
 export function Promise() {
   const rootRef = useRef<HTMLElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
-  const mediaRef = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
   const [index, setIndex] = useState(0);
 
@@ -39,9 +34,9 @@ export function Promise() {
         scrollTrigger: {
           trigger: rootRef.current,
           start: "top top",
-          end: "+=220%",
+          end: "+=120%",
           pin: pinRef.current,
-          scrub: 0.75,
+          scrub: 0.65,
           anticipatePin: 1,
           onUpdate: (self) => {
             const next = Math.min(
@@ -52,24 +47,6 @@ export function Promise() {
           },
         },
       });
-
-      if (mediaRef.current) {
-        gsap.fromTo(
-          mediaRef.current,
-          { scale: 1.18, clipPath: "inset(8% 8% 8% 8%)" },
-          {
-            scale: 1.02,
-            clipPath: "inset(0% 0% 0% 0%)",
-            ease: "none",
-            scrollTrigger: {
-              trigger: rootRef.current,
-              start: "top top",
-              end: "+=220%",
-              scrub: 0.75,
-            },
-          },
-        );
-      }
     }, rootRef);
 
     return () => ctx.revert();
@@ -89,23 +66,17 @@ export function Promise() {
         className="relative flex min-h-[100svh] items-center overflow-hidden"
       >
         <div className="absolute inset-0">
-          <div ref={mediaRef} className="absolute inset-0">
+          <div className="absolute inset-0 w-full">
             <Image
               src="/penthouse-interior.png"
               alt="Interior luminoso de penthouse con vista panorámica"
               fill
-              className="object-cover object-center"
+              quality={96}
+              className="h-full w-full object-cover object-[45%_40%]"
               sizes="100vw"
             />
           </div>
-          <div
-            className="absolute inset-0 bg-gradient-to-r from-ink/90 via-ink/55 to-ink/30"
-            aria-hidden
-          />
-          <div
-            className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-ink/30"
-            aria-hidden
-          />
+          <MediaOverlay />
         </div>
 
         <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col justify-end px-5 py-24 sm:px-8">
@@ -116,14 +87,14 @@ export function Promise() {
             Publica. Conecta. Cierra — con el mismo mapa.
           </h2>
 
-          <div className="mt-12 min-h-[9rem]">
+          <div className="mt-10 min-h-[8rem]">
             <AnimatePresence mode="wait">
               <motion.div
                 key={step.n}
-                initial={reduce ? false : { opacity: 0, y: 30 }}
+                initial={reduce ? false : { opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={reduce ? undefined : { opacity: 0, y: -20 }}
-                transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                exit={reduce ? undefined : { opacity: 0, y: -16 }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                 className="flex gap-5"
               >
                 <span className="font-display text-4xl text-neon tabular-nums sm:text-5xl">
@@ -133,7 +104,7 @@ export function Promise() {
                   <h3 className="font-display text-2xl text-white sm:text-3xl">
                     {step.title}
                   </h3>
-                  <p className="mt-3 max-w-lg text-base leading-relaxed text-white/70 sm:text-lg">
+                  <p className="mt-3 max-w-lg text-base leading-relaxed text-white/80 sm:text-lg">
                     {step.body}
                   </p>
                 </div>
@@ -141,17 +112,17 @@ export function Promise() {
             </AnimatePresence>
           </div>
 
-          <div className="mt-10 flex gap-2">
+          <div className="mt-8 flex gap-2">
             {STEPS.map((s, i) => (
               <div
                 key={s.n}
-                className="h-[2px] flex-1 max-w-24 overflow-hidden bg-white/15"
+                className="h-[2px] max-w-24 flex-1 overflow-hidden bg-white/15"
               >
                 <motion.div
                   className="h-full bg-neon"
                   animate={{ scaleX: i <= index ? 1 : 0 }}
                   style={{ originX: 0 }}
-                  transition={{ duration: 0.35 }}
+                  transition={{ duration: 0.3 }}
                 />
               </div>
             ))}

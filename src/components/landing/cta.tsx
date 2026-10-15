@@ -1,66 +1,30 @@
 "use client";
 
 import Image from "next/image";
-import { useLayoutEffect, useRef } from "react";
-import { useReducedMotion } from "framer-motion";
-import { getGsap } from "@/lib/gsap-client";
 import { Reveal } from "@/components/motion/reveal";
 import { TextReveal } from "@/components/motion/text-reveal";
 import { LeadForm } from "@/components/lead-form";
+import { MediaOverlay } from "./media-overlay";
 
 export function Cta() {
-  const rootRef = useRef<HTMLElement>(null);
-  const mediaRef = useRef<HTMLDivElement>(null);
-  const reduce = useReducedMotion();
-
-  useLayoutEffect(() => {
-    if (reduce || !rootRef.current || !mediaRef.current) return;
-    const { gsap } = getGsap();
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        mediaRef.current,
-        { scale: 1.12, yPercent: -4 },
-        {
-          scale: 1,
-          yPercent: 4,
-          ease: "none",
-          scrollTrigger: {
-            trigger: rootRef.current,
-            start: "top bottom",
-            end: "bottom top",
-            scrub: true,
-          },
-        },
-      );
-    }, rootRef);
-    return () => ctx.revert();
-  }, [reduce]);
-
   return (
-    <section
-      ref={rootRef}
-      id="acceso"
-      className="relative overflow-hidden py-24 sm:py-32"
-    >
+    <section id="acceso" className="relative overflow-hidden py-24 sm:py-32">
       <div className="absolute inset-0">
-        <div ref={mediaRef} className="absolute inset-[-8%]">
+        <div className="absolute inset-0 w-full">
           <Image
-            src="/villa-dusk.png"
+            src="/home-hero.jpg"
             alt=""
             fill
-            className="object-cover object-[50%_35%] opacity-45"
+            quality={96}
+            className="h-full w-full object-cover object-[55%_40%]"
             sizes="100vw"
             aria-hidden
           />
         </div>
-        <div className="absolute inset-0 bg-background/75 backdrop-blur-[2px]" aria-hidden />
-        <div
-          className="absolute inset-0 bg-gradient-to-b from-background via-background/80 to-background"
-          aria-hidden
-        />
+        <MediaOverlay />
       </div>
 
-      <div className="relative mx-auto grid max-w-6xl gap-12 px-5 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start lg:gap-16">
+      <div className="relative z-10 mx-auto grid max-w-6xl gap-12 px-5 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start lg:gap-16">
         <div>
           <Reveal>
             <p className="text-xs font-medium tracking-[0.22em] text-neon uppercase">
@@ -74,7 +38,7 @@ export function Cta() {
             delay={0.05}
           />
           <Reveal delay={0.12}>
-            <p className="mt-5 max-w-md text-base leading-relaxed text-white/65 sm:text-lg">
+            <p className="mt-5 max-w-md text-base leading-relaxed text-white/75 sm:text-lg">
               Estamos construyendo la primera versión. Déjanos tu correo y te
               avisamos cuando puedas publicar — sin compromiso y sin llamadas
               insistentes.

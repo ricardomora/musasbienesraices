@@ -6,47 +6,30 @@ import { motion, useReducedMotion } from "framer-motion";
 import { getGsap } from "@/lib/gsap-client";
 import { LetterReveal } from "@/components/motion/letter-reveal";
 import { TextReveal } from "@/components/motion/text-reveal";
+import { MediaOverlay } from "./media-overlay";
 import { SiteHeader } from "./site-header";
 
 export function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
-  const mediaRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
 
   useLayoutEffect(() => {
-    if (reduce || !sectionRef.current || !mediaRef.current) return;
+    if (reduce || !sectionRef.current || !contentRef.current) return;
     const { gsap, ScrollTrigger } = getGsap();
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        mediaRef.current,
-        { scale: 1.22, yPercent: 0 },
-        {
-          scale: 1.02,
-          yPercent: 8,
-          ease: "none",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top top",
-            end: "bottom top",
-            scrub: 0.65,
-          },
+      // Content drift only — no image scale (keeps photo nítida)
+      gsap.to(contentRef.current, {
+        yPercent: 14,
+        opacity: 0.2,
+        ease: "none",
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
         },
-      );
-
-      if (contentRef.current) {
-        gsap.to(contentRef.current, {
-          yPercent: 18,
-          opacity: 0.15,
-          ease: "none",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top top",
-            end: "bottom top",
-            scrub: true,
-          },
-        });
-      }
+      });
     }, sectionRef);
 
     return () => {
@@ -61,29 +44,23 @@ export function Hero() {
     <section
       ref={sectionRef}
       id="inicio"
-      className="relative flex min-h-[100svh] flex-col overflow-hidden"
+      className="relative flex min-h-[108svh] flex-col overflow-hidden"
       aria-label="Presentación Musas"
     >
       <div className="absolute inset-0 overflow-hidden">
-        <div ref={mediaRef} className="absolute inset-[-8%]">
+        <div className="absolute inset-0 w-full">
           <Image
-            src="/villa-dusk.png"
+            src="/home-hero.jpg"
             alt="Villa moderna al atardecer con piscina infinita y vista a la ciudad"
             fill
             priority
-            className="object-cover object-[58%_40%]"
+            quality={97}
+            unoptimized={false}
+            className="h-full w-full object-cover object-[62%_38%] [image-rendering:auto]"
             sizes="100vw"
           />
         </div>
-        <div
-          className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-ink/40"
-          aria-hidden
-        />
-        <div
-          className="absolute inset-0 bg-gradient-to-r from-ink/75 via-ink/25 to-transparent"
-          aria-hidden
-        />
-        <div className="grain absolute inset-0" aria-hidden />
+        <MediaOverlay />
       </div>
 
       <SiteHeader />
@@ -128,10 +105,10 @@ export function Hero() {
             Pedir acceso anticipado
           </a>
           <a
-            href="#experiencia"
+            href="#inmuebles"
             className="interactive-surface inline-flex h-12 items-center justify-center rounded-md border border-white/25 bg-white/5 px-7 text-sm font-medium text-white backdrop-blur-md hover:border-neon/45 hover:bg-white/10"
           >
-            Ver la experiencia
+            Ver inmuebles
           </a>
         </motion.div>
       </div>
