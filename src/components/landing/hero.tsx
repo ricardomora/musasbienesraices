@@ -54,7 +54,7 @@ export function Hero() {
             alt="Villa moderna al atardecer con piscina infinita y vista a la ciudad"
             fill
             priority
-            quality={97}
+            quality={100}
             unoptimized={false}
             className="h-full w-full object-cover object-[62%_38%] [image-rendering:auto]"
             sizes="100vw"

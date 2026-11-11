@@ -40,12 +40,12 @@ const LISTINGS: Listing[] = [
     type: "casas",
     image: "/home-hero.jpg",
     badge: "Selección Musas",
-    location: "El Poblado, Medellín",
-    title: "Casa Mirador",
-    price: "$ 2.450.000.000 COP",
+    location: "Los Palos Grandes, Caracas",
+    title: "Casa Ávila",
+    price: "USD 485.000",
     beds: 4,
-    baths: 5,
-    area: 420,
+    baths: 4,
+    area: 380,
     alt: "Casa moderna al atardecer con piscina infinita",
   },
   {
@@ -53,25 +53,25 @@ const LISTINGS: Listing[] = [
     type: "apartamentos",
     image: "/penthouse-interior.png",
     badge: "Nuevo en Musas",
-    location: "Rosales, Bogotá",
-    title: "Penthouse Altura",
-    price: "$ 1.890.000.000 COP",
+    location: "Altamira, Caracas",
+    title: "Apartamento Altamira",
+    price: "USD 220.000",
     beds: 3,
-    baths: 3,
-    area: 280,
-    alt: "Interior de penthouse con vista a la ciudad",
+    baths: 2,
+    area: 145,
+    alt: "Interior de apartamento con vista a la ciudad",
   },
   {
     id: "botanica",
     type: "casas",
     image: "/villa-day.png",
     badge: "Selección Musas",
-    location: "Santa Fe, Ciudad de México",
-    title: "Casa Botánica",
-    price: "$ 3.100.000.000 COP",
+    location: "El Recreo, Valencia",
+    title: "Casa Jardín",
+    price: "USD 310.000",
     beds: 5,
     baths: 4,
-    area: 510,
+    area: 410,
     alt: "Villa de día con jardín tropical y piscina",
   },
 ];
@@ -116,10 +116,10 @@ export function Listings() {
           </Reveal>
           <Reveal delay={0.08}>
             <a
-              href="#acceso"
+              href="/"
               className="interactive-surface inline-flex items-center gap-2 text-sm text-white/75 hover:text-neon"
             >
-              Ver todos los inmuebles
+              Explorar en Musas
               <ArrowUpRight className="size-4" aria-hidden />
             </a>
           </Reveal>
@@ -186,7 +186,7 @@ export function Listings() {
                   src={listing.image}
                   alt={listing.alt}
                   fill
-                  quality={95}
+                  quality={100}
                   className="h-full w-full object-cover object-center"
                   sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
                 />
@@ -250,10 +250,10 @@ export function Listings() {
                   Ficha completa
                 </span>
                 <a
-                  href="#acceso"
+                  href="/"
                   className="interactive-surface inline-flex items-center gap-1.5 text-white hover:text-neon"
                 >
-                  Ver inmueble
+                  Ver en el marketplace
                   <ArrowUpRight className="size-3.5" aria-hidden />
                 </a>
               </div>

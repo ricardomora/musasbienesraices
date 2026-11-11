@@ -9,9 +9,9 @@ import { SiteFooter } from "@/components/landing/site-footer";
 import { ScrollProgress } from "@/components/motion/scroll-progress";
 
 export const metadata: Metadata = {
-  title: "Musas Bienes Raíces — Landing",
+  title: "Musas — Vende sin el abuso de siempre",
   description:
-    "La historia cinematográfica de Musas: vende sin abusos, con claridad y control de punta a punta.",
+    "Musas Venezuela: publica en USD, con claridad y control. Acceso anticipado.",
 };
 
 export default function LandingPage() {

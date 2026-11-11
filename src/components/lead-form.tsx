@@ -93,7 +93,7 @@ export function LeadForm() {
           id="city"
           name="city"
           autoComplete="address-level2"
-          placeholder="Ciudad de México"
+          placeholder="Caracas"
           disabled={status === "sending"}
           className="interactive-surface border-white/10 bg-background/40"
         />
@@ -104,7 +104,7 @@ export function LeadForm() {
           id="message"
           name="message"
           rows={3}
-          placeholder="Departamento en Polanco, casa en GDL, terreno…"
+          placeholder="Apto en Altamira, casa en Valencia, terreno en Lechería…"
           disabled={status === "sending"}
           className="interactive-surface border-white/10 bg-background/40"
         />

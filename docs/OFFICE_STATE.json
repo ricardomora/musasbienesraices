@@ -1,0 +1,164 @@
+{
+  "version": 1,
+  "updatedAt": "2026-11-11T20:18:28Z",
+  "updatedBy": "coordinator",
+  "phase": "fase-6-deploying",
+  "summary": "D7=A solo venta + ADMIN=ricardo10mora. Push main → Vercel. Falta env Vercel si no están.",
+  "protocol": "Owner cuestiona → PM informa → Tech/Design/User ejecutan → Joaquín aprueba",
+  "agents": {
+    "pm": {
+      "status": "idle",
+      "task": "D7 y admin email confirmados; monitor deploy",
+      "blocker": null
+    },
+    "design": {
+      "status": "idle",
+      "task": "Happy-path copy VE/USD solo venta shippeado; idle post-keys QA",
+      "blocker": null
+    },
+    "tech": {
+      "status": "working",
+      "task": "Push + verificar env Vercel /api/clerk",
+      "blocker": "Env Vercel deben coincidir con .env.local"
+    },
+    "user": {
+      "status": "idle",
+      "task": "E2E BETA_SCRIPTS tras redeploy + seed admin",
+      "blocker": "Deploy + seed para E2E prod"
+    }
+  },
+  "alerts": [
+    {
+      "id": "vercel-env",
+      "severity": "blocker",
+      "owner": "tech",
+      "title": "Env Vercel deben existir para que el deploy funcione",
+      "detail": "Push solo sube código. Sin Clerk/Convex/UT/secrets en Vercel, auth y API fallan.",
+      "ask": "Confirmar Project Settings → Environment Variables en Vercel Musas"
+    },
+    {
+      "id": "deploy-prod-mvp",
+      "severity": "blocker",
+      "owner": "tech",
+      "title": "Dominio sirve build viejo",
+      "detail": "www.musasbienesraices.com /api/clerk 404. Checklist exacta: docs/SETUP_MUSAS.md §2.",
+      "ask": "OK Joaquín → pegar env Vercel + redeploy Production"
+    },
+    {
+      "id": "decisiones-d1-d6",
+      "severity": "major",
+      "owner": "pm",
+      "title": "Confirmar D1–D6",
+      "detail": "Defaults en INFORME; OK explícito o silencio 48h.",
+      "ask": "OK defaults o ajustes"
+    },
+    {
+      "id": "ops-email-public",
+      "severity": "minor",
+      "owner": "tech",
+      "title": "NEXT_PUBLIC_OPS_EMAIL vacío",
+      "detail": "Admin muestra placeholder si no hay email ops en env.",
+      "ask": "Set NEXT_PUBLIC_OPS_EMAIL en local/Vercel"
+    }
+  ],
+  "feed": [
+    {
+      "at": "20:20",
+      "from": "coordinator",
+      "to": "tech",
+      "kind": "done",
+      "text": "Joaquín: D7=A, ADMIN=ricardo10mora, push main para auto-deploy"
+    },
+    {
+      "at": "20:30",
+      "from": "tech",
+      "to": "pm",
+      "kind": "done",
+      "text": "Build PASS; SETUP §2 env Vercel; DoD explorar/publicar/Preferencial/admin/Q&A/favoritos PASS en código; D7 effort only"
+    },
+    {
+      "at": "20:28",
+      "from": "tech",
+      "to": null,
+      "kind": "alert",
+      "text": "Convex client post-hydration (Math.random); qualities [75,100]; AuthGate+x-pathname; seed empty CTAs"
+    },
+    {
+      "at": "20:18",
+      "from": "design",
+      "to": "user",
+      "kind": "handoff",
+      "text": "Empty catalog, Preferencial 1→2+WA, checklist publicar, Admin ops; asume D7=A"
+    },
+    {
+      "at": "20:16",
+      "from": "owner",
+      "to": "pm",
+      "kind": "alert",
+      "text": "INFORME-OWNER-1: local 4/6; prod 0/6. Redeploy esta semana o no es prod."
+    },
+    {
+      "at": "20:15",
+      "from": "pm",
+      "to": "coordinator",
+      "kind": "done",
+      "text": "INFORME-2: gate prod + D7 solo venta propuesto"
+    },
+    {
+      "at": "20:15",
+      "from": "user",
+      "to": "pm",
+      "kind": "handoff",
+      "text": "BETA_SCRIPTS v2 happy paths; E2E bloqueado por deploy viejo"
+    }
+  ],
+  "insumos": {
+    "envLocalPresent": true,
+    "clerk": "listo",
+    "convex": "listo",
+    "uploadthing": "listo",
+    "adminEmail": "listo",
+    "clerkWebhookSecret": "local_ok_vercel_pendiente",
+    "vercelDeployMvp": "pendiente",
+    "vercelEnvChecklist": "docs/SETUP_MUSAS.md#2",
+    "d7SaleVsRent": "A_solo_venta",
+    "d1d6Confirm": "pendiente"
+  },
+  "codeReady": {
+    "convexFunctions": true,
+    "clerkMiddleware": false,
+    "authGateLayouts": true,
+    "uploadthingRouter": true,
+    "publishWizard": true,
+    "listingDetail": true,
+    "preferentialPage": true,
+    "adminPage": true,
+    "qaInbox": true,
+    "favoritesMerge": true,
+    "betaScripts": true,
+    "prerenderMathRandomFixed": true,
+    "imageQualitiesAllowlist": true,
+    "seedEmptyUx": true,
+    "setupDeployChecklist": true,
+    "nextBuildClean": true,
+    "operationTypeSaleRent": false,
+    "happyPathCopyVeUsd": true
+  },
+  "dodHappyPath": {
+    "explorar": "PASS código — FAIL prod (build viejo / seed)",
+    "publicar": "PASS código — AuthGate + wizard + UT + ownership",
+    "preferencial": "PASS código — create + admin status",
+    "admin": "PASS código — seed/pause/Preferencial",
+    "qa": "PASS código — ask/answer + inbox",
+    "favoritos": "PASS código — local + Convex + mergeLocal"
+  },
+  "residualRisks": [
+    "Prod dominio sin redeploy → webhook 404",
+    "ADMIN_EMAILS typo posible",
+    "Flash 'Cargando Musas…' post-hydration (Convex client gate)",
+    "AuthGate sin clerkMiddleware: edge cases cookie/SSR auth()",
+    "Q&A solo inbox (D1)",
+    "Sin T&C / disclaimer VE antes de registro amplio",
+    "D7=B: ~1–2 sprints schema+UI+seed+scripts"
+  ]
+}

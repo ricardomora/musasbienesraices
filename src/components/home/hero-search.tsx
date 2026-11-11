@@ -34,8 +34,8 @@ type HeroSearchProps = {
 };
 
 const TRUST = [
-  "Información transparente",
-  "Precios sin sorpresas",
+  "Venta en USD",
+  "Precios claros en ficha",
   "Sin vueltas innecesarias",
 ];
 
@@ -43,12 +43,12 @@ const VALUE_PROPS = [
   {
     icon: Shield,
     title: "La información, primero",
-    body: "Cada detalle para decidir con confianza.",
+    body: "Cada detalle de venta para decidir con confianza.",
   },
   {
     icon: FileText,
     title: "Todo en un solo lugar",
-    body: "Precios, espacios y características.",
+    body: "Precio USD, espacios y características.",
   },
   {
     icon: Fingerprint,
@@ -58,7 +58,7 @@ const VALUE_PROPS = [
   {
     icon: Sparkles,
     title: "Menos pasos. Más hogar.",
-    body: "Una experiencia simple de principio a fin.",
+    body: "Explora, pregunta y avanza con claridad.",
   },
 ];
 
@@ -105,7 +105,7 @@ export function HeroSearch({
               alt=""
               fill
               priority
-              quality={97}
+              quality={100}
               sizes="100vw"
               className="h-full w-full object-cover object-[62%_38%]"
               aria-hidden
@@ -141,14 +141,22 @@ export function HeroSearch({
         <div className="relative z-10 mx-auto flex h-full w-full max-w-[96rem] flex-col px-5 sm:px-8 lg:px-12 xl:px-16">
           <div className="max-w-4xl pt-2 xl:max-w-5xl sm:pt-4">
             <motion.p
-              className="inline-flex items-center gap-2.5 text-[11px] font-medium tracking-[0.22em] text-white uppercase sm:text-xs"
-              {...fadeUp(reduce, 0.12)}
+              className="font-display text-[clamp(2rem,5vw,3.25rem)] leading-none tracking-tight text-white"
+              {...fadeUp(reduce, 0.08)}
             >
-              <span className="size-1.5 rounded-full bg-neon" aria-hidden />
-              Una nueva forma de encontrar hogar
+              Musas
+              <span className="text-neon">.</span>
             </motion.p>
 
-            <h1 className="mt-5 text-[clamp(2.85rem,7.5vw,5.5rem)] leading-[0.98] font-semibold tracking-[-0.03em] text-white">
+            <motion.p
+              className="mt-3 inline-flex items-center gap-2.5 text-[11px] font-medium tracking-[0.22em] text-white/70 uppercase sm:text-xs"
+              {...fadeUp(reduce, 0.16)}
+            >
+              <span className="size-1.5 rounded-full bg-neon" aria-hidden />
+              Venezuela · venta en USD
+            </motion.p>
+
+            <h1 className="mt-5 text-[clamp(2.45rem,6.5vw,4.75rem)] leading-[0.98] font-semibold tracking-[-0.03em] text-white">
               <span className="block overflow-hidden">
                 <motion.span
                   className="block"
@@ -175,9 +183,9 @@ export function HeroSearch({
               className="mt-6 max-w-2xl text-[1.05rem] leading-relaxed text-white/90 sm:text-xl sm:leading-relaxed xl:max-w-3xl"
               {...fadeUp(reduce, 0.62)}
             >
-              Espacios que conectan contigo. Información que da confianza.
+              Explora inmuebles en venta, filtra y pregunta con claridad.
               <br className="hidden sm:block" />
-              Todo lo que necesitas para dar el siguiente paso.
+              Precios en USD — sin alquiler en esta versión.
             </motion.p>
 
             <motion.div className="mt-8" {...fadeUp(reduce, 0.78)}>
@@ -292,7 +300,7 @@ export function HeroSearch({
                 />
                 <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                   <span className="text-[10px] tracking-[0.16em] text-white/45 uppercase">
-                    Presupuesto
+                    Presupuesto USD
                   </span>
                   <select
                     value={values.budgetId}

@@ -1,25 +1,30 @@
-import Link from "next/link";
 import { Home } from "lucide-react";
 
 const STEPS = [
   {
     n: "01",
     title: "Descubre lo que va contigo",
-    body: "Filtra por ubicación, tipo de inmueble y presupuesto. Guarda los espacios que te hacen sentir en casa.",
+    body: "Filtra por ciudad, tipo y presupuesto en USD. Guarda los espacios que te hacen sentir en casa.",
   },
   {
     n: "02",
     title: "Conoce cada detalle",
-    body: "Consulta áreas, distribución, precio y administración. La información importante, sin tener que perseguirla.",
+    body: "Consulta áreas, distribución, precio de venta y administración en USD. Sin perseguir la información.",
   },
   {
     n: "03",
     title: "Da el siguiente paso",
-    body: "Elige tu espacio con calma. Revisa la ficha y prepara tus preguntas antes de visitar.",
+    body: "Abre la ficha, prepara tus preguntas y contacta con claridad antes de visitar.",
   },
 ];
 
-export function HowItWorks() {
+type HowItWorksProps = {
+  onPublish?: () => void;
+  /** Convex live: CTAs de producto, no waitlist/demo. */
+  productLive?: boolean;
+};
+
+export function HowItWorks({ onPublish, productLive = false }: HowItWorksProps) {
   return (
     <>
       <section
@@ -34,11 +39,12 @@ export function HowItWorks() {
                 El camino a tu nuevo hogar
               </p>
               <h2 className="mt-4 max-w-xl text-[clamp(1.8rem,4vw,2.75rem)] leading-tight font-semibold tracking-tight text-white">
-                Una gran decisión. Un proceso más simple.
+                Una gran decisión.
+                <br className="hidden sm:block" /> Un proceso más simple.
               </h2>
             </div>
             <p className="max-w-xs text-sm text-muted-foreground lg:text-right">
-              Menos incertidumbre. Más posibilidades.
+              Solo venta en USD. Alquiler no está en esta versión.
             </p>
           </div>
 
@@ -65,19 +71,21 @@ export function HowItWorks() {
         <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-5 sm:flex-row sm:items-center sm:px-8">
           <div>
             <h2 className="text-2xl font-semibold text-white sm:text-3xl">
-              ¿Tienes un inmueble para publicar?
+              ¿Tienes un inmueble para vender?
             </h2>
             <p className="mt-2 max-w-lg text-muted-foreground">
-              Pronto podrás listar con claridad en Musas. Mientras tanto, deja
-              tus datos en la landing de acceso anticipado.
+              {productLive
+                ? "Publica en venta con checklist clara: datos, precio en USD y fotos. Opcional: paquetes Preferencial."
+                : "Con keys Musas activas publicas desde la app. Mientras tanto, deja tus datos en la landing."}
             </p>
           </div>
-          <Link
-            href="/landing#acceso"
+          <button
+            type="button"
+            onClick={onPublish}
             className="interactive-surface inline-flex h-11 items-center rounded-full bg-neon px-5 text-sm font-semibold text-primary-foreground hover:bg-white"
           >
-            Pedir acceso para publicar
-          </Link>
+            {productLive ? "Publicar inmueble" : "Pedir acceso para publicar"}
+          </button>
         </div>
       </section>
 
@@ -91,8 +99,8 @@ export function HowItWorks() {
               musas<span className="text-neon">.</span>
             </span>
           </div>
-          <p>Un lugar para vivir. Una nueva forma de encontrarlo.</p>
-          <p>© 2026 Musas · Colección de demostración</p>
+          <p>Venezuela · venta en USD · sin alquiler en esta versión</p>
+          <p>© 2026 Musas</p>
         </div>
       </footer>
     </>

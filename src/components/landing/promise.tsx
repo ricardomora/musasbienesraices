@@ -71,7 +71,7 @@ export function Promise() {
               src="/penthouse-interior.png"
               alt="Interior luminoso de penthouse con vista panorámica"
               fill
-              quality={96}
+              quality={100}
               className="h-full w-full object-cover object-[45%_40%]"
               sizes="100vw"
             />

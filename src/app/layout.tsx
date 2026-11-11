@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Fraunces, Outfit, Geist_Mono } from "next/font/google";
+import { Providers } from "@/components/providers";
 import "./globals.css";
+
+/** Clerk/Convex in Providers read request runtime; defer Instant Navigation validation until auth is fully Cache-Components shaped. */
+export const instant = false;
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -25,11 +30,11 @@ export const metadata: Metadata = {
     template: "%s · Musas",
   },
   description:
-    "Musas simplifica la compra y venta de propiedades en Venezuela: claridad, control y trato justo.",
+    "Musas: compra y venta de inmuebles en Venezuela con precios claros en USD. Claridad, control y trato justo.",
   openGraph: {
     title: "Musas Bienes Raíces",
     description:
-      "La forma justa y moderna de encontrar y publicar propiedades.",
+      "Encuentra y publica propiedades en venta en Venezuela — precios en USD.",
     locale: "es_VE",
     type: "website",
   },
@@ -43,7 +48,11 @@ export default function RootLayout({
       lang="es"
       className={`dark ${outfit.variable} ${fraunces.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col atmosphere">{children}</body>
+      <body className="flex min-h-full flex-col atmosphere">
+        <Suspense fallback={null}>
+          <Providers>{children}</Providers>
+        </Suspense>
+      </body>
     </html>
   );
 }

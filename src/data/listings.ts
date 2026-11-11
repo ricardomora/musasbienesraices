@@ -16,6 +16,9 @@ export type Listing = {
   areaM2: number;
   image: string;
   alt: string;
+  description: string;
+  administrationUsd: number;
+  features: string[];
 };
 
 export type BudgetOption = {
@@ -25,12 +28,12 @@ export type BudgetOption = {
 };
 
 export const BUDGET_OPTIONS: BudgetOption[] = [
-  { id: "any", label: "Cualquier precio", maxUsd: null },
-  { id: "150", label: "Hasta $150.000", maxUsd: 150_000 },
-  { id: "250", label: "Hasta $250.000", maxUsd: 250_000 },
-  { id: "400", label: "Hasta $400.000", maxUsd: 400_000 },
-  { id: "600", label: "Hasta $600.000", maxUsd: 600_000 },
-  { id: "900", label: "Hasta $900.000", maxUsd: 900_000 },
+  { id: "any", label: "Cualquier precio (USD)", maxUsd: null },
+  { id: "150", label: "Hasta USD 150.000", maxUsd: 150_000 },
+  { id: "250", label: "Hasta USD 250.000", maxUsd: 250_000 },
+  { id: "400", label: "Hasta USD 400.000", maxUsd: 400_000 },
+  { id: "600", label: "Hasta USD 600.000", maxUsd: 600_000 },
+  { id: "900", label: "Hasta USD 900.000", maxUsd: 900_000 },
 ];
 
 export const LISTINGS: Listing[] = [
@@ -48,6 +51,15 @@ export const LISTINGS: Listing[] = [
     areaM2: 380,
     image: "/villa-dusk.png",
     alt: "Casa moderna al atardecer con piscina",
+    description:
+      "Arquitectura que se abre al paisaje. Espacios generosos, terraza con vista al Ávila y piscina privada en uno de los sectores más buscados de Caracas.",
+    administrationUsd: 420,
+    features: [
+      "Piscina privada",
+      "Terraza panorámica",
+      "3 puestos de estacionamiento",
+      "Jardín privado",
+    ],
   },
   {
     id: "apto-altamira",
@@ -63,6 +75,15 @@ export const LISTINGS: Listing[] = [
     areaM2: 145,
     image: "/penthouse-interior.png",
     alt: "Interior luminoso de apartamento",
+    description:
+      "Luz natural en cada rincón. Planta abierta, cocina integrada y balcón amplio a pasos de Plaza Altamira.",
+    administrationUsd: 180,
+    features: [
+      "Balcón amplio",
+      "Cocina integrada",
+      "2 puestos de estacionamiento",
+      "Lobby con vigilancia",
+    ],
   },
   {
     id: "penthouse-chacao",
@@ -78,6 +99,15 @@ export const LISTINGS: Listing[] = [
     areaM2: 260,
     image: "/section-interior.jpg",
     alt: "Penthouse con vista urbana",
+    description:
+      "Vista abierta a la ciudad y acabados contemporáneos. Ideal para quien busca altura, privacidad y una ficha clara de punta a punta.",
+    administrationUsd: 510,
+    features: [
+      "Vista panorámica",
+      "Terraza privada",
+      "Ascensor directo",
+      "2 puestos de estacionamiento",
+    ],
   },
   {
     id: "casa-naguara",
@@ -92,6 +122,15 @@ export const LISTINGS: Listing[] = [
     areaM2: 290,
     image: "/villa-day.png",
     alt: "Casa de día con jardín y piscina",
+    description:
+      "Casa familiar con jardín tropical y áreas sociales integradas. Pensada para vivir con espacio, sin complicaciones.",
+    administrationUsd: 95,
+    features: [
+      "Piscina",
+      "Jardín tropical",
+      "Área de BBQ",
+      "2 puestos de estacionamiento",
+    ],
   },
   {
     id: "apto-el-vifaro",
@@ -107,6 +146,15 @@ export const LISTINGS: Listing[] = [
     areaM2: 98,
     image: "/hero-property.jpg",
     alt: "Fachada residencial moderna",
+    description:
+      "Apartamento práctico y luminoso en un conjunto consolidado. Precio claro, distribución sencilla y listo para visitar.",
+    administrationUsd: 70,
+    features: [
+      "Piso alto",
+      "Áreas comunes",
+      "1 puesto de estacionamiento",
+      "Cerca de servicios",
+    ],
   },
   {
     id: "casa-lago",
@@ -122,6 +170,15 @@ export const LISTINGS: Listing[] = [
     areaM2: 340,
     image: "/villa-dusk.png",
     alt: "Casa con terraza al anochecer",
+    description:
+      "Residencia amplia con terraza y espacios para convivir. Una opción sólida para familias que buscan metro cuadrado real.",
+    administrationUsd: 110,
+    features: [
+      "Terraza",
+      "Sala doble altura",
+      "Estudio",
+      "3 puestos de estacionamiento",
+    ],
   },
   {
     id: "apto-bella-vista",
@@ -136,6 +193,15 @@ export const LISTINGS: Listing[] = [
     areaM2: 110,
     image: "/penthouse-interior.png",
     alt: "Sala moderna con luz natural",
+    description:
+      "Planta eficiente con buena iluminación. Ideal como primer hogar o inversión con información completa desde el inicio.",
+    administrationUsd: 55,
+    features: [
+      "Sala-comedor integrada",
+      "Closets empotrados",
+      "1 puesto de estacionamiento",
+      "Vigilancia 24h",
+    ],
   },
   {
     id: "casa-cabudare",
@@ -150,6 +216,15 @@ export const LISTINGS: Listing[] = [
     areaM2: 240,
     image: "/villa-day.png",
     alt: "Casa blanca con vegetación tropical",
+    description:
+      "Diseño contemporáneo rodeado de vegetación. Espacios sociales conectados al exterior para vivir con calma.",
+    administrationUsd: 40,
+    features: [
+      "Patio interior",
+      "Cocina abierta",
+      "2 puestos de estacionamiento",
+      "Cuarto de servicio",
+    ],
   },
   {
     id: "apto-centro",
@@ -165,6 +240,15 @@ export const LISTINGS: Listing[] = [
     areaM2: 82,
     image: "/section-street.jpg",
     alt: "Edificio residencial en calle urbana",
+    description:
+      "Ubicación céntrica y ficha transparente. Perfecto para quien prioriza acceso, precio claro y un proceso simple.",
+    administrationUsd: 35,
+    features: [
+      "Ubicación céntrica",
+      "Edificio con ascensor",
+      "Cerca del transporte",
+      "Bajo mantenimiento",
+    ],
   },
   {
     id: "casa-andina",
@@ -180,6 +264,15 @@ export const LISTINGS: Listing[] = [
     areaM2: 310,
     image: "/villa-day.png",
     alt: "Residencia con paisaje montañoso",
+    description:
+      "Ambiente andino y espacios generosos. Una casa para desconectar del ritmo urbano sin perder confort.",
+    administrationUsd: 60,
+    features: [
+      "Vista a la montaña",
+      "Chimenea",
+      "Jardín amplio",
+      "2 puestos de estacionamiento",
+    ],
   },
   {
     id: "apto-ordaz",
@@ -194,6 +287,15 @@ export const LISTINGS: Listing[] = [
     areaM2: 125,
     image: "/penthouse-interior.png",
     alt: "Apartamento con vista abierta",
+    description:
+      "Tres habitaciones con buena ventilación y vista abierta. Datos de precio, área y administración en un solo lugar.",
+    administrationUsd: 65,
+    features: [
+      "Vista abierta",
+      "Áreas verdes del conjunto",
+      "2 puestos de estacionamiento",
+      "Depósito",
+    ],
   },
   {
     id: "casa-lecheria",
@@ -209,6 +311,15 @@ export const LISTINGS: Listing[] = [
     areaM2: 360,
     image: "/villa-dusk.png",
     alt: "Casa costera con iluminación cálida",
+    description:
+      "Residencia costera con iluminación cálida y áreas sociales amplias. Pensada para quienes buscan confort frente al mar.",
+    administrationUsd: 280,
+    features: [
+      "Cerca de la playa",
+      "Piscina",
+      "Terraza",
+      "3 puestos de estacionamiento",
+    ],
   },
 ];
 

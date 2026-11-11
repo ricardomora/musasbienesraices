@@ -15,7 +15,7 @@ export function Cta() {
             src="/home-hero.jpg"
             alt=""
             fill
-            quality={96}
+            quality={100}
             className="h-full w-full object-cover object-[55%_40%]"
             sizes="100vw"
             aria-hidden

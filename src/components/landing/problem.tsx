@@ -71,7 +71,7 @@ export function Problem() {
               src="/villa-day.png"
               alt="Villa de día con piscina y montañas"
               fill
-              quality={96}
+              quality={100}
               className="h-full w-full object-cover object-[50%_40%]"
               sizes="100vw"
             />

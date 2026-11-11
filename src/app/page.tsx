@@ -1,11 +1,11 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import { HomeApp } from "@/components/home/home-app";
+import { HomeShell } from "@/components/home/home-shell";
 
 export const metadata: Metadata = {
   title: "Musas — Encuentra tu próximo lugar",
   description:
-    "Explora inmuebles en Venezuela con claridad: filtra por ciudad, tipo y presupuesto en USD. Guarda favoritos y da el siguiente paso sin complicaciones.",
+    "Explora inmuebles en venta en Venezuela: filtra por ciudad, tipo y presupuesto en USD. Guarda favoritos y da el siguiente paso sin complicaciones.",
 };
 
 export default function HomePage() {
@@ -17,7 +17,7 @@ export default function HomePage() {
         </main>
       }
     >
-      <HomeApp />
+      <HomeShell />
     </Suspense>
   );
 }

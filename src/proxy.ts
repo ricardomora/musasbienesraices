@@ -1,0 +1,21 @@
+import { NextResponse, type NextRequest } from "next/server";
+
+/**
+ * Next.js 16 uses `proxy` instead of `middleware`.
+ * clerkMiddleware caused request hangs here; protect routes via AuthGate layouts.
+ * We only stamp x-pathname for AuthGate return URLs (no Clerk in the proxy).
+ */
+export function proxy(request: NextRequest) {
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-pathname", request.nextUrl.pathname);
+  return NextResponse.next({
+    request: { headers: requestHeaders },
+  });
+}
+
+export const config = {
+  matcher: [
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    "/(api|trpc)(.*)",
+  ],
+};

@@ -6,9 +6,14 @@ import { ArrowUpRight, Home } from "lucide-react";
 type HomeHeaderProps = {
   favoriteCount: number;
   onShowFavorites?: () => void;
+  onPublish?: () => void;
 };
 
-export function HomeHeader({ favoriteCount, onShowFavorites }: HomeHeaderProps) {
+export function HomeHeader({
+  favoriteCount,
+  onShowFavorites,
+  onPublish,
+}: HomeHeaderProps) {
   return (
     <header className="absolute inset-x-0 top-0 z-30">
       <div className="mx-auto flex max-w-[96rem] items-center justify-between gap-4 px-5 py-5 sm:px-8 lg:px-12 xl:px-16">
@@ -26,7 +31,7 @@ export function HomeHeader({ favoriteCount, onShowFavorites }: HomeHeaderProps) 
 
         <nav className="hidden items-center gap-8 text-[14px] text-white/80 md:flex">
           <a href="#inmuebles" className="interactive-surface hover:text-white">
-            Explorar inmuebles
+            Explorar
           </a>
           <a
             href="#como-funciona"
@@ -34,22 +39,29 @@ export function HomeHeader({ favoriteCount, onShowFavorites }: HomeHeaderProps) 
           >
             Cómo funciona
           </a>
+          <Link
+            href="/preferencial"
+            className="interactive-surface hover:text-white"
+          >
+            Preferencial
+          </Link>
           <button
             type="button"
             onClick={onShowFavorites}
             className="interactive-surface hover:text-white"
           >
-            Mis favoritos ({favoriteCount})
+            Favoritos ({favoriteCount})
           </button>
         </nav>
 
-        <a
-          href="#publicar"
+        <button
+          type="button"
+          onClick={onPublish}
           className="interactive-surface inline-flex items-center gap-1.5 rounded-full border border-white/30 px-4 py-2.5 text-sm text-white hover:border-white/55 hover:bg-white/5"
         >
           Publicar mi inmueble
           <ArrowUpRight className="size-3.5" aria-hidden />
-        </a>
+        </button>
       </div>
     </header>
   );

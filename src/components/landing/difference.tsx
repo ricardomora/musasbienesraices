@@ -17,8 +17,8 @@ const POINTS = [
     body: "Sabes quién muestra interés, en qué etapa va cada conversación y qué falta para cerrar.",
   },
   {
-    title: "Hecha para LatAm",
-    body: "Copy, flujos y expectativas pensados para cómo se vende aquí — no un portal genérico traducido.",
+    title: "Hecha para Venezuela",
+    body: "USD, urbanizaciones y flujos pensados para cómo se vende aquí — no un portal genérico traducido.",
   },
 ];
 
