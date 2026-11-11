@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-11T20:18:28Z",
+  "updatedAt": "2026-11-11T20:20:05Z",
   "updatedBy": "coordinator",
   "phase": "fase-6-deploying",
-  "summary": "D7=A solo venta + ADMIN=ricardo10mora. Push main → Vercel. Falta env Vercel si no están.",
+  "summary": "Tech DoD PASS + push 5a9a46e. Vercel deploy pending. D7=A, ADMIN=ricardo10mora. Confirmar env Vercel.",
   "protocol": "Owner cuestiona → PM informa → Tech/Design/User ejecutan → Joaquín aprueba",
   "agents": {
     "pm": {
@@ -13,13 +13,13 @@
     },
     "design": {
       "status": "idle",
-      "task": "Happy-path copy VE/USD solo venta shippeado; idle post-keys QA",
+      "task": "Copy solo-venta shippeado",
       "blocker": null
     },
     "tech": {
-      "status": "working",
-      "task": "Push + verificar env Vercel /api/clerk",
-      "blocker": "Env Vercel deben coincidir con .env.local"
+      "status": "idle",
+      "task": "DoD happy path PASS; checklist SETUP §2; monitor deploy",
+      "blocker": null
     },
     "user": {
       "status": "idle",
@@ -62,6 +62,13 @@
     }
   ],
   "feed": [
+    {
+      "at": "20:22",
+      "from": "tech",
+      "to": "pm",
+      "kind": "done",
+      "text": "Happy path PASS; next build limpio; checklist Vercel en SETUP §2"
+    },
     {
       "at": "20:20",
       "from": "coordinator",
