@@ -1,13 +1,21 @@
-import { auth } from "@clerk/nextjs/server";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-import type { ReactNode } from "react";
+"use client";
 
-/** Route protection without clerkMiddleware (hangs under Next 16 proxy). */
-export async function AuthGate({ children }: { children: ReactNode }) {
-  const { userId } = await auth();
-  if (!userId) {
-    const pathname = (await headers()).get("x-pathname");
+import { useAuth } from "@clerk/nextjs";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, type ReactNode } from "react";
+
+/**
+ * Client-side route protection.
+ * Avoids server `auth()` which requires clerkMiddleware (hangs under Next 16 proxy).
+ */
+export function AuthGate({ children }: { children: ReactNode }) {
+  const { isLoaded, isSignedIn } = useAuth();
+  const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    if (isSignedIn) return;
     const safe =
       pathname &&
       pathname.startsWith("/") &&
@@ -15,9 +23,26 @@ export async function AuthGate({ children }: { children: ReactNode }) {
       !pathname.startsWith("/sign-up")
         ? pathname
         : null;
-    redirect(
+    router.replace(
       safe ? `/sign-in?redirect_url=${encodeURIComponent(safe)}` : "/sign-in",
     );
+  }, [isLoaded, isSignedIn, pathname, router]);
+
+  if (!isLoaded) {
+    return (
+      <p className="p-10 text-center text-sm text-muted-foreground">
+        Comprobando sesión…
+      </p>
+    );
   }
+
+  if (!isSignedIn) {
+    return (
+      <p className="p-10 text-center text-sm text-muted-foreground">
+        Redirigiendo a iniciar sesión…
+      </p>
+    );
+  }
+
   return children;
 }

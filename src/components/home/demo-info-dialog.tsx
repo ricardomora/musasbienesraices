@@ -81,7 +81,7 @@ export function DemoInfoDialog({
                     onOpenChange(false);
                     onContinueExploring?.();
                   }}
-                  className="interactive-surface inline-flex h-11 items-center rounded-full border border-white/20 px-5 text-sm text-white hover:bg-white/5"
+                  className="interactive-surface inline-flex h-11 items-center rounded-full border border-border px-5 text-sm text-foreground hover:bg-accent"
                 >
                   Seguir explorando
                 </button>

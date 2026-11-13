@@ -8,7 +8,9 @@ import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { CITIES } from "@/data/cities";
-import { UploadButton } from "@/lib/uploadthing";
+import type { LatLng } from "@/data/geo";
+import { LocationPickerLazy } from "@/components/explore/location-picker-lazy";
+import { UploadButton, uploadThingFileUrl } from "@/lib/uploadthing";
 
 export function PublishWizard() {
   const router = useRouter();
@@ -22,6 +24,7 @@ export function PublishWizard() {
   const [form, setForm] = useState({
     title: "",
     type: "apartamentos" as "apartamentos" | "casas",
+    operationType: "venta" as "venta" | "alquiler",
     cityId: "caracas",
     neighborhood: "",
     priceUsd: "",
@@ -31,6 +34,10 @@ export function PublishWizard() {
     areaM2: "",
     description: "",
     features: "",
+    contactWhatsapp: "",
+    showWhatsapp: false,
+    lat: null as number | null,
+    lng: null as number | null,
     images: [] as string[],
   });
 
@@ -39,6 +46,7 @@ export function PublishWizard() {
     const id = await createDraft({
       title: form.title.trim() || "Borrador Musas",
       type: form.type,
+      operationType: form.operationType,
       cityId: form.cityId,
     });
     setListingId(id);
@@ -46,6 +54,31 @@ export function PublishWizard() {
   }
 
   async function saveDetails() {
+    if (!form.neighborhood.trim()) {
+      toast.error("Indica urbanización / sector (ej. Altamira)");
+      return;
+    }
+    if (form.description.trim().length < 40) {
+      toast.error("La descripción necesita al menos 40 caracteres");
+      return;
+    }
+    if (!Number(form.priceUsd)) {
+      toast.error(
+        form.operationType === "alquiler"
+          ? "Indica la renta mensual en USD"
+          : "Indica el precio de venta en USD",
+      );
+      return;
+    }
+    if (
+      form.lat == null ||
+      form.lng == null ||
+      !Number.isFinite(form.lat) ||
+      !Number.isFinite(form.lng)
+    ) {
+      toast.error("Marca la ubicación en el mapa (toca o arrastra el pin)");
+      return;
+    }
     setBusy(true);
     try {
       const id = await ensureDraft();
@@ -53,6 +86,7 @@ export function PublishWizard() {
         id,
         title: form.title.trim(),
         type: form.type,
+        operationType: form.operationType,
         cityId: form.cityId,
         neighborhood: form.neighborhood.trim(),
         priceUsd: Number(form.priceUsd) || 0,
@@ -65,6 +99,11 @@ export function PublishWizard() {
           .split(",")
           .map((s) => s.trim())
           .filter(Boolean),
+        contactWhatsapp: form.showWhatsapp
+          ? form.contactWhatsapp.trim()
+          : "",
+        lat: form.lat,
+        lng: form.lng,
         images: form.images,
         alt: form.title.trim(),
       });
@@ -93,16 +132,22 @@ export function PublishWizard() {
   }
 
   const checklist = [
-    { n: 1, label: "Básicos (título, tipo, ciudad)" },
-    { n: 2, label: "Detalle y precio de venta en USD" },
+    { n: 1, label: "Básicos (venta/alquiler, título, ciudad)" },
+    {
+      n: 2,
+      label:
+        form.operationType === "alquiler"
+          ? "Detalle, renta USD/mes y pin en mapa"
+          : "Detalle, precio USD y pin en mapa",
+    },
     { n: 3, label: "Fotos (mín. 1) y publicar" },
   ] as const;
 
   return (
     <div className="mx-auto max-w-2xl px-5 py-12 sm:px-8">
-      <h1 className="text-3xl font-semibold text-white">Publicar inmueble</h1>
+      <h1 className="text-3xl font-semibold text-foreground">Publicar inmueble</h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        Solo venta en USD. Completa la checklist — sin letra chica.
+        Venta o alquiler en USD. Completa la checklist — sin letra chica.
       </p>
       <ol className="mt-6 space-y-2" aria-label="Checklist de publicación">
         {checklist.map((item) => {
@@ -115,8 +160,8 @@ export function PublishWizard() {
                 current
                   ? "text-neon"
                   : done
-                    ? "text-white/70"
-                    : "text-white/40"
+                    ? "text-muted-foreground"
+                    : "text-muted-foreground/60"
               }`}
             >
               <span
@@ -125,7 +170,7 @@ export function PublishWizard() {
                     ? "border-neon bg-neon/15"
                     : done
                       ? "border-neon/50 text-neon"
-                      : "border-white/20"
+                      : "border-border"
                 }`}
                 aria-hidden
               >
@@ -142,17 +187,41 @@ export function PublishWizard() {
 
       {step === 1 ? (
         <div className="mt-8 space-y-4">
+          <fieldset className="space-y-2">
+            <legend className="text-sm text-muted-foreground">Operación</legend>
+            <div className="flex flex-wrap gap-2">
+              {(
+                [
+                  ["venta", "Vendo"],
+                  ["alquiler", "Alquilo"],
+                ] as const
+              ).map(([id, label]) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setForm({ ...form, operationType: id })}
+                  className={`rounded-full border px-4 py-2 text-sm ${
+                    form.operationType === id
+                      ? "border-neon bg-neon/15 text-neon"
+                      : "border-border text-muted-foreground"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </fieldset>
           <label className="block space-y-1.5 text-sm">
-            <span className="text-white/70">Título</span>
+            <span className="text-muted-foreground">Título</span>
             <input
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
-              className="w-full rounded-xl border border-white/15 bg-black/30 px-4 py-3 text-white"
+              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
               placeholder="Ej. Apartamento Altamira"
             />
           </label>
           <label className="block space-y-1.5 text-sm">
-            <span className="text-white/70">Tipo</span>
+            <span className="text-muted-foreground">Tipo</span>
             <select
               value={form.type}
               onChange={(e) =>
@@ -161,18 +230,25 @@ export function PublishWizard() {
                   type: e.target.value as "apartamentos" | "casas",
                 })
               }
-              className="w-full rounded-xl border border-white/15 bg-black/30 px-4 py-3 text-white"
+              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
             >
               <option value="apartamentos">Apartamento</option>
               <option value="casas">Casa</option>
             </select>
           </label>
           <label className="block space-y-1.5 text-sm">
-            <span className="text-white/70">Ciudad</span>
+            <span className="text-muted-foreground">Ciudad</span>
             <select
               value={form.cityId}
-              onChange={(e) => setForm({ ...form, cityId: e.target.value })}
-              className="w-full rounded-xl border border-white/15 bg-black/30 px-4 py-3 text-white"
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  cityId: e.target.value,
+                  lat: null,
+                  lng: null,
+                })
+              }
+              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
             >
               {CITIES.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -194,53 +270,135 @@ export function PublishWizard() {
 
       {step === 2 ? (
         <div className="mt-8 space-y-4">
+          <label className="block space-y-1.5 text-sm">
+            <span className="text-muted-foreground">Urbanización / sector</span>
+            <input
+              value={form.neighborhood}
+              onChange={(e) =>
+                setForm({ ...form, neighborhood: e.target.value })
+              }
+              placeholder="Los Palos Grandes"
+              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
+            />
+          </label>
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">Ubicación en el mapa</p>
+            <p className="text-xs text-muted-foreground">
+              Toca el mapa o arrastra el pin. Obligatorio para publicar — así
+              sale en la búsqueda por mapa.
+            </p>
+            <LocationPickerLazy
+              cityId={form.cityId}
+              value={
+                form.lat != null && form.lng != null
+                  ? { lat: form.lat, lng: form.lng }
+                  : null
+              }
+              onChange={(coords: LatLng) =>
+                setForm({ ...form, lat: coords.lat, lng: coords.lng })
+              }
+            />
+            {form.lat != null && form.lng != null ? (
+              <p className="text-[11px] text-neon/80">
+                Pin: {form.lat.toFixed(5)}, {form.lng.toFixed(5)}
+              </p>
+            ) : (
+              <p className="text-[11px] text-amber-200/80">
+                Sin pin — toca el mapa para marcar.
+              </p>
+            )}
+          </div>
           {(
             [
-              ["neighborhood", "Urbanización / sector", "Los Palos Grandes"],
-              ["priceUsd", "Precio de venta (USD)", "220000"],
-              ["administrationUsd", "Administración USD / mes (si aplica)", "180"],
+              [
+                "priceUsd",
+                form.operationType === "alquiler"
+                  ? "Renta mensual (USD / mes)"
+                  : "Precio de venta (USD)",
+                form.operationType === "alquiler" ? "1100" : "220000",
+              ],
+              [
+                "administrationUsd",
+                "Administración USD / mes (si aplica)",
+                "180",
+              ],
               ["beds", "Habitaciones", "3"],
               ["baths", "Baños", "2"],
               ["areaM2", "Área m²", "145"],
             ] as const
           ).map(([key, label, placeholder]) => (
             <label key={key} className="block space-y-1.5 text-sm">
-              <span className="text-white/70">{label}</span>
+              <span className="text-muted-foreground">{label}</span>
               <input
                 value={form[key]}
                 onChange={(e) => setForm({ ...form, [key]: e.target.value })}
                 placeholder={placeholder}
-                className="w-full rounded-xl border border-white/15 bg-black/30 px-4 py-3 text-white"
+                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
               />
             </label>
           ))}
           <label className="block space-y-1.5 text-sm">
-            <span className="text-white/70">Descripción (mín. 40 caracteres)</span>
+            <span className="text-muted-foreground">Descripción (mín. 40 caracteres)</span>
             <textarea
               value={form.description}
               onChange={(e) =>
                 setForm({ ...form, description: e.target.value })
               }
               rows={5}
-              className="w-full rounded-xl border border-white/15 bg-black/30 px-4 py-3 text-white"
+              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
             />
+            <span className="text-xs text-muted-foreground">
+              {form.description.trim().length}/40 · incluye luz, vista, puestos
+            </span>
           </label>
           <label className="block space-y-1.5 text-sm">
-            <span className="text-white/70">
+            <span className="text-muted-foreground">
               Características (separadas por coma)
             </span>
             <input
               value={form.features}
               onChange={(e) => setForm({ ...form, features: e.target.value })}
               placeholder="Balcón, 2 puestos, vigilancia"
-              className="w-full rounded-xl border border-white/15 bg-black/30 px-4 py-3 text-white"
+              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
             />
           </label>
+          <label className="flex items-start gap-3 rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm">
+            <input
+              type="checkbox"
+              checked={form.showWhatsapp}
+              onChange={(e) =>
+                setForm({ ...form, showWhatsapp: e.target.checked })
+              }
+              className="mt-1"
+            />
+            <span className="space-y-1">
+              <span className="block text-foreground">
+                Mostrar WhatsApp en la ficha (opt-in)
+              </span>
+              <span className="block text-xs text-muted-foreground">
+                Opcional. Si no marcas, el contacto sigue por preguntas en
+                Musas.
+              </span>
+            </span>
+          </label>
+          {form.showWhatsapp ? (
+            <label className="block space-y-1.5 text-sm">
+              <span className="text-muted-foreground">WhatsApp (con código país)</span>
+              <input
+                value={form.contactWhatsapp}
+                onChange={(e) =>
+                  setForm({ ...form, contactWhatsapp: e.target.value })
+                }
+                placeholder="58412xxxxxxx"
+                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
+              />
+            </label>
+          ) : null}
           <div className="flex gap-3 pt-2">
             <button
               type="button"
               onClick={() => setStep(1)}
-              className="h-11 rounded-full border border-white/20 px-5 text-sm text-white"
+              className="h-11 rounded-full border border-border px-5 text-sm text-foreground hover:bg-accent"
             >
               Atrás
             </button>
@@ -259,22 +417,36 @@ export function PublishWizard() {
       {step === 3 ? (
         <div className="mt-8 space-y-6">
           <div>
-            <p className="text-sm text-white/70">
-              Fotos (mínimo 1). ¿Quieres sesión profesional?{" "}
+            <p className="text-sm text-muted-foreground">
+              Fotos: mínimo 1 para publicar. Recomendamos{" "}
+              <strong className="text-foreground">3–6 fotos</strong> (fachada,
+              sala, cocina, habitación). ¿Sesión profesional?{" "}
               <Link href="/preferencial" className="text-neon hover:underline">
-                Paquete Preferencial
+                Preferencial
               </Link>
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {form.images.length} foto{form.images.length === 1 ? "" : "s"}
+              {form.images.length > 0 && form.images.length < 3
+                ? " · añade más para mejorar la ficha"
+                : ""}
             </p>
             <div className="mt-3">
               <UploadButton
                 endpoint="listingImageUploader"
                 onClientUploadComplete={(res) => {
-                  const urls = res.map((f) => f.url).filter(Boolean);
+                  const urls = res
+                    .map((f) => uploadThingFileUrl(f))
+                    .filter((u): u is string => Boolean(u));
                   setForm((prev) => ({
                     ...prev,
                     images: [...prev.images, ...urls],
                   }));
-                  toast.success("Fotos subidas");
+                  toast.success(
+                    urls.length
+                      ? "Fotos subidas"
+                      : "Subida OK pero sin URL — reintenta",
+                  );
                 }}
                 onUploadError={(e) => {
                   void toast.error(e.message);
@@ -299,7 +471,7 @@ export function PublishWizard() {
             <button
               type="button"
               onClick={() => setStep(2)}
-              className="h-11 rounded-full border border-white/20 px-5 text-sm text-white"
+              className="h-11 rounded-full border border-border px-5 text-sm text-foreground hover:bg-accent"
             >
               Atrás
             </button>
@@ -309,16 +481,30 @@ export function PublishWizard() {
               onClick={() => void publish()}
               className="interactive-surface h-11 rounded-full bg-neon px-6 text-sm font-semibold text-primary-foreground disabled:opacity-40"
             >
-              Publicar en venta
+              {form.operationType === "alquiler"
+                ? "Publicar alquiler"
+                : "Publicar en venta"}
             </button>
           </div>
           <p className="text-xs text-muted-foreground">
-            Al publicar, la ficha queda visible en explorar con precio en USD.
-            ¿Quieres fotos o acompañamiento?{" "}
-            <Link href="/preferencial" className="text-neon hover:underline">
-              Preferencial
-            </Link>
-            .
+            Al publicar, la ficha queda visible de inmediato
+            {form.operationType === "alquiler" ? " como alquiler USD/mes" : ""}.
+            El tag <span className="text-neon">Musas Revisado</span> lo pone el
+            equipo después.{" "}
+            {form.operationType === "venta" ? (
+              <>
+                ¿Fotos o acompañamiento?{" "}
+                <Link
+                  href="/preferencial"
+                  className="text-neon hover:underline"
+                >
+                  Preferencial
+                </Link>
+                .
+              </>
+            ) : (
+              "Preferencial aplica a venta; alquiler se coordina directo."
+            )}
           </p>
         </div>
       ) : null}

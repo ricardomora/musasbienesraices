@@ -1,33 +1,51 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-11T20:20:05Z",
-  "updatedBy": "coordinator",
+  "updatedAt": "2026-11-12T21:45:00Z",
+  "updatedBy": "design",
   "phase": "fase-6-deploying",
-  "summary": "Tech DoD PASS + push 5a9a46e. Vercel deploy pending. D7=A, ADMIN=ricardo10mora. Confirmar env Vercel.",
+  "summary": "OWNER-4+4b: Musas=3 vs Propiedash=10. Acepta moat N2+N3/D12=A condicional a D8. Veto badge sin revisor. Prod Semana 0 intacta.",
   "protocol": "Owner cuestiona → PM informa → Tech/Design/User ejecutan → Joaquín aprueba",
   "agents": {
+    "owner": {
+      "status": "done",
+      "task": "INFORME-OWNER-4 brainstorm + 4b challenge INFORME-5",
+      "blocker": "Joaquín D11/D12/D13 + D8/D10"
+    },
     "pm": {
-      "status": "idle",
-      "task": "D7 y admin email confirmados; monitor deploy",
-      "blocker": null
+      "status": "needs_help",
+      "task": "INFORME-6 gate IA vendedor; S0+DoD pendientes",
+      "blocker": "Joaquín: aprobar 3 gates proceso + D11/D12/D13 + D8"
     },
     "design": {
-      "status": "idle",
-      "task": "Copy solo-venta shippeado",
-      "blocker": null
+      "status": "done",
+      "task": "Mapa IA Propiedash→Musas (rutas, estados P0–P2, implementar vs diferir); header post-login DoD",
+      "blocker": "Tech: share UI, report fake, wizard hints ≥3 fotos, cola pending_review soft-flag"
     },
     "tech": {
-      "status": "idle",
-      "task": "DoD happy path PASS; checklist SETUP §2; monitor deploy",
-      "blocker": null
+      "status": "done",
+      "task": "Brainstorm schema moderación + especialistas (paths Convex/Next)",
+      "blocker": "Prod me/sync 404 + pk_test sigue abierto; no bloquea diseño"
     },
     "user": {
-      "status": "idle",
-      "task": "E2E BETA_SCRIPTS tras redeploy + seed admin",
-      "blocker": "Deploy + seed para E2E prod"
+      "status": "done",
+      "task": "Brainstorm Propiedash vs Musas: 8 razones + validación + especialistas + P1–P8",
+      "blocker": "Sin WA+sector+densidad, diferencial trust no compensa abrir Musas mañana"
+    },
+    "qa": {
+      "status": "done",
+      "task": "Brainstorm QA diferencial validados+especialistas vs Propiedash (scripts + frontera + smoke 15m + riesgos ‘verificado’)",
+      "blocker": "Sin pipeline pending/rejected en schema; D8 ops Preferencial pendiente = no PASS ‘verificado’"
     }
   },
   "alerts": [
+    {
+      "id": "seller-ia-post-login",
+      "severity": "major",
+      "owner": "pm",
+      "title": "Gate IA vendedor post-login (S0)",
+      "detail": "Rutas dashboard existían; home solo UserButton + link footer. Parche Mi panel. Causa: QA sin script cold return; DoD sin fila descubrimiento.",
+      "ask": "Joaquín: aprobar S0+DoD IA+scorecard como bloqueante beta publicadores (INFORME-6)"
+    },
     {
       "id": "vercel-env",
       "severity": "blocker",
@@ -40,9 +58,41 @@
       "id": "deploy-prod-mvp",
       "severity": "blocker",
       "owner": "tech",
-      "title": "Dominio sirve build viejo",
-      "detail": "www.musasbienesraices.com /api/clerk 404. Checklist exacta: docs/SETUP_MUSAS.md §2.",
-      "ask": "OK Joaquín → pegar env Vercel + redeploy Production"
+      "title": "Prod parcial: falta /api/me/sync + Clerk live",
+      "detail": "Smoke 2026-11-12: home/UT 200; /api/clerk POST→400 Missing svix (ruta OK). /api/me/sync→404. Clerk pk_test en www. Propiedash referente UX locked.",
+      "ask": "Redeploy latest + pk_live/sk_live + 2ª cuenta Q&A + D10"
+    },
+    {
+      "id": "friction-f1-empty-catalog",
+      "severity": "blocker",
+      "owner": "tech",
+      "title": "Catálogo vacío = churn beta amigos",
+      "detail": "F1 user: sin seed/prod amigos creen que no hay casas en Caracas.",
+      "ask": "Redeploy + seed antes de invitar amigos"
+    },
+    {
+      "id": "gap-g1-wa-listing",
+      "severity": "blocker",
+      "owner": "pm",
+      "title": "Sin WhatsApp en ficha vs hábito Caracas",
+      "detail": "G1/G2: ML/Housy/Propiedash/WA directo contactan ya; Musas solo Q&A+login. Ficha usa images[0] y cero wa.me.",
+      "ask": "Aprobar D10 WA opt-in (A) — prerequisito score 3→6"
+    },
+    {
+      "id": "informe-5-moat",
+      "severity": "blocker",
+      "owner": "pm",
+      "title": "Decidir moat vs Propiedash (D11–D13)",
+      "detail": "OWNER-4b: D11=D OK con veto copy; D12=A solo si revisor <24h nombrado; D13=A+B (veto fee C). Sin D8 badge=teatro.",
+      "ask": "Joaquín: D11=D, D12=A condicional, D13=A+B, D8 nombre+WA"
+    },
+    {
+      "id": "owner-veto-badge-sin-ops",
+      "severity": "blocker",
+      "owner": "pm",
+      "title": "Veto owner: no pitch verificado sin D8",
+      "detail": "INFORME-OWNER-4b: L1<24h sin humano nombrado quema más que no tener badge. Preferencial sin roster = Propiedash peor.",
+      "ask": "Nombrar revisor L1 + canal Preferencial antes de UI badge"
     },
     {
       "id": "decisiones-d1-d6",
@@ -53,15 +103,159 @@
       "ask": "OK defaults o ajustes"
     },
     {
+      "id": "qa-two-accounts",
+      "severity": "major",
+      "owner": "user",
+      "title": "Q&A E2E necesita 2ª cuenta Clerk",
+      "detail": "F7: Owner no puede preguntar en su listing. Una sola sesión QA. Script 5 = N/A.",
+      "ask": "Crear/usar 2ª cuenta comprador y re-correr script 5"
+    },
+    {
+      "id": "gap-g3-sector-filter",
+      "severity": "major",
+      "owner": "design",
+      "title": "Sin filtro urbanización",
+      "detail": "G3: caraqueño busca Altamira/LPG; hero solo ciudad/tipo/presupuesto.",
+      "ask": "Chips o texto sector en explore"
+    },
+    {
       "id": "ops-email-public",
       "severity": "minor",
       "owner": "tech",
       "title": "NEXT_PUBLIC_OPS_EMAIL vacío",
       "detail": "Admin muestra placeholder si no hay email ops en env.",
       "ask": "Set NEXT_PUBLIC_OPS_EMAIL en local/Vercel"
+    },
+    {
+      "id": "diff-validated-specialists",
+      "severity": "major",
+      "owner": "pm",
+      "title": "Diferencial trust: validado + especialista (no badge vacío)",
+      "detail": "User caraqueño: Propiedash gana oferta/hábito. Validación convence solo con qué/cuándo en ficha. Especialistas Musas > directorio si pocos, zona, cara, SLA. Sin P1 WA + P2 sector, no abre Musas mañana.",
+      "ask": "Decidir: badge Validado (checklist) + Preferencial con especialista asignado; no copiar mapa/BCV/directorio primero"
+    },
+    {
+      "id": "moderation-gate-decision",
+      "severity": "major",
+      "owner": "pm",
+      "title": "Decidir hard-gate vs soft-flag en publicaciones reales",
+      "detail": "Tech: hard pending_review antes de explore vs publish+flag+pause. Hard sin reviewer 24/7 = catálogo vacío. Soft = liquidez + riesgo basura.",
+      "ask": "Joaquín/PM: ¿A hard-gate Caracas beta o B soft-flag + pause admin?"
     }
   ],
   "feed": [
+    {
+      "at": "21:45",
+      "from": "design",
+      "to": "pm",
+      "kind": "handoff",
+      "text": "Mapa rutas Propiedash→Musas entregado: IA logueado=Explorar+Mi panel+Publicar; P0 descubribilidad/share/report/wizard hints; NO-ROBAR BCV/alquiler/directorio/chat/DASHCODE/planes. Pedir refresh Oficina."
+    },
+    {
+      "at": "21:30",
+      "from": "pm",
+      "to": "coordinator",
+      "kind": "alert",
+      "text": "INFORME-6: fallo proceso nav vendedor post-login; Propiedash=features no IA; 3 gates S0/DoD/scorecard. Pedir refresh Oficina."
+    },
+    {
+      "at": "02:10",
+      "from": "owner",
+      "to": "pm",
+      "kind": "alert",
+      "text": "OWNER-4+4b: 5 razones score 3; robar wizard/report/share; H1/H2 OK si ops. Ranking: Preferencial cerrada > verified listing > Caracas curated. D11=D/D12=A condicional/D13=A+B; veto badge sin D8. Pedir refresh Oficina."
+    },
+    {
+      "at": "02:00",
+      "from": "pm",
+      "to": "coordinator",
+      "kind": "handoff",
+      "text": "INFORME-5 brainstorm Propiedash: matriz gap + N2 recomendada + 30/60/90 UX vs moat + ops L1–L3. Asks D11–D13. Pedir refresh Oficina."
+    },
+    {
+      "at": "01:55",
+      "from": "user",
+      "to": "pm",
+      "kind": "handoff",
+      "text": "Propiedash 10 vs Musas 3: abro rival por densidad/zona/WA/share. Validación listing sí SOLO con checklist+fecha en ficha. Especialistas > directorio si cara+zona+SLA<24h. Ideas P1–P8 en BETA_SCRIPTS. Pedir refresh Oficina."
+    },
+    {
+      "at": "02:05",
+      "from": "tech",
+      "to": "pm",
+      "kind": "handoff",
+      "text": "Brainstorm A/B: portar YA checklist+cola admin+badge+WA/galería (S/M); schema draft→pending_review→published|rejected; especialistas=roster privado Preferencial NO directorio; vetar mapa/Wasi/BCV/chat/DASHCODE. Riesgos cola/PII/fake docs. Pedir refresh Oficina."
+    },
+    {
+      "at": "02:00",
+      "from": "qa",
+      "to": "pm",
+      "kind": "handoff",
+      "text": "Brainstorm QA diferencial vs Propiedash en BETA_SCRIPTS § diferencial: pass/fail medibles, frontera pending/rechazado/FP, smoke 15 min, riesgos legales ‘verificado’ sin D8. Hoy draft|published|paused = no PASS validación humana. Pedir refresh Oficina."
+    },
+    {
+      "at": "01:55",
+      "from": "design",
+      "to": "pm",
+      "kind": "handoff",
+      "text": "UX profundo Propiedash→Musas: 10 flujos (search→ficha→validación→Preferencial); Validado=sello neon (no verde claro); especialistas=roster cerrado 3 paquetes (no directorio); W2=search+chips+galería+sello; D90=mapa+perfil vendedor. Pedir refresh Oficina."
+    },
+    {
+      "at": "01:49",
+      "from": "design",
+      "to": "pm",
+      "kind": "handoff",
+      "text": "Propiedash referente UX: P0 D10 WA+panel + galería + wizard asistido; P1 borrador/share/fotos orden; P2 mapa. NO BCV/alquiler/UI clara. Pedir refresh Oficina."
+    },
+    {
+      "at": "01:25",
+      "from": "user",
+      "to": "pm",
+      "kind": "handoff",
+      "text": "G1–G8 mercado (WA ficha blocker; sector/galería/share/bandas major; BCV diferenciar). Emular WA+Q&A dual. Script 40 min en BETA_SCRIPTS. Pedir refresh Oficina."
+    },
+    {
+      "at": "01:20",
+      "from": "user",
+      "to": "pm",
+      "kind": "handoff",
+      "text": "8 fricciones FSBO Caracas (F1–F8) en BETA_SCRIPTS; Q&A N/A; plan beta amigos mañana. Pedir refresh Oficina."
+    },
+    {
+      "at": "01:14",
+      "from": "qa",
+      "to": "pm",
+      "kind": "done",
+      "text": "Corrida 3b PASS admin: seed 6 pub/12 + pause Casa Ávila; imagen ufs.sh PASS; Q&A N/A. Pedir refresh Oficina."
+    },
+    {
+      "at": "01:12",
+      "from": "qa",
+      "to": "tech",
+      "kind": "alert",
+      "text": "Pre-fix dual emails: sync ricardo10mora OK pero /admin blocker (2ª fila ricardo10moraco). Pedir refresh Oficina."
+    },
+    {
+      "at": "21:20",
+      "from": "qa",
+      "to": "pm",
+      "kind": "done",
+      "text": "Corrida 3 PASS publish+foto slug qa-musas-foto-1794431619-1; Preferencial/Favoritos/Explore PASS; Admin BLOCKER role; Q&A N/A. Pedir refresh Oficina."
+    },
+    {
+      "at": "21:03",
+      "from": "qa",
+      "to": "tech",
+      "kind": "alert",
+      "text": "Retest FAIL: clerkMW en /api/uploadthing hang/timeout; widget Loading…; sin slug. Pedir refresh Oficina."
+    },
+    {
+      "at": "20:58",
+      "from": "qa",
+      "to": "tech",
+      "kind": "alert",
+      "text": "E2E publish+foto FAIL local: wizard OK; UT 500 Failed to run middleware; sin slug. Pedir refresh Oficina."
+    },
     {
       "at": "20:22",
       "from": "tech",
@@ -124,12 +318,15 @@
     "clerk": "listo",
     "convex": "listo",
     "uploadthing": "listo",
-    "adminEmail": "listo",
+    "adminEmail": "listo_dual_mora_moraco",
     "clerkWebhookSecret": "local_ok_vercel_pendiente",
     "vercelDeployMvp": "pendiente",
     "vercelEnvChecklist": "docs/SETUP_MUSAS.md#2",
     "d7SaleVsRent": "A_solo_venta",
-    "d1d6Confirm": "pendiente"
+    "d1d6Confirm": "pendiente",
+    "d11Positioning": "pendiente_N2_N3",
+    "d12VerifyPolicy": "pendiente_L1_cola",
+    "d13VerifyWhoPays": "pendiente_L1_gratis_L2_pref"
   },
   "codeReady": {
     "convexFunctions": true,
@@ -149,23 +346,67 @@
     "setupDeployChecklist": true,
     "nextBuildClean": true,
     "operationTypeSaleRent": false,
-    "happyPathCopyVeUsd": true
+    "happyPathCopyVeUsd": true,
+    "uploadthingAuthenticateRequest": true,
+    "proxyPassthroughNoClerkMw": true,
+    "ufsShImageHostname": true,
+    "meSyncEmailToConvex": true,
+    "frictionBrainstormFsbo": true,
+    "marketGapsG1G8": true,
+    "betaScript30plus10": true,
+    "uxBrainstormPropiedashDeep": true,
+    "moderationPendingReviewDesigned": true,
+    "specialistsRosterVsDirectoryDesigned": true,
+    "propiedashDeepBrainstorm": true
   },
   "dodHappyPath": {
-    "explorar": "PASS código — FAIL prod (build viejo / seed)",
-    "publicar": "PASS código — AuthGate + wizard + UT + ownership",
-    "preferencial": "PASS código — create + admin status",
-    "admin": "PASS código — seed/pause/Preferencial",
-    "qa": "PASS código — ask/answer + inbox",
-    "favoritos": "PASS código — local + Convex + mergeLocal"
+    "explorar": "PASS live local — FAIL prod (build viejo)",
+    "publicar": "PASS live local — slug qa-musas-foto-1794431619-1 + foto UT",
+    "preferencial": "PASS live local — Solicitada Sesión fotográfica",
+    "admin": "PASS live local — seed 6 pub/12 + pause Casa Ávila",
+    "qa": "N/A live — 1 cuenta; PASS código",
+    "favoritos": "PASS live local — Guardado en ficha"
   },
   "residualRisks": [
+    "Sin densidad Caracas + WA + sector, diferencial validación no evita churn a Propiedash",
+    "Badge Verificado sin checklist+fecha = peor que silencio",
+    "Especialistas tipo directorio frío = no pagan Preferencial",
     "Prod dominio sin redeploy → webhook 404",
-    "ADMIN_EMAILS typo posible",
-    "Flash 'Cargando Musas…' post-hydration (Convex client gate)",
-    "AuthGate sin clerkMiddleware: edge cases cookie/SSR auth()",
-    "Q&A solo inbox (D1)",
+    "G1/G2 sin WA en ficha = Musas más lenta que hábito Caracas",
+    "G3/G7 filtros sin sector ni bandas <150k",
+    "G4 ficha solo images[0] + mín. 1 foto = desconfianza",
+    "G6 sin share UI",
+    "Q&A requiere 2ª cuenta Clerk distinta (F7 N/A)",
+    "F1 catálogo vacío = amigos beta se van",
+    "Drafts QA huérfanos en dashboard (corridas 1–2 fallidas)",
+    "NEXT_PUBLIC_OPS_EMAIL vacío en admin",
+    "Flash 'Cargando Musas…' / Math.random overlay layout.tsx:55",
     "Sin T&C / disclaimer VE antes de registro amplio",
-    "D7=B: ~1–2 sprints schema+UI+seed+scripts"
-  ]
+    "D7=B: ~1–2 sprints schema+UI+seed+scripts",
+    "Cola pending_review sin SLA <24h mata liquidez beta",
+    "Badge ‘verificado’ sin ops = liability/fake trust",
+    "Upload docs PII (cédula/título) sin retention policy = riesgo legal",
+    "Directorio público especialistas = spam + fake credentials"
+  ],
+  "techBrainstormAB": {
+    "portNowSM": [
+      "cola review en /admin + index by_status pending_review",
+      "draft→pending_review→published|rejected (+paused)",
+      "atestaciones sin cédula + min fotos",
+      "badge musas_reviewed",
+      "galería+WA+checklist",
+      "providers roster privado + assign en preferentialRequests"
+    ],
+    "deferL": [
+      "mapa nacional",
+      "Wasi",
+      "BCV dual",
+      "chat full",
+      "DASHCODE",
+      "watermark pipeline",
+      "verify docs profesional KYC",
+      "directorio público"
+    ],
+    "decisionNeeded": "hard-gate publish vs soft-flag post-publish+pause rápido"
+  }
 }

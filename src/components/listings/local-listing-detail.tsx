@@ -40,12 +40,12 @@ export function LocalListingDetail({ slug }: { slug: string }) {
       <div className="mx-auto max-w-3xl px-5 pt-8 sm:px-8">
         <Link
           href="/#inmuebles"
-          className="interactive-surface inline-flex items-center gap-2 text-sm text-white/70 hover:text-neon"
+          className="interactive-surface inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-neon"
         >
           <ArrowLeft className="size-4" /> Volver
         </Link>
 
-        <div className="relative mt-6 aspect-[16/10] overflow-hidden rounded-2xl border border-white/10">
+        <div className="relative mt-6 aspect-[16/10] overflow-hidden rounded-2xl border border-border">
           <Image
             src={listing.image}
             alt={listing.alt}
@@ -60,11 +60,11 @@ export function LocalListingDetail({ slug }: { slug: string }) {
           <MapPin className="size-3.5 text-neon/80" />
           {listingLocation(listing)}
         </p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white">
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
           {listing.title}
         </h1>
         <p className="mt-4 text-muted-foreground">{listing.description}</p>
-        <p className="mt-4 text-2xl font-semibold text-white">
+        <p className="mt-4 text-2xl font-semibold text-foreground">
           {formatUsd(listing.priceUsd)}{" "}
           <span className="text-sm font-normal text-muted-foreground">USD</span>
         </p>
@@ -81,9 +81,9 @@ export function LocalListingDetail({ slug }: { slug: string }) {
           </span>
         </div>
 
-        <div className="mt-6 flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm">
+        <div className="mt-6 flex items-center justify-between rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm">
           <span className="text-muted-foreground">Administración mensual</span>
-          <strong className="text-white">
+          <strong className="text-foreground">
             {formatUsd(listing.administrationUsd)}
           </strong>
         </div>
@@ -92,7 +92,7 @@ export function LocalListingDetail({ slug }: { slug: string }) {
           {listing.features.map((f) => (
             <span
               key={f}
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/10 px-3 py-1.5 text-xs text-white/85"
+              className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs text-foreground"
             >
               <Check className="size-3 text-neon" />
               {f}
@@ -104,7 +104,7 @@ export function LocalListingDetail({ slug }: { slug: string }) {
           <button
             type="button"
             onClick={() => toggleFavorite(listing.id)}
-            className="interactive-surface inline-flex h-11 items-center gap-2 rounded-full border border-white/20 px-5 text-sm text-white"
+            className="interactive-surface inline-flex h-11 items-center gap-2 rounded-full border border-border px-5 text-sm text-foreground hover:bg-accent"
           >
             <Heart className={`size-4 ${liked ? "fill-neon text-neon" : ""}`} />
             {liked ? "Guardado" : "Guardar inmueble"}
@@ -112,14 +112,14 @@ export function LocalListingDetail({ slug }: { slug: string }) {
           <button
             type="button"
             disabled
-            className="inline-flex h-11 items-center rounded-full border border-white/10 px-5 text-sm text-white/40"
+            className="inline-flex h-11 items-center rounded-full border border-border px-5 text-sm text-muted-foreground/60"
             title="Disponible con backend Musas"
           >
             Preguntar al vendedor
           </button>
         </div>
 
-        <p className="mt-4 text-xs text-white/45">
+        <p className="mt-4 text-xs text-muted-foreground">
           Demo local. Con keys Musas (Clerk + Convex) se activa preguntar,
           favoritos sync y publicación real.
         </p>

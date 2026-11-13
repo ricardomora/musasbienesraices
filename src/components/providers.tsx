@@ -12,6 +12,8 @@ import {
 } from "react";
 import { Toaster } from "sonner";
 import { api } from "../../convex/_generated/api";
+import { ThemeProvider } from "@/components/theme/theme-provider";
+import { useTheme } from "@/components/theme/theme-provider";
 
 function EnsureConvexUser({ children }: { children: ReactNode }) {
   const { isLoaded, isSignedIn } = useAuth();
@@ -19,9 +21,20 @@ function EnsureConvexUser({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!isLoaded || !isSignedIn) return;
-    void ensureCurrentUser().catch((err) => {
-      console.error("Error ensuring Convex user:", err);
-    });
+    let cancelled = false;
+    void (async () => {
+      try {
+        // Pull real email from Clerk API → Convex (JWT template may omit email).
+        await fetch("/api/me/sync", { method: "POST", credentials: "include" });
+        if (cancelled) return;
+        await ensureCurrentUser();
+      } catch (err) {
+        console.error("Error ensuring Convex user:", err);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [ensureCurrentUser, isLoaded, isSignedIn]);
 
   return children;
@@ -77,7 +90,7 @@ export function Providers({ children }: { children: ReactNode }) {
   const waitingForConvex = Boolean(convexUrl) && !convex;
 
   const shell = (
-    <>
+    <ThemeProvider>
       {missing.length > 0 ? <SetupBanner missing={missing} /> : null}
       {waitingForConvex ? (
         <div className="flex flex-1 items-center justify-center px-5 py-24 text-sm text-muted-foreground">
@@ -86,8 +99,8 @@ export function Providers({ children }: { children: ReactNode }) {
       ) : (
         children
       )}
-      <Toaster theme="dark" richColors position="top-center" />
-    </>
+      <ThemedToaster />
+    </ThemeProvider>
   );
 
   if (!clerkKey) {
@@ -116,4 +129,9 @@ export function Providers({ children }: { children: ReactNode }) {
       )}
     </ClerkProvider>
   );
+}
+
+function ThemedToaster() {
+  const { theme } = useTheme();
+  return <Toaster theme={theme} richColors position="top-center" />;
 }

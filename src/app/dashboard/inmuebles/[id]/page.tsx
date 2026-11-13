@@ -9,7 +9,9 @@ import type { Id } from "../../../../../convex/_generated/dataModel";
 import { BackendGate } from "@/components/system/backend-gate";
 import { DashboardNav } from "@/components/dashboard/dashboard-nav";
 import { CITIES } from "@/data/cities";
-import { UploadButton } from "@/lib/uploadthing";
+import type { LatLng } from "@/data/geo";
+import { LocationPickerLazy } from "@/components/explore/location-picker-lazy";
+import { UploadButton, uploadThingFileUrl } from "@/lib/uploadthing";
 
 function EditListing() {
   const params = useParams<{ id: string }>();
@@ -20,12 +22,14 @@ function EditListing() {
   const publishListing = useMutation(api.listings.publishListing);
   const [form, setForm] = useState<Record<string, string>>({});
   const [images, setImages] = useState<string[]>([]);
+  const [pin, setPin] = useState<LatLng | null>(null);
 
   useEffect(() => {
     if (!listing) return;
     setForm({
       title: listing.title,
       type: listing.type,
+      operationType: listing.operationType ?? "venta",
       cityId: listing.cityId,
       neighborhood: listing.neighborhood,
       priceUsd: String(listing.priceUsd),
@@ -35,8 +39,14 @@ function EditListing() {
       areaM2: String(listing.areaM2),
       description: listing.description,
       features: listing.features.join(", "),
+      contactWhatsapp: listing.contactWhatsapp ?? "",
     });
     setImages(listing.images);
+    setPin(
+      typeof listing.lat === "number" && typeof listing.lng === "number"
+        ? { lat: listing.lat, lng: listing.lng }
+        : null,
+    );
   }, [listing]);
 
   if (listing === undefined) {
@@ -48,12 +58,30 @@ function EditListing() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-4 px-5 py-10 sm:px-8">
-      <h1 className="text-2xl font-semibold text-white">Editar inmueble</h1>
+      <h1 className="text-2xl font-semibold text-foreground">Editar inmueble</h1>
+      <label className="block space-y-1 text-sm">
+        <span className="text-muted-foreground">Operación</span>
+        <select
+          value={form.operationType ?? "venta"}
+          onChange={(e) =>
+            setForm({ ...form, operationType: e.target.value })
+          }
+          className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
+        >
+          <option value="venta">Venta</option>
+          <option value="alquiler">Alquiler (USD/mes)</option>
+        </select>
+      </label>
       {(
         [
           ["title", "Título"],
           ["neighborhood", "Sector"],
-          ["priceUsd", "Precio USD"],
+          [
+            "priceUsd",
+            form.operationType === "alquiler"
+              ? "Renta USD / mes"
+              : "Precio USD",
+          ],
           ["administrationUsd", "Admin USD"],
           ["beds", "Habitaciones"],
           ["baths", "Baños"],
@@ -61,20 +89,23 @@ function EditListing() {
         ] as const
       ).map(([key, label]) => (
         <label key={key} className="block space-y-1 text-sm">
-          <span className="text-white/70">{label}</span>
+          <span className="text-muted-foreground">{label}</span>
           <input
             value={form[key] ?? ""}
             onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-            className="w-full rounded-xl border border-white/15 bg-black/30 px-4 py-3 text-white"
+            className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
           />
         </label>
       ))}
       <label className="block space-y-1 text-sm">
-        <span className="text-white/70">Ciudad</span>
+        <span className="text-muted-foreground">Ciudad</span>
         <select
           value={form.cityId}
-          onChange={(e) => setForm({ ...form, cityId: e.target.value })}
-          className="w-full rounded-xl border border-white/15 bg-black/30 px-4 py-3 text-white"
+          onChange={(e) => {
+            setForm({ ...form, cityId: e.target.value });
+            setPin(null);
+          }}
+          className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
         >
           {CITIES.map((c) => (
             <option key={c.id} value={c.id}>
@@ -83,27 +114,60 @@ function EditListing() {
           ))}
         </select>
       </label>
+      <div className="space-y-2">
+        <p className="text-sm text-muted-foreground">Ubicación en el mapa</p>
+        <LocationPickerLazy
+          cityId={form.cityId || "caracas"}
+          value={pin}
+          onChange={setPin}
+        />
+        {pin ? (
+          <p className="text-[11px] text-neon/80">
+            Pin: {pin.lat.toFixed(5)}, {pin.lng.toFixed(5)}
+          </p>
+        ) : (
+          <p className="text-[11px] text-amber-200/80">
+            Sin pin — obligatorio para publicar / salir en mapa.
+          </p>
+        )}
+      </div>
       <label className="block space-y-1 text-sm">
-        <span className="text-white/70">Descripción</span>
+        <span className="text-muted-foreground">Descripción</span>
         <textarea
           value={form.description ?? ""}
           onChange={(e) => setForm({ ...form, description: e.target.value })}
           rows={5}
-          className="w-full rounded-xl border border-white/15 bg-black/30 px-4 py-3 text-white"
+          className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
         />
       </label>
       <label className="block space-y-1 text-sm">
-        <span className="text-white/70">Features (coma)</span>
+        <span className="text-muted-foreground">Features (coma)</span>
         <input
           value={form.features ?? ""}
           onChange={(e) => setForm({ ...form, features: e.target.value })}
-          className="w-full rounded-xl border border-white/15 bg-black/30 px-4 py-3 text-white"
+          className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
+        />
+      </label>
+      <label className="block space-y-1 text-sm">
+        <span className="text-muted-foreground">
+          WhatsApp en ficha (vacío = oculto)
+        </span>
+        <input
+          value={form.contactWhatsapp ?? ""}
+          onChange={(e) =>
+            setForm({ ...form, contactWhatsapp: e.target.value })
+          }
+          placeholder="58412xxxxxxx"
+          className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
         />
       </label>
       <UploadButton
         endpoint="listingImageUploader"
         onClientUploadComplete={(res) => {
-          setImages((prev) => [...prev, ...res.map((f) => f.url)]);
+          const urls = res
+            .map((f) => uploadThingFileUrl(f))
+            .filter((u): u is string => Boolean(u));
+          setImages((prev) => [...prev, ...urls]);
         }}
         onUploadError={(e) => {
           void toast.error(e.message);
@@ -113,11 +177,18 @@ function EditListing() {
         <button
           type="button"
           className="h-11 rounded-full bg-neon px-5 text-sm font-semibold text-primary-foreground"
-          onClick={() =>
+          onClick={() => {
+            if (!pin) {
+              toast.error("Marca la ubicación en el mapa");
+              return;
+            }
             void updateListing({
               id,
               title: form.title,
               type: form.type as "apartamentos" | "casas",
+              operationType: (form.operationType === "alquiler"
+                ? "alquiler"
+                : "venta") as "venta" | "alquiler",
               cityId: form.cityId,
               neighborhood: form.neighborhood,
               priceUsd: Number(form.priceUsd) || 0,
@@ -130,19 +201,22 @@ function EditListing() {
                 .split(",")
                 .map((s) => s.trim())
                 .filter(Boolean),
+              contactWhatsapp: (form.contactWhatsapp ?? "").trim(),
+              lat: pin.lat,
+              lng: pin.lng,
               images,
             })
               .then(() => toast.success("Guardado"))
               .catch((e) =>
                 toast.error(e instanceof Error ? e.message : "Error"),
-              )
-          }
+              );
+          }}
         >
           Guardar
         </button>
         <button
           type="button"
-          className="h-11 rounded-full border border-white/20 px-5 text-sm text-white"
+          className="h-11 rounded-full border border-border px-5 text-sm text-foreground hover:bg-accent"
           onClick={() =>
             void publishListing({ id })
               .then(() => {

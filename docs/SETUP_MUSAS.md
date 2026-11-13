@@ -48,7 +48,7 @@ Copiar desde `.env.local` Musas (nunca Biosite). Marcar **todas** como disponibl
 | Variable | Dónde se usa | Notas |
 |----------|--------------|-------|
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Client + SSR | Clerk Musas |
-| `CLERK_SECRET_KEY` | Server (`auth()`, UploadThing middleware) | Clerk Musas |
+| `CLERK_SECRET_KEY` | Server (UploadThing `authenticateRequest`) | Clerk Musas |
 | `CLERK_WEBHOOK_SECRET` | `POST /api/clerk` | Svix secret del webhook |
 | `NEXT_PUBLIC_CONVEX_URL` | Client + webhook HTTP | `https://colorful-llama-725.convex.cloud` |
 | `CONVEX_DEPLOYMENT` | Convex tooling / build hints | ej. `dev:colorful-llama-725` o prod deployment |
@@ -66,6 +66,7 @@ Copiar desde `.env.local` Musas (nunca Biosite). Marcar **todas** como disponibl
 | `NEXT_PUBLIC_SITE_URL` | — | `https://www.musasbienesraices.com` |
 | `NEXT_PUBLIC_OPS_EMAIL` | “sin email ops” en admin | Contacto Preferencial |
 | `NEXT_PUBLIC_OPS_WHATSAPP` | opcional | Canal ops |
+| `NEXT_PUBLIC_MAPTILER_API_KEY` | opcional | Mapas light/dark con calles (maptiler.com). OSM.org **no** pide key; sin esta var → OSM claro + Esri gris oscuro |
 
 #### Solo Convex Dashboard (NO van en Vercel)
 
@@ -91,9 +92,9 @@ Copiar desde `.env.local` Musas (nunca Biosite). Marcar **todas** como disponibl
 
 ### 2.3 Auth / Next 16 notas
 
-- **No** reintroducir `clerkMiddleware` hasta validar que no cuelga el proxy Next 16.
-- Protección: `AuthGate` + `x-pathname` desde `src/proxy.ts` → redirect a `/sign-in?redirect_url=…`.
-- UploadThing middleware sigue usando `auth()` de Clerk (requiere `CLERK_SECRET_KEY` en Vercel).
+- **No** reintroducir `clerkMiddleware` — cuelga el proxy Next 16 (incl. si se acota solo a `/api/uploadthing`).
+- Protección de páginas: `AuthGate` client (`useAuth`) en `/publicar`, `/dashboard`, `/admin`.
+- UploadThing: `createClerkClient().authenticateRequest(req)` en `src/app/api/uploadthing/core.ts` + `NextSSRPlugin` en root layout. Requiere `CLERK_SECRET_KEY` + `UPLOADTHING_TOKEN`.
 - Build (Cache Components): `ConvexReactClient` se crea **solo en cliente** tras hydration (evita `Math.random` en prerender). Hasta entonces el shell muestra “Cargando Musas…” para no montar hooks Convex sin provider. Root layout: `instant = false` + `<Suspense>` alrededor de `Providers`.
 
 ---

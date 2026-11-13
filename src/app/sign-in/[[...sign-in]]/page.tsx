@@ -8,7 +8,9 @@ export default function SignInPage() {
   if (!BACKEND_CONFIGURED) {
     return (
       <main className="mx-auto max-w-md flex-1 px-5 py-20 text-center">
-        <h1 className="text-xl font-semibold text-white">Login no configurado</h1>
+        <h1 className="text-xl font-semibold text-foreground">
+          Login no configurado
+        </h1>
         <p className="mt-3 text-sm text-muted-foreground">
           Crea una app Clerk nueva para Musas y completa{" "}
           <code className="text-neon">.env.local</code>.

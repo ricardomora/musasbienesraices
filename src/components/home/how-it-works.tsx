@@ -29,7 +29,7 @@ export function HowItWorks({ onPublish, productLive = false }: HowItWorksProps) 
     <>
       <section
         id="como-funciona"
-        className="scroll-mt-24 border-t border-white/5 bg-background py-20 sm:py-28"
+        className="scroll-mt-24 border-t border-border bg-background py-20 sm:py-28"
       >
         <div className="mx-auto max-w-6xl px-5 sm:px-8">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -38,7 +38,7 @@ export function HowItWorks({ onPublish, productLive = false }: HowItWorksProps) 
                 <span className="h-px w-8 bg-neon" aria-hidden />
                 El camino a tu nuevo hogar
               </p>
-              <h2 className="mt-4 max-w-xl text-[clamp(1.8rem,4vw,2.75rem)] leading-tight font-semibold tracking-tight text-white">
+              <h2 className="mt-4 max-w-xl text-[clamp(1.8rem,4vw,2.75rem)] leading-tight font-semibold tracking-tight text-foreground">
                 Una gran decisión.
                 <br className="hidden sm:block" /> Un proceso más simple.
               </h2>
@@ -54,7 +54,7 @@ export function HowItWorks({ onPublish, productLive = false }: HowItWorksProps) 
                 <p className="text-sm font-medium text-neon tabular-nums">
                   {step.n}
                 </p>
-                <h3 className="text-xl font-semibold text-white">{step.title}</h3>
+                <h3 className="text-xl font-semibold text-foreground">{step.title}</h3>
                 <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
                   {step.body}
                 </p>
@@ -66,11 +66,11 @@ export function HowItWorks({ onPublish, productLive = false }: HowItWorksProps) 
 
       <section
         id="publicar"
-        className="scroll-mt-24 border-t border-white/5 bg-background py-14"
+        className="scroll-mt-24 border-t border-border bg-background py-14"
       >
         <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-5 sm:flex-row sm:items-center sm:px-8">
           <div>
-            <h2 className="text-2xl font-semibold text-white sm:text-3xl">
+            <h2 className="text-2xl font-semibold text-foreground sm:text-3xl">
               ¿Tienes un inmueble para vender?
             </h2>
             <p className="mt-2 max-w-lg text-muted-foreground">
@@ -89,9 +89,9 @@ export function HowItWorks({ onPublish, productLive = false }: HowItWorksProps) 
         </div>
       </section>
 
-      <footer className="border-t border-white/10 bg-ink py-10">
-        <div className="mx-auto flex max-w-6xl flex-col gap-4 px-5 text-sm text-white/55 sm:flex-row sm:items-center sm:justify-between sm:px-8">
-          <div className="inline-flex items-center gap-2 text-white">
+      <footer className="border-t border-border bg-card py-10">
+        <div className="mx-auto flex max-w-6xl flex-col gap-4 px-5 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-8">
+          <div className="inline-flex items-center gap-2 text-foreground">
             <span className="inline-flex size-7 items-center justify-center rounded-full border border-neon/40 text-neon">
               <Home className="size-3.5" aria-hidden />
             </span>

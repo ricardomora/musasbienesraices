@@ -63,7 +63,14 @@ export function listingIsComplete(listing: {
   areaM2: number;
   images: string[];
   cityId: string;
+  lat?: number;
+  lng?: number;
 }) {
+  const hasPin =
+    typeof listing.lat === "number" &&
+    typeof listing.lng === "number" &&
+    Number.isFinite(listing.lat) &&
+    Number.isFinite(listing.lng);
   return (
     listing.title.trim().length >= 3 &&
     listing.neighborhood.trim().length >= 2 &&
@@ -74,7 +81,8 @@ export function listingIsComplete(listing: {
     listing.baths >= 0 &&
     listing.areaM2 > 0 &&
     listing.images.length >= 1 &&
-    listing.cityId.trim().length > 0
+    listing.cityId.trim().length > 0 &&
+    hasPin
   );
 }
 

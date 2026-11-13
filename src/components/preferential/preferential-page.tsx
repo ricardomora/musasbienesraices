@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { BackendGate } from "@/components/system/backend-gate";
+import { AppChrome } from "@/components/system/app-chrome";
 import {
   PREFERENTIAL_PACKAGES,
   packageName,
@@ -44,7 +45,7 @@ function PreferentialForm() {
       <p className="text-[11px] tracking-[0.2em] text-neon uppercase">
         Atención Preferencial
       </p>
-      <h1 className="mt-3 max-w-2xl text-[clamp(1.8rem,4vw,2.75rem)] font-semibold tracking-tight text-white">
+      <h1 className="mt-3 max-w-2xl text-[clamp(1.8rem,4vw,2.75rem)] font-semibold tracking-tight text-foreground">
         Paquetes claros para vender con respaldo.
       </h1>
       <p className="mt-4 max-w-xl text-muted-foreground">
@@ -53,7 +54,7 @@ function PreferentialForm() {
       </p>
 
       <aside
-        className="mt-6 rounded-xl border border-neon/25 bg-neon/5 px-4 py-3 text-sm leading-relaxed text-white/85"
+        className="mt-6 rounded-xl border border-neon/25 bg-neon/5 px-4 py-3 text-sm leading-relaxed text-foreground"
         role="note"
       >
         <strong className="font-medium text-neon">Cómo funciona:</strong>{" "}
@@ -61,7 +62,7 @@ function PreferentialForm() {
         coordinar y pagar fuera de la plataforma. El estado queda visible aquí.
       </aside>
 
-      <p className="mt-10 text-xs tracking-[0.16em] text-white/45 uppercase">
+      <p className="mt-10 text-xs tracking-[0.16em] text-muted-foreground uppercase">
         1 · Elige paquetes
       </p>
       <div className="mt-3 grid gap-6 md:grid-cols-3">
@@ -76,17 +77,17 @@ function PreferentialForm() {
               className={`rounded-2xl border p-5 text-left transition ${
                 on
                   ? "border-neon bg-neon/10"
-                  : "border-white/10 bg-white/[0.02] hover:border-white/25"
+                  : "border-border bg-muted/30 hover:border-neon/35"
               }`}
             >
-              <h2 className="text-lg font-semibold text-white">{pkg.name}</h2>
+              <h2 className="text-lg font-semibold text-foreground">{pkg.name}</h2>
               <p className="mt-2 text-sm text-muted-foreground">
                 {pkg.includes}
               </p>
               <p className="mt-4 text-sm text-neon">
                 desde {formatUsd(pkg.fromUsd)} · a cotizar
               </p>
-              <p className="mt-3 text-xs text-white/50">
+              <p className="mt-3 text-xs text-muted-foreground">
                 {on ? "Seleccionado" : "Toca para seleccionar"}
               </p>
             </button>
@@ -95,8 +96,8 @@ function PreferentialForm() {
       </div>
 
       {!isSignedIn ? (
-        <div className="mt-12 rounded-2xl border border-white/10 bg-white/[0.02] px-5 py-6">
-          <p className="text-xs tracking-[0.16em] text-white/45 uppercase">
+        <div className="mt-12 rounded-2xl border border-border bg-muted/30 px-5 py-6">
+          <p className="text-xs tracking-[0.16em] text-muted-foreground uppercase">
             2 · Solicitud de contacto
           </p>
           <p className="mt-3 text-sm text-muted-foreground">
@@ -108,7 +109,7 @@ function PreferentialForm() {
         </div>
       ) : (
         <form
-          className="mt-12 space-y-4 rounded-2xl border border-white/10 bg-white/[0.02] px-5 py-6"
+          className="mt-12 space-y-4 rounded-2xl border border-border bg-muted/30 px-5 py-6"
           onSubmit={(e) => {
             e.preventDefault();
             if (!phone.trim()) {
@@ -136,10 +137,10 @@ function PreferentialForm() {
           }}
         >
           <div>
-            <p className="text-xs tracking-[0.16em] text-white/45 uppercase">
+            <p className="text-xs tracking-[0.16em] text-muted-foreground uppercase">
               2 · Solicitud de contacto
             </p>
-            <h2 className="mt-2 text-lg font-semibold text-white">
+            <h2 className="mt-2 text-lg font-semibold text-foreground">
               Cuéntanos cómo contactarte
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -149,11 +150,11 @@ function PreferentialForm() {
           </div>
           {(myListings?.length ?? 0) > 0 ? (
             <label className="block space-y-1 text-sm">
-              <span className="text-white/70">Inmueble (opcional)</span>
+              <span className="text-muted-foreground">Inmueble (opcional)</span>
               <select
                 value={listingId}
                 onChange={(e) => setListingId(e.target.value)}
-                className="w-full rounded-xl border border-white/15 bg-black/30 px-4 py-3 text-white"
+                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
               >
                 <option value="">Sin vincular</option>
                 {myListings?.map((l) => (
@@ -165,25 +166,25 @@ function PreferentialForm() {
             </label>
           ) : null}
           <label className="block space-y-1 text-sm">
-            <span className="text-white/70">WhatsApp / teléfono *</span>
+            <span className="text-muted-foreground">WhatsApp / teléfono *</span>
             <input
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               required
-              className="w-full rounded-xl border border-white/15 bg-black/30 px-4 py-3 text-white"
+              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
               placeholder="+58 412…"
               autoComplete="tel"
             />
           </label>
           <label className="block space-y-1 text-sm">
-            <span className="text-white/70">Notas para cotizar *</span>
+            <span className="text-muted-foreground">Notas para cotizar *</span>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={4}
               required
               minLength={10}
-              className="w-full rounded-xl border border-white/15 bg-black/30 px-4 py-3 text-white"
+              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
               placeholder="Zona, urgencia y qué paquete te interesa más…"
             />
           </label>
@@ -208,12 +209,12 @@ function PreferentialForm() {
 
       {(myRequests?.length ?? 0) > 0 ? (
         <section className="mt-14">
-          <h2 className="text-lg font-semibold text-white">Tus solicitudes</h2>
+          <h2 className="text-lg font-semibold text-foreground">Tus solicitudes</h2>
           <ul className="mt-4 space-y-3">
             {myRequests?.map((r) => (
               <li
                 key={r._id}
-                className="rounded-xl border border-white/10 px-4 py-3 text-sm"
+                className="rounded-xl border border-border px-4 py-3 text-sm"
               >
                 <span className="text-neon">
                   {preferentialStatusLabel(r.status)}
@@ -231,15 +232,12 @@ function PreferentialForm() {
 
 export function PreferentialPage() {
   return (
-    <main className="flex-1 bg-background">
-      <div className="border-b border-white/10 px-5 py-4 sm:px-8">
-        <Link href="/" className="font-semibold text-white">
-          musas<span className="text-neon">.</span>
-        </Link>
-      </div>
-      <BackendGate feature="Atención Preferencial">
-        <PreferentialForm />
-      </BackendGate>
-    </main>
+    <AppChrome>
+      <main className="flex-1 bg-background">
+        <BackendGate feature="Atención Preferencial">
+          <PreferentialForm />
+        </BackendGate>
+      </main>
+    </AppChrome>
   );
 }

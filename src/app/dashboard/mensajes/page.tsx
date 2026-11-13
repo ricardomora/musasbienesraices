@@ -16,7 +16,7 @@ function Inbox() {
 
   return (
     <div className="mx-auto max-w-3xl px-5 py-10 sm:px-8">
-      <h1 className="text-2xl font-semibold text-white">Preguntas recibidas</h1>
+      <h1 className="text-2xl font-semibold text-foreground">Preguntas recibidas</h1>
       <p className="mt-1 text-sm text-muted-foreground">
         Responde desde aquí — el hilo queda público en la ficha del inmueble.
       </p>
@@ -24,7 +24,7 @@ function Inbox() {
         {(threads ?? []).map((t) => (
           <li
             key={t.question._id}
-            className="rounded-xl border border-white/10 p-4"
+            className="rounded-xl border border-border p-4"
           >
             <p className="text-xs text-muted-foreground">
               {t.askerName} ·{" "}
@@ -35,9 +35,9 @@ function Inbox() {
                 {t.listingTitle}
               </Link>
             </p>
-            <p className="mt-2 text-white">{t.question.body}</p>
+            <p className="mt-2 text-foreground">{t.question.body}</p>
             {t.answer ? (
-              <p className="mt-3 border-l-2 border-neon/40 pl-3 text-sm text-white/80">
+              <p className="mt-3 border-l-2 border-neon/40 pl-3 text-sm text-foreground">
                 {t.answer.body}
               </p>
             ) : (
@@ -58,7 +58,7 @@ function Inbox() {
                 }}
               >
                 <label className="block space-y-1">
-                  <span className="text-xs text-white/55">Tu respuesta</span>
+                  <span className="text-xs text-muted-foreground">Tu respuesta</span>
                   <textarea
                     value={drafts[t.question._id] ?? ""}
                     onChange={(e) =>
@@ -69,7 +69,7 @@ function Inbox() {
                     }
                     rows={2}
                     placeholder="Disponibilidad, visitas, documentos…"
-                    className="w-full rounded-lg border border-white/15 bg-black/30 px-3 py-2 text-sm text-white"
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground"
                   />
                 </label>
                 <button

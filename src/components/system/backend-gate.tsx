@@ -13,7 +13,7 @@ export function BackendGate({
   if (!BACKEND_CONFIGURED) {
     return (
       <div className="mx-auto max-w-lg px-5 py-20 text-center">
-        <h1 className="text-2xl font-semibold text-white">
+        <h1 className="text-2xl font-semibold text-foreground">
           Configura Musas primero
         </h1>
         <p className="mt-3 text-sm text-muted-foreground">

@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CITIES, type CityId } from "@/data/cities";
 import {
-  BUDGET_OPTIONS,
+  budgetsForOperation,
   filterListings,
   LISTINGS,
   type Listing,
@@ -33,16 +33,29 @@ function filtersFromParams(searchParams: URLSearchParams) {
   const type = parseType(searchParams.get("tipo"));
   const budgetId = searchParams.get("presupuesto") ?? "any";
   const favoritesOnly = searchParams.get("favoritos") === "1";
+  const q = searchParams.get("q") ?? "";
+  const sector = searchParams.get("sector") ?? "";
+  const verifiedOnly = searchParams.get("revisado") === "1";
   return {
     cityId,
     type,
     budgetId,
     favoritesOnly,
+    q,
+    sector,
+    verifiedOnly,
     search: {
-      mode: (favoritesOnly ? "favoritos" : "comprar") as HeroSearchValues["mode"],
+      mode: (favoritesOnly
+        ? "favoritos"
+        : searchParams.get("op") === "alquiler"
+          ? "alquilar"
+          : "comprar") as HeroSearchValues["mode"],
       cityId,
       type,
       budgetId,
+      q,
+      sector,
+      verifiedOnly,
     },
   };
 }
@@ -74,8 +87,11 @@ export function HomeApp() {
   }
 
   const applied = fromUrl;
+  const localOp =
+    fromUrl.search.mode === "alquilar" ? "alquiler" : ("venta" as const);
   const budgetMaxUsd =
-    BUDGET_OPTIONS.find((o) => o.id === applied.budgetId)?.maxUsd ?? null;
+    budgetsForOperation(localOp).find((o) => o.id === applied.budgetId)
+      ?.maxUsd ?? null;
 
   const visible = useMemo(() => {
     const effectiveType = typePill === "todos" ? applied.type : typePill;
@@ -84,12 +100,16 @@ export function HomeApp() {
       {
         cityId: applied.cityId,
         type: effectiveType,
+        operationType: applied.favoritesOnly ? "all" : localOp,
         budgetMaxUsd,
         favoritesOnly: applied.favoritesOnly,
+        q: applied.q,
+        sector: applied.sector,
+        verifiedOnly: applied.verifiedOnly,
       },
       favoriteSet,
     );
-  }, [applied, budgetMaxUsd, favoriteSet, typePill]);
+  }, [applied, budgetMaxUsd, favoriteSet, typePill, localOp]);
 
   const syncQuery = useCallback(
     (next: {
@@ -97,12 +117,18 @@ export function HomeApp() {
       type: PropertyType | "all";
       budgetId: string;
       favoritesOnly: boolean;
+      q?: string;
+      sector?: string;
+      verifiedOnly?: boolean;
     }) => {
       const params = new URLSearchParams();
       if (next.cityId !== "all") params.set("ciudad", next.cityId);
       if (next.type !== "all") params.set("tipo", next.type);
       if (next.budgetId !== "any") params.set("presupuesto", next.budgetId);
       if (next.favoritesOnly) params.set("favoritos", "1");
+      if (next.q?.trim()) params.set("q", next.q.trim());
+      if (next.sector?.trim()) params.set("sector", next.sector.trim());
+      if (next.verifiedOnly) params.set("revisado", "1");
       const qs = params.toString();
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     },
@@ -125,6 +151,9 @@ export function HomeApp() {
       type: search.type,
       budgetId: search.budgetId,
       favoritesOnly,
+      q: search.q,
+      sector: search.sector,
+      verifiedOnly: search.verifiedOnly,
     };
     if (search.type !== "all") setTypePill(search.type);
     else setTypePill("todos");
@@ -143,6 +172,9 @@ export function HomeApp() {
         type: search.type,
         budgetId: search.budgetId,
         favoritesOnly,
+        q: search.q,
+        sector: search.sector,
+        verifiedOnly: search.verifiedOnly,
       });
       scrollToListings();
     },
@@ -155,6 +187,9 @@ export function HomeApp() {
       cityId: "all",
       type: "all",
       budgetId: "any",
+      q: "",
+      sector: "",
+      verifiedOnly: false,
     });
     setTypePill("todos");
     syncQuery({
@@ -162,6 +197,9 @@ export function HomeApp() {
       type: "all",
       budgetId: "any",
       favoritesOnly: false,
+      q: "",
+      sector: "",
+      verifiedOnly: false,
     });
     scrollToListings();
   }, [syncQuery, scrollToListings]);
@@ -180,6 +218,9 @@ export function HomeApp() {
         type: nextValues.type,
         budgetId: nextValues.budgetId,
         favoritesOnly: nextMode === "favoritos",
+        q: nextValues.q,
+        sector: nextValues.sector,
+        verifiedOnly: nextValues.verifiedOnly,
       });
     }
   };

@@ -3,6 +3,9 @@ import { v } from "convex/values";
 
 const propertyType = v.union(v.literal("apartamentos"), v.literal("casas"));
 
+/** venta = precio total USD; alquiler = USD / mes. */
+const operationType = v.union(v.literal("venta"), v.literal("alquiler"));
+
 const listingStatus = v.union(
   v.literal("draft"),
   v.literal("published"),
@@ -42,11 +45,22 @@ export default defineSchema({
     ownerId: v.id("users"),
     status: listingStatus,
     type: propertyType,
+    /** Default venta for legacy rows without field. */
+    operationType: v.optional(operationType),
     cityId: v.string(),
     neighborhood: v.string(),
     title: v.string(),
     slug: v.string(),
     badge: v.optional(v.string()),
+    /** Soft trust: publish first; admin later marks musas_reviewed. */
+    trustBadge: v.optional(
+      v.union(v.literal("none"), v.literal("musas_reviewed")),
+    ),
+    reviewedAt: v.optional(v.number()),
+    reviewedBy: v.optional(v.id("users")),
+    contactWhatsapp: v.optional(v.string()),
+    lat: v.optional(v.number()),
+    lng: v.optional(v.number()),
     priceUsd: v.number(),
     administrationUsd: v.number(),
     beds: v.number(),
@@ -64,7 +78,8 @@ export default defineSchema({
     .index("by_status", ["status"])
     .index("by_owner", ["ownerId"])
     .index("by_city_status", ["cityId", "status"])
-    .index("by_type_status", ["type", "status"]),
+    .index("by_type_status", ["type", "status"])
+    .index("by_operation_status", ["operationType", "status"]),
 
   questions: defineTable({
     listingId: v.id("listings"),
@@ -102,5 +117,21 @@ export default defineSchema({
     updatedAt: v.number(),
   })
     .index("by_user", ["userId"])
+    .index("by_status", ["status"]),
+
+  /** Report fake / suspicious listing (Propiedash parity, soft ops). */
+  listingReports: defineTable({
+    listingId: v.id("listings"),
+    reporterId: v.optional(v.id("users")),
+    reason: v.string(),
+    details: v.optional(v.string()),
+    status: v.union(
+      v.literal("open"),
+      v.literal("reviewed"),
+      v.literal("dismissed"),
+    ),
+    createdAt: v.number(),
+  })
+    .index("by_listing", ["listingId"])
     .index("by_status", ["status"]),
 });

@@ -68,7 +68,7 @@ export function PropertyDetailDialog({
               <DialogTitle>{listing.title}</DialogTitle>
               <DialogDescription>{listing.description}</DialogDescription>
 
-              <p className="text-2xl font-semibold tracking-tight text-white">
+              <p className="text-2xl font-semibold tracking-tight text-foreground">
                 {formatUsd(listing.priceUsd)}
                 <span className="ml-2 text-sm font-normal text-muted-foreground">
                   USD
@@ -90,11 +90,11 @@ export function PropertyDetailDialog({
                 </span>
               </div>
 
-              <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm">
+              <div className="flex items-center justify-between rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm">
                 <span className="text-muted-foreground">
                   Administración mensual
                 </span>
-                <strong className="font-medium text-white">
+                <strong className="font-medium text-foreground">
                   {formatUsd(listing.administrationUsd)}
                 </strong>
               </div>
@@ -103,7 +103,7 @@ export function PropertyDetailDialog({
                 {listing.features.map((feature) => (
                   <span
                     key={feature}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-white/85"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/40 px-3 py-1.5 text-xs text-foreground"
                   >
                     <Check className="size-3 text-neon" aria-hidden />
                     {feature}
@@ -111,7 +111,7 @@ export function PropertyDetailDialog({
                 ))}
               </div>
 
-              <p className="text-xs leading-relaxed text-white/45">
+              <p className="text-xs leading-relaxed text-muted-foreground">
                 Inmueble de ejemplo con imágenes ilustrativas. Los precios y
                 características son ficticios; no es una oferta comercial.
               </p>
@@ -128,7 +128,7 @@ export function PropertyDetailDialog({
                 <button
                   type="button"
                   onClick={onToggleFavorite}
-                  className="interactive-surface inline-flex h-11 items-center gap-2 rounded-full border border-white/20 px-5 text-sm text-white hover:border-white/40 hover:bg-white/5"
+                  className="interactive-surface inline-flex h-11 items-center gap-2 rounded-full border border-border px-5 text-sm text-foreground hover:border-neon/35 hover:bg-accent"
                 >
                   <Heart
                     className={`size-4 ${liked ? "fill-neon text-neon" : ""}`}

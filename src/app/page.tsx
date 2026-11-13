@@ -8,6 +8,9 @@ export const metadata: Metadata = {
     "Explora inmuebles en venta en Venezuela: filtra por ciudad, tipo y presupuesto en USD. Guarda favoritos y da el siguiente paso sin complicaciones.",
 };
 
+/** Home is client/Convex-driven; skip Instant Navigation validation. */
+export const instant = false;
+
 export default function HomePage() {
   return (
     <Suspense

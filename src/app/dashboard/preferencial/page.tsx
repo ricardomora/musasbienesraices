@@ -14,7 +14,7 @@ function MyPreferential() {
   const rows = useQuery(api.preferential.myRequests);
   return (
     <div className="mx-auto max-w-3xl px-5 py-10 sm:px-8">
-      <h1 className="text-2xl font-semibold text-white">
+      <h1 className="text-2xl font-semibold text-foreground">
         Mis solicitudes Preferencial
       </h1>
       <p className="mt-1 text-sm text-muted-foreground">
@@ -27,10 +27,10 @@ function MyPreferential() {
         {(rows ?? []).map((r) => (
           <li
             key={r._id}
-            className="rounded-xl border border-white/10 p-4 text-sm"
+            className="rounded-xl border border-border p-4 text-sm"
           >
             <p className="text-neon">{preferentialStatusLabel(r.status)}</p>
-            <p className="mt-1 text-white">
+            <p className="mt-1 text-foreground">
               {r.packageKeys.map(packageName).join(" · ")}
             </p>
             {r.notes ? (

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Fraunces, Outfit, Geist_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
+import { UploadThingSSR } from "@/components/system/uploadthing-ssr";
 import "./globals.css";
 
 /** Clerk/Convex in Providers read request runtime; defer Instant Navigation validation until auth is fully Cache-Components shaped. */
@@ -40,15 +41,24 @@ export const metadata: Metadata = {
   },
 };
 
+const themeBootScript = `(function(){try{var k='musas.theme';var t=localStorage.getItem(k);if(t!=='light'&&t!=='dark'){t=window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}var r=document.documentElement;r.classList.toggle('dark',t==='dark');r.style.colorScheme=t;r.dataset.theme=t;}catch(e){document.documentElement.classList.add('dark');}})();`;
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html
       lang="es"
-      className={`dark ${outfit.variable} ${fraunces.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
+      className={`${outfit.variable} ${fraunces.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
+      </head>
       <body className="flex min-h-full flex-col atmosphere">
+        <Suspense fallback={null}>
+          <UploadThingSSR />
+        </Suspense>
         <Suspense fallback={null}>
           <Providers>{children}</Providers>
         </Suspense>

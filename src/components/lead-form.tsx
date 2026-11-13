@@ -45,7 +45,7 @@ export function LeadForm() {
         <Button
           type="button"
           variant="outline"
-          className="interactive-surface mt-5 border-white/15 bg-transparent hover:bg-white/5"
+          className="interactive-surface mt-5 border-border bg-transparent hover:bg-accent"
           onClick={() => setStatus("idle")}
         >
           Enviar otra consulta
@@ -70,7 +70,7 @@ export function LeadForm() {
             placeholder="Ana Ruiz"
             required
             disabled={status === "sending"}
-            className="interactive-surface border-white/10 bg-background/40"
+            className="interactive-surface border-border bg-background/40"
           />
         </div>
         <div className="space-y-2">
@@ -83,7 +83,7 @@ export function LeadForm() {
             placeholder="ana@correo.com"
             required
             disabled={status === "sending"}
-            className="interactive-surface border-white/10 bg-background/40"
+            className="interactive-surface border-border bg-background/40"
           />
         </div>
       </div>
@@ -95,7 +95,7 @@ export function LeadForm() {
           autoComplete="address-level2"
           placeholder="Caracas"
           disabled={status === "sending"}
-          className="interactive-surface border-white/10 bg-background/40"
+          className="interactive-surface border-border bg-background/40"
         />
       </div>
       <div className="space-y-2">
@@ -106,7 +106,7 @@ export function LeadForm() {
           rows={3}
           placeholder="Apto en Altamira, casa en Valencia, terreno en Lechería…"
           disabled={status === "sending"}
-          className="interactive-surface border-white/10 bg-background/40"
+          className="interactive-surface border-border bg-background/40"
         />
       </div>
       {status === "error" ? (

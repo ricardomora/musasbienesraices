@@ -7,6 +7,8 @@ export const metadata: Metadata = {
     "Paquetes Musas: fotos, legal y acompañamiento. Solicita en app; coordinación y pago fuera.",
 };
 
+export const instant = false;
+
 export default function Page() {
   return <PreferentialPage />;
 }

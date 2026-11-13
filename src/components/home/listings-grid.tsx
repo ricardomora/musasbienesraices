@@ -9,19 +9,24 @@ import {
   Check,
   Heart,
   Home,
+  LayoutGrid,
+  Map,
   MapPin,
   Ruler,
   SlidersHorizontal,
 } from "lucide-react";
 import {
-  formatUsd,
+  formatListingPrice,
   listingLocation,
+  listingOperation,
   type Listing,
   type PropertyType,
 } from "@/data/listings";
+import { ListingsMapLazy } from "@/components/explore/listings-map-lazy";
 import { cn } from "@/lib/utils";
 
 type TypeFilter = "todos" | PropertyType;
+export type ExploreView = "lista" | "mapa";
 
 type ListingsGridProps = {
   listings: Listing[];
@@ -32,6 +37,9 @@ type ListingsGridProps = {
   favoritesOnly: boolean;
   /** True when Convex/catalog has zero published listings (no seed yet). */
   catalogEmpty?: boolean;
+  operationLabel?: "venta" | "alquiler";
+  view?: ExploreView;
+  onViewChange?: (next: ExploreView) => void;
   onSelectListing: (listing: Listing) => void;
   onResetFilters: () => void;
 };
@@ -54,22 +62,31 @@ export function ListingsGrid({
   onToggleFavorite,
   favoritesOnly,
   catalogEmpty = false,
+  operationLabel,
+  view = "lista",
+  onViewChange,
   onSelectListing,
   onResetFilters,
 }: ListingsGridProps) {
+  const opCopy =
+    operationLabel === "alquiler"
+      ? "Alquiler en Venezuela · USD / mes"
+      : "Venta y alquiler · precios en USD";
+  const exploreView = view;
+
   return (
     <section
       id="inmuebles"
       className="scroll-mt-24 bg-background py-16 sm:py-24"
-      aria-label="Explorar inmuebles en venta"
+      aria-label="Explorar inmuebles"
     >
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-[11px] font-medium tracking-[0.2em] text-neon uppercase">
-              — Venta en Venezuela · precios en USD
+              — {opCopy}
             </p>
-            <h2 className="mt-3 max-w-xl text-[clamp(1.8rem,4vw,2.75rem)] leading-tight font-semibold tracking-tight text-white">
+            <h2 className="mt-3 max-w-xl text-[clamp(1.8rem,4vw,2.75rem)] leading-tight font-semibold tracking-tight text-foreground">
               {favoritesOnly
                 ? "Tus lugares favoritos"
                 : "Encuentra un lugar que se sienta tuyo."}
@@ -77,13 +94,15 @@ export function ListingsGrid({
             <p className="mt-3 max-w-md text-muted-foreground">
               {favoritesOnly
                 ? "Tus espacios guardados. Ábrelos cuando quieras volver."
-                : "Inmuebles en venta con precio claro en USD. Filtra, guarda y pregunta."}
+                : operationLabel === "alquiler"
+                  ? "Alquileres con renta clara en USD/mes. Filtra, guarda y pregunta."
+                  : "Compra o alquila con precio claro en USD. Filtra, guarda y pregunta."}
             </p>
           </div>
           <button
             type="button"
             onClick={onResetFilters}
-            className="interactive-surface inline-flex items-center gap-1.5 text-sm text-white/75 hover:text-neon"
+            className="interactive-surface inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-neon"
           >
             Ver todos los inmuebles
             <ArrowUpRight className="size-4" aria-hidden />
@@ -106,7 +125,7 @@ export function ListingsGrid({
                     "interactive-surface inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm",
                     active
                       ? "border-neon bg-neon text-primary-foreground"
-                      : "border-white/15 bg-white/[0.03] text-white/80 hover:border-white/30",
+                      : "border-border bg-card text-muted-foreground hover:border-neon/35 hover:text-foreground",
                   )}
                 >
                   <Icon className="size-3.5" aria-hidden />
@@ -115,16 +134,54 @@ export function ListingsGrid({
               );
             })}
           </div>
-          <p className="text-sm text-muted-foreground" aria-live="polite">
-            {listings.length} inmueble{listings.length === 1 ? "" : "s"}
-            {favoritesOnly ? " guardados" : ""}
-          </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <div
+              className="inline-flex rounded-full border border-border p-0.5"
+              role="tablist"
+              aria-label="Vista"
+            >
+              <button
+                type="button"
+                role="tab"
+                aria-selected={exploreView === "lista"}
+                onClick={() => onViewChange?.("lista")}
+                className={cn(
+                  "interactive-surface inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm",
+                  exploreView === "lista"
+                    ? "bg-neon text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                <LayoutGrid className="size-3.5" aria-hidden />
+                Lista
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={exploreView === "mapa"}
+                onClick={() => onViewChange?.("mapa")}
+                className={cn(
+                  "interactive-surface inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm",
+                  exploreView === "mapa"
+                    ? "bg-neon text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                <Map className="size-3.5" aria-hidden />
+                Mapa
+              </button>
+            </div>
+            <p className="text-sm text-muted-foreground" aria-live="polite">
+              {listings.length} inmueble{listings.length === 1 ? "" : "s"}
+              {favoritesOnly ? " guardados" : ""}
+            </p>
+          </div>
         </div>
 
         {listings.length === 0 ? (
-          <div className="mt-12 rounded-2xl border border-white/10 bg-white/[0.02] px-6 py-12 text-center">
+          <div className="mt-12 rounded-2xl border border-border bg-card px-6 py-12 text-center">
             <Home className="mx-auto size-8 text-neon" aria-hidden />
-            <h3 className="mt-4 text-xl font-semibold text-white">
+            <h3 className="mt-4 text-xl font-semibold text-foreground">
               {favoritesOnly
                 ? "Tu próximo lugar empieza con un favorito."
                 : catalogEmpty
@@ -148,7 +205,7 @@ export function ListingsGrid({
                 </a>
                 <a
                   href="/admin"
-                  className="interactive-surface inline-flex h-10 items-center rounded-full border border-white/20 px-5 text-sm text-white hover:bg-white/5"
+                  className="interactive-surface inline-flex h-10 items-center rounded-full border border-border px-5 text-sm text-foreground hover:bg-accent"
                 >
                   Ir a Admin (seed)
                 </a>
@@ -157,11 +214,23 @@ export function ListingsGrid({
               <button
                 type="button"
                 onClick={onResetFilters}
-                className="interactive-surface mt-6 inline-flex h-10 items-center rounded-full border border-white/20 px-5 text-sm text-white hover:bg-white/5"
+                  className="interactive-surface mt-6 inline-flex h-10 items-center rounded-full border border-border px-5 text-sm text-foreground hover:bg-accent"
               >
                 Explorar todos
               </button>
             )}
+          </div>
+        ) : exploreView === "mapa" ? (
+          <div className="mt-10 space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Puntos de las fichas con estos filtros. Usa el pin exacto si el
+              vendedor lo marcó al publicar.
+            </p>
+            <ListingsMapLazy
+              listings={listings}
+              national={listings.length > 3}
+              className="h-[min(72vh,640px)] w-full overflow-hidden rounded-2xl border border-border"
+            />
           </div>
         ) : (
           <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
@@ -170,7 +239,7 @@ export function ListingsGrid({
               return (
                 <article
                   key={listing.id}
-                  className="overflow-hidden rounded-xl border border-white/10 bg-[#070b0a]"
+                  className="overflow-hidden rounded-xl border border-border bg-card"
                 >
                   <div className="relative aspect-[4/3] overflow-hidden">
                     <button
@@ -187,11 +256,23 @@ export function ListingsGrid({
                         sizes="(max-width: 768px) 100vw, 33vw"
                       />
                     </button>
-                    {listing.badge ? (
-                      <span className="pointer-events-none absolute left-3 top-3 z-10 rounded-md bg-ink/70 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur-md">
-                        {listing.badge}
+                    <div className="pointer-events-none absolute left-3 top-3 z-10 flex flex-col gap-1.5">
+                      <span className="rounded-md bg-ink/75 px-2.5 py-1 text-[11px] font-medium text-white/90 backdrop-blur-md">
+                        {listingOperation(listing) === "alquiler"
+                          ? "Alquiler"
+                          : "Venta"}
                       </span>
-                    ) : null}
+                      {listing.trustBadge === "musas_reviewed" ? (
+                        <span className="rounded-md border border-neon/50 bg-ink/75 px-2.5 py-1 text-[11px] font-medium text-neon backdrop-blur-md">
+                          Musas Revisado
+                        </span>
+                      ) : null}
+                      {listing.badge ? (
+                        <span className="rounded-md bg-ink/70 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur-md">
+                          {listing.badge}
+                        </span>
+                      ) : null}
+                    </div>
                     <button
                       type="button"
                       aria-label={
@@ -219,11 +300,11 @@ export function ListingsGrid({
                       />
                       {listingLocation(listing)}
                     </p>
-                    <h3 className="text-xl font-semibold tracking-tight text-white">
+                    <h3 className="text-xl font-semibold tracking-tight text-foreground">
                       {listing.title}
                     </h3>
-                    <p className="text-lg font-medium text-white">
-                      {formatUsd(listing.priceUsd)}
+                    <p className="text-lg font-medium text-foreground">
+                      {formatListingPrice(listing)}
                       <span className="ml-1.5 text-sm font-normal text-muted-foreground">
                         USD
                       </span>
@@ -244,15 +325,17 @@ export function ListingsGrid({
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between border-t border-white/10 px-4 py-3.5 text-sm sm:px-5">
-                    <span className="inline-flex items-center gap-1.5 text-white/80">
+                  <div className="flex items-center justify-between border-t border-border px-4 py-3.5 text-sm sm:px-5">
+                    <span className="inline-flex items-center gap-1.5 text-muted-foreground">
                       <Check className="size-3.5 text-neon" aria-hidden />
-                      Ficha completa
+                      {listing.trustBadge === "musas_reviewed"
+                        ? "Musas Revisado"
+                        : "Ficha publicada"}
                     </span>
                     <button
                       type="button"
                       onClick={() => onSelectListing(listing)}
-                      className="interactive-surface inline-flex items-center gap-1.5 text-neon hover:text-white"
+                      className="interactive-surface inline-flex items-center gap-1.5 text-neon hover:text-foreground"
                     >
                       Ver inmueble
                       <ArrowUpRight className="size-3.5" aria-hidden />

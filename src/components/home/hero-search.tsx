@@ -16,14 +16,22 @@ import {
   Wallet,
 } from "lucide-react";
 import { CITIES, type CityId } from "@/data/cities";
-import { BUDGET_OPTIONS, type PropertyType } from "@/data/listings";
+import {
+  budgetsForOperation,
+  QUICK_SEARCH_CHIPS,
+  type OperationType,
+  type PropertyType,
+} from "@/data/listings";
 import { cn } from "@/lib/utils";
 
 export type HeroSearchValues = {
-  mode: "comprar" | "favoritos";
+  mode: "comprar" | "alquilar" | "favoritos";
   cityId: CityId | "all";
   type: PropertyType | "all";
   budgetId: string;
+  q: string;
+  sector: string;
+  verifiedOnly: boolean;
 };
 
 type HeroSearchProps = {
@@ -31,12 +39,15 @@ type HeroSearchProps = {
   favoriteCount: number;
   onChange: (next: Partial<HeroSearchValues>) => void;
   onSearch: () => void;
+  /** Misma búsqueda pero resultados en mapa con pins. */
+  onSearchMap?: () => void;
+  onChipApply?: (chipId: string) => void;
 };
 
 const TRUST = [
-  "Venta en USD",
+  "Venta y alquiler en USD",
   "Precios claros en ficha",
-  "Sin vueltas innecesarias",
+  "Mapa nacional",
 ];
 
 const VALUE_PROPS = [
@@ -80,9 +91,44 @@ export function HeroSearch({
   favoriteCount,
   onChange,
   onSearch,
+  onSearchMap,
+  onChipApply,
 }: HeroSearchProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
+  const operation: OperationType =
+    values.mode === "alquilar" ? "alquiler" : "venta";
+  const budgetOptions = budgetsForOperation(operation);
+  const chips = QUICK_SEARCH_CHIPS.filter(
+    (chip) => !chip.operationType || chip.operationType === operation,
+  );
+  const activeChip = chips.find((chip) => {
+    if (chip.verifiedOnly) return values.verifiedOnly;
+    if (chip.sector)
+      return values.sector.toLowerCase() === chip.sector.toLowerCase();
+    if (chip.budgetId && chip.budgetId !== "any")
+      return (
+        values.budgetId === chip.budgetId &&
+        !values.sector &&
+        !values.verifiedOnly
+      );
+    if (chip.type && chip.type !== "all")
+      return (
+        values.type === chip.type &&
+        !values.sector &&
+        !values.verifiedOnly &&
+        values.budgetId === "any"
+      );
+    if (chip.cityId && chip.cityId !== "all")
+      return (
+        values.cityId === chip.cityId &&
+        !values.sector &&
+        !values.verifiedOnly &&
+        values.budgetId === "any" &&
+        values.type === "all"
+      );
+    return false;
+  })?.id;
 
   return (
     <section
@@ -153,7 +199,7 @@ export function HeroSearch({
               {...fadeUp(reduce, 0.16)}
             >
               <span className="size-1.5 rounded-full bg-neon" aria-hidden />
-              Venezuela · venta en USD
+              Venezuela · venta y alquiler en USD
             </motion.p>
 
             <h1 className="mt-5 text-[clamp(2.45rem,6.5vw,4.75rem)] leading-[0.98] font-semibold tracking-[-0.03em] text-white">
@@ -183,9 +229,8 @@ export function HeroSearch({
               className="mt-6 max-w-2xl text-[1.05rem] leading-relaxed text-white/90 sm:text-xl sm:leading-relaxed xl:max-w-3xl"
               {...fadeUp(reduce, 0.62)}
             >
-              Explora inmuebles en venta, filtra y pregunta con claridad.
-              <br className="hidden sm:block" />
-              Precios en USD — sin alquiler en esta versión.
+              Compra o alquila en USD. Filtra por ciudad, mapa nacional y
+              pregunta con claridad.
             </motion.p>
 
             <motion.div className="mt-8" {...fadeUp(reduce, 0.78)}>
@@ -203,10 +248,12 @@ export function HeroSearch({
             className="mt-auto w-full max-w-none pt-8 sm:pt-10"
             {...fadeUp(reduce, 0.95)}
           >
-            <div className="mb-3 flex gap-6 text-[15px]">
+            <div className="mb-3 flex flex-wrap gap-6 text-[15px]">
               <button
                 type="button"
-                onClick={() => onChange({ mode: "comprar" })}
+                onClick={() =>
+                  onChange({ mode: "comprar", budgetId: "any" })
+                }
                 className={cn(
                   "interactive-surface border-b-2 pb-2.5",
                   values.mode === "comprar"
@@ -215,6 +262,20 @@ export function HeroSearch({
                 )}
               >
                 Comprar
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  onChange({ mode: "alquilar", budgetId: "any" })
+                }
+                className={cn(
+                  "interactive-surface border-b-2 pb-2.5",
+                  values.mode === "alquilar"
+                    ? "border-neon text-white"
+                    : "border-transparent text-white/55 hover:text-white",
+                )}
+              >
+                Alquilar
               </button>
               <button
                 type="button"
@@ -230,106 +291,169 @@ export function HeroSearch({
               </button>
             </div>
 
-            <div className="rounded-2xl border border-white/12 bg-black/40 p-2 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.55)] backdrop-blur-xl sm:p-2.5 lg:grid lg:grid-cols-[1.15fr_1.15fr_1.15fr_auto] lg:items-stretch lg:gap-0">
-              <label className="flex min-h-[4.25rem] cursor-pointer items-center gap-3 border-b border-white/10 px-4 py-3 lg:border-b-0 lg:border-r">
-                <MapPin
+            <div className="rounded-2xl border border-white/12 bg-black/40 p-2 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.55)] backdrop-blur-xl sm:p-2.5">
+              <label className="mb-2 flex min-h-[3.25rem] cursor-text items-center gap-3 border-b border-white/10 px-4 py-2">
+                <Search
                   className="size-4 shrink-0 text-neon/85"
                   aria-hidden
                 />
                 <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                   <span className="text-[10px] tracking-[0.16em] text-white/45 uppercase">
-                    Ubicación
+                    Buscar por zona o título
                   </span>
-                  <select
-                    value={values.cityId}
-                    onChange={(e) =>
-                      onChange({
-                        cityId: e.target.value as CityId | "all",
-                      })
-                    }
-                    className="w-full appearance-none bg-transparent text-[15px] text-white outline-none"
-                  >
-                    <option value="all" className="bg-ink text-white">
-                      Elige tu ciudad
-                    </option>
-                    {CITIES.map((city) => (
+                  <input
+                    value={values.q}
+                    onChange={(e) => onChange({ q: e.target.value })}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") onSearch();
+                    }}
+                    placeholder="Ej. Altamira, terraza, 3 habitaciones…"
+                    className="w-full bg-transparent text-[15px] text-white outline-none placeholder:text-white/35"
+                  />
+                </span>
+              </label>
+
+              <div className="lg:grid lg:grid-cols-[1.15fr_1.15fr_1.15fr_auto] lg:items-stretch lg:gap-0">
+                <label className="flex min-h-[4.25rem] cursor-pointer items-center gap-3 border-b border-white/10 px-4 py-3 lg:border-b-0 lg:border-r">
+                  <MapPin
+                    className="size-4 shrink-0 text-neon/85"
+                    aria-hidden
+                  />
+                  <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                    <span className="text-[10px] tracking-[0.16em] text-white/45 uppercase">
+                      Ubicación
+                    </span>
+                    <select
+                      value={values.cityId}
+                      onChange={(e) =>
+                        onChange({
+                          cityId: e.target.value as CityId | "all",
+                          sector: "",
+                        })
+                      }
+                      className="w-full appearance-none bg-transparent text-[15px] text-white outline-none"
+                    >
+                      <option value="all" className="bg-ink text-white">
+                        Elige tu ciudad
+                      </option>
+                      {CITIES.map((city) => (
+                        <option
+                          key={city.id}
+                          value={city.id}
+                          className="bg-ink text-white"
+                        >
+                          {city.name}
+                        </option>
+                      ))}
+                    </select>
+                  </span>
+                </label>
+
+                <label className="flex min-h-[4.25rem] cursor-pointer items-center gap-3 border-b border-white/10 px-4 py-3 lg:border-b-0 lg:border-r">
+                  <Home className="size-4 shrink-0 text-neon/85" aria-hidden />
+                  <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                    <span className="text-[10px] tracking-[0.16em] text-white/45 uppercase">
+                      Tipo de inmueble
+                    </span>
+                    <select
+                      value={values.type}
+                      onChange={(e) =>
+                        onChange({
+                          type: e.target.value as PropertyType | "all",
+                        })
+                      }
+                      className="w-full appearance-none bg-transparent text-[15px] text-white outline-none"
+                    >
+                      <option value="all" className="bg-ink text-white">
+                        Todos los tipos
+                      </option>
                       <option
-                        key={city.id}
-                        value={city.id}
+                        value="apartamentos"
                         className="bg-ink text-white"
                       >
-                        {city.name}
+                        Apartamentos
                       </option>
-                    ))}
-                  </select>
-                </span>
-              </label>
-
-              <label className="flex min-h-[4.25rem] cursor-pointer items-center gap-3 border-b border-white/10 px-4 py-3 lg:border-b-0 lg:border-r">
-                <Home className="size-4 shrink-0 text-neon/85" aria-hidden />
-                <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  <span className="text-[10px] tracking-[0.16em] text-white/45 uppercase">
-                    Tipo de inmueble
-                  </span>
-                  <select
-                    value={values.type}
-                    onChange={(e) =>
-                      onChange({
-                        type: e.target.value as PropertyType | "all",
-                      })
-                    }
-                    className="w-full appearance-none bg-transparent text-[15px] text-white outline-none"
-                  >
-                    <option value="all" className="bg-ink text-white">
-                      Todos los tipos
-                    </option>
-                    <option value="apartamentos" className="bg-ink text-white">
-                      Apartamentos
-                    </option>
-                    <option value="casas" className="bg-ink text-white">
-                      Casas
-                    </option>
-                  </select>
-                </span>
-              </label>
-
-              <label className="flex min-h-[4.25rem] cursor-pointer items-center gap-3 border-b border-white/10 px-4 py-3 lg:border-b-0 lg:border-r">
-                <Wallet
-                  className="size-4 shrink-0 text-neon/85"
-                  aria-hidden
-                />
-                <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  <span className="text-[10px] tracking-[0.16em] text-white/45 uppercase">
-                    Presupuesto USD
-                  </span>
-                  <select
-                    value={values.budgetId}
-                    onChange={(e) => onChange({ budgetId: e.target.value })}
-                    className="w-full appearance-none bg-transparent text-[15px] text-white outline-none"
-                  >
-                    {BUDGET_OPTIONS.map((opt) => (
-                      <option
-                        key={opt.id}
-                        value={opt.id}
-                        className="bg-ink text-white"
-                      >
-                        {opt.label}
+                      <option value="casas" className="bg-ink text-white">
+                        Casas
                       </option>
-                    ))}
-                  </select>
-                </span>
-              </label>
+                    </select>
+                  </span>
+                </label>
 
-              <div className="flex items-center p-1.5 sm:p-2">
-                <button
-                  type="button"
-                  onClick={onSearch}
-                  className="interactive-surface inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-neon px-6 text-[15px] font-semibold text-primary-foreground hover:bg-white lg:h-full lg:min-w-[13rem]"
-                >
-                  <Search className="size-4" aria-hidden />
-                  Buscar inmuebles
-                </button>
+                <label className="flex min-h-[4.25rem] cursor-pointer items-center gap-3 border-b border-white/10 px-4 py-3 lg:border-b-0 lg:border-r">
+                  <Wallet
+                    className="size-4 shrink-0 text-neon/85"
+                    aria-hidden
+                  />
+                  <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                    <span className="text-[10px] tracking-[0.16em] text-white/45 uppercase">
+                      {operation === "alquiler"
+                        ? "Renta USD / mes"
+                        : "Presupuesto USD"}
+                    </span>
+                    <select
+                      value={values.budgetId}
+                      onChange={(e) =>
+                        onChange({ budgetId: e.target.value })
+                      }
+                      className="w-full appearance-none bg-transparent text-[15px] text-white outline-none"
+                    >
+                      {budgetOptions.map((opt) => (
+                        <option
+                          key={opt.id}
+                          value={opt.id}
+                          className="bg-ink text-white"
+                        >
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </span>
+                </label>
+
+                <div className="flex flex-col gap-1.5 p-1.5 sm:p-2">
+                  <button
+                    type="button"
+                    onClick={onSearch}
+                    className="interactive-surface inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-neon px-5 text-[15px] font-semibold text-primary-foreground hover:bg-white lg:min-w-[12rem]"
+                  >
+                    <Search className="size-4" aria-hidden />
+                    Buscar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={onSearchMap}
+                    className="interactive-surface inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-white/20 px-4 text-sm text-white hover:border-neon/50 hover:text-neon"
+                  >
+                    <MapPin className="size-3.5" aria-hidden />
+                    Ver en mapa
+                  </button>
+                </div>
               </div>
+            </div>
+
+            <div
+              className="mt-3 flex flex-wrap gap-2"
+              aria-label="Búsquedas rápidas"
+            >
+              {chips.map((chip) => {
+                const active = activeChip === chip.id;
+                return (
+                  <button
+                    key={chip.id}
+                    type="button"
+                    onClick={() => onChipApply?.(chip.id)}
+                    className={cn(
+                      "interactive-surface rounded-full border px-3 py-1.5 text-xs sm:text-[13px]",
+                      active
+                        ? "border-neon bg-neon/15 text-neon"
+                        : "border-white/15 bg-white/[0.04] text-white/75 hover:border-white/30 hover:text-white",
+                    )}
+                  >
+                    {chip.label}
+                  </button>
+                );
+              })}
             </div>
 
             <motion.ul
@@ -347,7 +471,7 @@ export function HeroSearch({
         </div>
       </div>
 
-      <div className="border-t border-white/5 bg-background">
+      <div className="border-t border-border bg-background">
         <div className="mx-auto grid max-w-[96rem] gap-10 px-5 py-14 sm:grid-cols-2 sm:gap-12 sm:px-8 sm:py-16 lg:grid-cols-4 lg:gap-14 lg:px-12 xl:px-16">
           {VALUE_PROPS.map((prop) => (
             <div key={prop.title} className="space-y-4">
@@ -356,10 +480,10 @@ export function HeroSearch({
                 strokeWidth={1.6}
                 aria-hidden
               />
-              <h2 className="text-lg font-semibold tracking-tight text-white">
+              <h2 className="text-lg font-semibold tracking-tight text-foreground">
                 {prop.title}
               </h2>
-              <p className="max-w-[16rem] text-[15px] leading-relaxed text-white/55">
+              <p className="max-w-[16rem] text-[15px] leading-relaxed text-muted-foreground">
                 {prop.body}
               </p>
             </div>

@@ -1,24 +1,32 @@
 import { cityName, type CityId } from "./cities";
 
 export type PropertyType = "apartamentos" | "casas";
+export type OperationType = "venta" | "alquiler";
 
 export type Listing = {
   id: string;
   slug: string;
   type: PropertyType;
+  operationType?: OperationType;
   cityId: CityId;
   neighborhood: string;
   title: string;
   badge?: string;
+  /** Soft trust badge after admin review (not a gate to publish). */
+  trustBadge?: "none" | "musas_reviewed";
+  contactWhatsapp?: string;
   priceUsd: number;
   beds: number;
   baths: number;
   areaM2: number;
   image: string;
+  images?: string[];
   alt: string;
   description: string;
   administrationUsd: number;
   features: string[];
+  lat?: number;
+  lng?: number;
 };
 
 export type BudgetOption = {
@@ -29,11 +37,82 @@ export type BudgetOption = {
 
 export const BUDGET_OPTIONS: BudgetOption[] = [
   { id: "any", label: "Cualquier precio (USD)", maxUsd: null },
+  { id: "80", label: "Hasta USD 80.000", maxUsd: 80_000 },
+  { id: "120", label: "Hasta USD 120.000", maxUsd: 120_000 },
   { id: "150", label: "Hasta USD 150.000", maxUsd: 150_000 },
   { id: "250", label: "Hasta USD 250.000", maxUsd: 250_000 },
   { id: "400", label: "Hasta USD 400.000", maxUsd: 400_000 },
   { id: "600", label: "Hasta USD 600.000", maxUsd: 600_000 },
   { id: "900", label: "Hasta USD 900.000", maxUsd: 900_000 },
+];
+
+/** Bandas para alquiler (USD / mes). */
+export const RENT_BUDGET_OPTIONS: BudgetOption[] = [
+  { id: "any", label: "Cualquier renta (USD/mes)", maxUsd: null },
+  { id: "r400", label: "Hasta USD 400/mes", maxUsd: 400 },
+  { id: "r600", label: "Hasta USD 600/mes", maxUsd: 600 },
+  { id: "r800", label: "Hasta USD 800/mes", maxUsd: 800 },
+  { id: "r1200", label: "Hasta USD 1.200/mes", maxUsd: 1_200 },
+  { id: "r2000", label: "Hasta USD 2.000/mes", maxUsd: 2_000 },
+  { id: "r3500", label: "Hasta USD 3.500/mes", maxUsd: 3_500 },
+];
+
+export function budgetsForOperation(
+  operation: OperationType | "all",
+): BudgetOption[] {
+  return operation === "alquiler" ? RENT_BUDGET_OPTIONS : BUDGET_OPTIONS;
+}
+
+export function listingOperation(
+  listing: Pick<Listing, "operationType">,
+): OperationType {
+  return listing.operationType ?? "venta";
+}
+
+export const QUICK_SEARCH_CHIPS: {
+  id: string;
+  label: string;
+  cityId?: CityId | "all";
+  type?: PropertyType | "all";
+  operationType?: OperationType;
+  budgetId?: string;
+  sector?: string;
+  verifiedOnly?: boolean;
+}[] = [
+  {
+    id: "venta-caracas",
+    label: "Venta Caracas",
+    cityId: "caracas",
+    operationType: "venta",
+  },
+  {
+    id: "alquiler-caracas",
+    label: "Alquiler Caracas",
+    cityId: "caracas",
+    operationType: "alquiler",
+  },
+  {
+    id: "bajo-80",
+    label: "En venta < $80K",
+    budgetId: "80",
+    operationType: "venta",
+  },
+  {
+    id: "renta-800",
+    label: "Alquiler < $800/mes",
+    budgetId: "r800",
+    operationType: "alquiler",
+  },
+  { id: "aptos", label: "Apartamentos", type: "apartamentos" },
+  { id: "casas", label: "Casas", type: "casas" },
+  { id: "altamira", label: "Altamira", cityId: "caracas", sector: "Altamira" },
+  {
+    id: "lpg",
+    label: "Los Palos Grandes",
+    cityId: "caracas",
+    sector: "Los Palos Grandes",
+  },
+  { id: "validados", label: "Musas Revisado", verifiedOnly: true },
 ];
 
 export const LISTINGS: Listing[] = [
@@ -326,8 +405,12 @@ export const LISTINGS: Listing[] = [
 export type SearchFilters = {
   cityId: CityId | "all";
   type: PropertyType | "all";
+  operationType?: OperationType | "all";
   budgetMaxUsd: number | null;
   favoritesOnly: boolean;
+  q?: string;
+  sector?: string;
+  verifiedOnly?: boolean;
 };
 
 export function formatUsd(amount: number): string {
@@ -336,6 +419,13 @@ export function formatUsd(amount: number): string {
     currency: "USD",
     maximumFractionDigits: 0,
   }).format(amount);
+}
+
+export function formatListingPrice(
+  listing: Pick<Listing, "priceUsd" | "operationType">,
+): string {
+  const base = formatUsd(listing.priceUsd);
+  return listingOperation(listing) === "alquiler" ? `${base}/mes` : base;
 }
 
 export function listingLocation(listing: Listing): string {
@@ -354,10 +444,30 @@ export function filterListings(
     }
     if (filters.type !== "all" && listing.type !== filters.type) return false;
     if (
+      filters.operationType &&
+      filters.operationType !== "all" &&
+      listingOperation(listing) !== filters.operationType
+    ) {
+      return false;
+    }
+    if (
       filters.budgetMaxUsd != null &&
       listing.priceUsd > filters.budgetMaxUsd
     ) {
       return false;
+    }
+    if (filters.verifiedOnly && listing.trustBadge !== "musas_reviewed") {
+      return false;
+    }
+    if (filters.sector?.trim()) {
+      const s = filters.sector.trim().toLowerCase();
+      if (!listing.neighborhood.toLowerCase().includes(s)) return false;
+    }
+    if (filters.q?.trim()) {
+      const q = filters.q.trim().toLowerCase();
+      const hay =
+        `${listing.title} ${listing.neighborhood} ${listing.description}`.toLowerCase();
+      if (!hay.includes(q)) return false;
     }
     return true;
   });

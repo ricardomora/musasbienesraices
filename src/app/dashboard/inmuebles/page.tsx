@@ -16,7 +16,7 @@ function MyListings() {
     <div className="mx-auto max-w-4xl px-5 py-10 sm:px-8">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-white">Mis inmuebles</h1>
+          <h1 className="text-2xl font-semibold text-foreground">Mis inmuebles</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Edita, pausa o publica tus fichas.
           </p>
@@ -33,10 +33,10 @@ function MyListings() {
         {(listings ?? []).map((l) => (
           <li
             key={l._id}
-            className="flex flex-col gap-3 rounded-xl border border-white/10 p-4 sm:flex-row sm:items-center sm:justify-between"
+            className="flex flex-col gap-3 rounded-xl border border-border p-4 sm:flex-row sm:items-center sm:justify-between"
           >
             <div>
-              <p className="font-medium text-white">{l.title}</p>
+              <p className="font-medium text-foreground">{l.title}</p>
               <p className="text-sm text-muted-foreground">
                 {formatUsd(l.priceUsd)} · {l.status}
               </p>
@@ -44,20 +44,20 @@ function MyListings() {
             <div className="flex flex-wrap gap-2">
               <Link
                 href={`/inmuebles/${l.slug}`}
-                className="rounded-full border border-white/20 px-3 py-1.5 text-xs text-white"
+                className="rounded-full border border-border px-3 py-1.5 text-xs text-foreground hover:bg-accent"
               >
                 Ver
               </Link>
               <Link
                 href={`/dashboard/inmuebles/${l._id}`}
-                className="rounded-full border border-white/20 px-3 py-1.5 text-xs text-white"
+                className="rounded-full border border-border px-3 py-1.5 text-xs text-foreground hover:bg-accent"
               >
                 Editar
               </Link>
               {l.status === "published" ? (
                 <button
                   type="button"
-                  className="rounded-full border border-white/20 px-3 py-1.5 text-xs text-white"
+                  className="rounded-full border border-border px-3 py-1.5 text-xs text-foreground hover:bg-accent"
                   onClick={() =>
                     void setStatus({ id: l._id, status: "paused" })
                       .then(() => toast.success("Pausado"))

@@ -60,23 +60,45 @@ export const ensureCurrentUser = mutation({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new Error("Unauthorized");
 
+    const jwtEmail = identity.email?.trim().toLowerCase() || "";
     const existing = await ctx.db
       .query("users")
       .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
       .unique();
 
-    if (existing) return existing._id;
-
+    // Prefer JWT email; if missing (common when Clerk JWT template omits it),
+    // keep webhook/synced email — never overwrite with a fake @users.clerk.local.
     const email =
-      identity.email?.trim() ||
+      jwtEmail ||
+      existing?.email?.trim().toLowerCase() ||
       `${identity.subject.replace(/[^a-zA-Z0-9]/g, "")}@users.clerk.local`;
+    const role = resolveRole(email);
+
+    if (existing) {
+      const nextName = identity.name?.trim() || existing.name;
+      const nextAvatar = identity.pictureUrl?.trim() || existing.avatarUrl;
+      if (
+        existing.role !== role ||
+        existing.email !== email ||
+        existing.name !== nextName ||
+        existing.avatarUrl !== nextAvatar
+      ) {
+        await ctx.db.patch(existing._id, {
+          email,
+          name: nextName,
+          avatarUrl: nextAvatar,
+          role,
+        });
+      }
+      return existing._id;
+    }
 
     return await ctx.db.insert("users", {
       clerkId: identity.subject,
       email,
       name: identity.name?.trim() || undefined,
       avatarUrl: identity.pictureUrl?.trim() || undefined,
-      role: resolveRole(email),
+      role,
       createdAt: Date.now(),
     });
   },

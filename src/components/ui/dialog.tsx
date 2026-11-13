@@ -56,13 +56,13 @@ function DialogContent({
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
-          "fixed top-[50%] left-[50%] z-50 grid w-[calc(100%-1.5rem)] max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 overflow-y-auto rounded-2xl border border-white/10 bg-card p-5 text-card-foreground shadow-2xl duration-200 max-h-[min(92vh,900px)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 sm:max-w-2xl sm:p-6",
+          "fixed top-[50%] left-[50%] z-50 grid w-[calc(100%-1.5rem)] max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 overflow-y-auto rounded-2xl border border-border bg-card p-5 text-card-foreground shadow-2xl duration-200 max-h-[min(92vh,900px)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 sm:max-w-2xl sm:p-6",
           className,
         )}
         {...props}
       >
         {children}
-        <DialogPrimitive.Close className="absolute top-3 right-3 inline-flex size-8 items-center justify-center rounded-full border border-white/15 bg-ink/50 text-white/80 transition hover:bg-ink/80 hover:text-white focus-visible:ring-2 focus-visible:ring-neon/50 focus-visible:outline-none">
+        <DialogPrimitive.Close className="absolute top-3 right-3 inline-flex size-8 items-center justify-center rounded-full border border-border bg-muted text-muted-foreground transition hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-neon/50 focus-visible:outline-none">
           <X className="size-4" aria-hidden />
           <span className="sr-only">Cerrar</span>
         </DialogPrimitive.Close>
@@ -79,7 +79,7 @@ function DialogTitle({
     <DialogPrimitive.Title
       data-slot="dialog-title"
       className={cn(
-        "text-xl font-semibold tracking-tight text-white sm:text-2xl",
+        "text-xl font-semibold tracking-tight text-foreground sm:text-2xl",
         className,
       )}
       {...props}
