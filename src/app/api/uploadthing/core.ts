@@ -31,10 +31,7 @@ async function requireClerkUserId(req: Request) {
   });
 
   if (!requestState.isSignedIn) {
-    const detail =
-      "reason" in requestState && requestState.reason != null
-        ? String(requestState.reason)
-        : requestState.status;
+    const detail = String(requestState.reason);
     console.error("[uploadthing] Clerk authenticateRequest failed:", detail);
     throw new UploadThingError(`Unauthorized (${detail})`);
   }
