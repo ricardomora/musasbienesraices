@@ -14,6 +14,7 @@ const LINKS = [
   { href: "/dashboard/mensajes", label: "Mensajes" },
   { href: "/dashboard/preferencial", label: "Preferencial" },
   { href: "/dashboard/suscripciones", label: "Suscripciones" },
+  { href: "/dashboard/notificaciones", label: "Avisos" },
   { href: "/dashboard/cuenta", label: "Cuenta" },
   { href: "/publicar", label: "Publicar" },
 ] as const;
@@ -23,6 +24,10 @@ export function DashboardNav() {
   const { isSignedIn } = useAuth();
   const me = useQuery(
     api.users.me,
+    BACKEND_CONFIGURED && isSignedIn ? {} : "skip",
+  );
+  const unread = useQuery(
+    api.notifications.unreadCount,
     BACKEND_CONFIGURED && isSignedIn ? {} : "skip",
   );
   const isAdmin = me?.role === "admin";
@@ -35,6 +40,7 @@ export function DashboardNav() {
       {LINKS.map((l) => {
         const active =
           pathname === l.href || pathname.startsWith(`${l.href}/`);
+        const isAvisos = l.href === "/dashboard/notificaciones";
         return (
           <Link
             key={l.href}
@@ -46,6 +52,9 @@ export function DashboardNav() {
             )}
           >
             {l.label}
+            {isAvisos && (unread ?? 0) > 0 ? (
+              <span className="ml-1 text-neon">({unread})</span>
+            ) : null}
           </Link>
         );
       })}

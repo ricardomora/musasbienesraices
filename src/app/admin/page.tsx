@@ -46,6 +46,9 @@ function AdminPanel() {
   );
   const updateStatus = useMutation(api.preferential.updateStatus);
   const updateRealtorStatus = useMutation(api.realtors.updateStatus);
+  const approveRealtorPayment = useMutation(
+    api.realtors.approvePaymentAndActivate,
+  );
   const setRealtorVerified = useMutation(api.realtors.setVerified);
   const setListingStatus = useMutation(api.listings.setListingStatus);
   const setTrustBadge = useMutation(api.listings.setTrustBadge);
@@ -55,6 +58,7 @@ function AdminPanel() {
   );
   const setReportStatus = useMutation(api.reports.setStatus);
   const seed = useMutation(api.seed.seedDemoListings);
+  const clearMarketplace = useMutation(api.seed.clearMarketplaceData);
 
   if (me === undefined) {
     return <p className="p-10 text-muted-foreground">Cargando…</p>;
@@ -87,7 +91,11 @@ function AdminPanel() {
       .length ?? 0;
   const openRealtor =
     realtorRequests?.filter(
-      (r) => r.status === "requested" || r.status === "reviewing",
+      (r) =>
+        r.status === "requested" ||
+        r.status === "reviewing" ||
+        r.status === "payment_submitted" ||
+        r.status === "payment_approved",
     ).length ?? 0;
   const realtorCount = realtors?.length ?? 0;
   const verifiedRealtorCount =
@@ -123,25 +131,51 @@ function AdminPanel() {
             verificados · {publishedCount} publicadas · {listingCount} fichas
           </p>
         </div>
-        <button
-          type="button"
-          className="rounded-full border border-neon/40 px-4 py-2 text-sm text-neon"
-          onClick={() =>
-            void seed({})
-              .then((r) =>
-                toast.success(
-                  r.created > 0
-                    ? `Seed OK: ${r.created} inmuebles en venta`
-                    : "Seed: catálogo ya existía (0 nuevos)",
-                ),
-              )
-              .catch((e) =>
-                toast.error(e instanceof Error ? e.message : "Error"),
-              )
-          }
-        >
-          Seed catálogo (si home vacío)
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            className="rounded-full border border-amber-200/40 px-4 py-2 text-sm text-amber-200"
+            onClick={() => {
+              if (
+                !window.confirm(
+                  "¿Borrar todos los inmuebles, Q&A, favoritos, reportes y solicitudes? Se conservan las cuentas de usuario.",
+                )
+              ) {
+                return;
+              }
+              void clearMarketplace({})
+                .then((r) =>
+                  toast.success(
+                    `Catálogo limpio: ${r.listings} fichas · ${r.questions} Q · ${r.preferentialRequests + r.realtorSubscriptionRequests} solicitudes`,
+                  ),
+                )
+                .catch((e) =>
+                  toast.error(e instanceof Error ? e.message : "Error"),
+                );
+            }}
+          >
+            Limpiar datos (pruebas reales)
+          </button>
+          <button
+            type="button"
+            className="rounded-full border border-neon/40 px-4 py-2 text-sm text-neon"
+            onClick={() =>
+              void seed({})
+                .then((r) =>
+                  toast.success(
+                    r.created > 0
+                      ? `Seed OK: ${r.created} inmuebles en venta`
+                      : "Seed: catálogo ya existía (0 nuevos)",
+                  ),
+                )
+                .catch((e) =>
+                  toast.error(e instanceof Error ? e.message : "Error"),
+                )
+            }
+          >
+            Seed catálogo (demo)
+          </button>
+        </div>
       </div>
 
       <section>
@@ -306,8 +340,8 @@ function AdminPanel() {
           Solicitudes Realtor (Plan 1)
         </h2>
         <p className="mt-1 text-xs text-muted-foreground">
-          Separado de Preferencial. Coordinación y pago fuera de la app. Badge
-          Verificado ≠ Musas Revisado (ficha).
+          Flujo: solicitud → pago móvil → referencia → confirmar pago (activa
+          Verificado + notificación).
         </p>
         {(realtorRequests?.length ?? 0) === 0 ? (
           <p className="mt-4 rounded-xl border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">
@@ -331,6 +365,14 @@ function AdminPanel() {
                   <p className="mt-1 text-neon">WhatsApp: {r.contactPhone}</p>
                 ) : null}
                 <p className="mt-1 text-muted-foreground">{r.notes}</p>
+                {r.paymentReference ? (
+                  <p className="mt-1 text-foreground">
+                    Ref. pago:{" "}
+                    <span className="text-neon">{r.paymentReference}</span>
+                  </p>
+                ) : (
+                  <p className="mt-1 text-amber-200/80">Sin referencia de pago aún</p>
+                )}
                 <div className="mt-3 flex flex-wrap items-end gap-3">
                   <label className="block space-y-1">
                     <span className="text-xs text-muted-foreground">Estado</span>
@@ -351,9 +393,24 @@ function AdminPanel() {
                       ))}
                     </select>
                   </label>
+                  {r.status !== "approved" && r.status !== "rejected" ? (
+                    <button
+                      type="button"
+                      className="rounded-full border border-neon/40 px-3 py-1.5 text-xs text-neon"
+                      onClick={() =>
+                        void approveRealtorPayment({ id: r._id }).then(() =>
+                          toast.success(
+                            "Pago confirmado · Realtor Verificado + aviso enviado",
+                          ),
+                        )
+                      }
+                    >
+                      Confirmar pago y activar
+                    </button>
+                  ) : null}
                   <button
                     type="button"
-                    className="rounded-full border border-neon/40 px-3 py-1.5 text-xs text-neon"
+                    className="rounded-full border border-border px-3 py-1.5 text-xs text-muted-foreground"
                     onClick={() =>
                       void setRealtorVerified({
                         userId: r.userId,

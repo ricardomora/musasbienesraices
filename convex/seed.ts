@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation } from "./_generated/server";
+import { mutation, type MutationCtx } from "./_generated/server";
 import { requireAdmin } from "./lib";
 
 const DEMO = [
@@ -151,6 +151,82 @@ const DEMO = [
     features: ["Cerca de la playa", "Piscina", "Terraza", "3 puestos de estacionamiento"],
   },
 ];
+
+async function wipeMarketplace(ctx: MutationCtx) {
+  const counts = {
+    answers: 0,
+    questions: 0,
+    favorites: 0,
+    listingReports: 0,
+    preferentialRequests: 0,
+    realtorSubscriptionRequests: 0,
+    listings: 0,
+    demoUsers: 0,
+  };
+
+  for (const row of await ctx.db.query("answers").collect()) {
+    await ctx.db.delete(row._id);
+    counts.answers += 1;
+  }
+  for (const row of await ctx.db.query("questions").collect()) {
+    await ctx.db.delete(row._id);
+    counts.questions += 1;
+  }
+  for (const row of await ctx.db.query("favorites").collect()) {
+    await ctx.db.delete(row._id);
+    counts.favorites += 1;
+  }
+  for (const row of await ctx.db.query("listingReports").collect()) {
+    await ctx.db.delete(row._id);
+    counts.listingReports += 1;
+  }
+  for (const row of await ctx.db.query("preferentialRequests").collect()) {
+    await ctx.db.delete(row._id);
+    counts.preferentialRequests += 1;
+  }
+  for (const row of await ctx.db
+    .query("realtorSubscriptionRequests")
+    .collect()) {
+    await ctx.db.delete(row._id);
+    counts.realtorSubscriptionRequests += 1;
+  }
+  for (const row of await ctx.db.query("listings").collect()) {
+    await ctx.db.delete(row._id);
+    counts.listings += 1;
+  }
+
+  const demoUser = await ctx.db
+    .query("users")
+    .withIndex("by_email", (q) => q.eq("email", "demo@musas.app"))
+    .unique();
+  if (demoUser) {
+    await ctx.db.delete(demoUser._id);
+    counts.demoUsers += 1;
+  }
+
+  return counts;
+}
+
+/** Wipe marketplace data for real beta (keeps users / admin accounts). */
+export const clearMarketplaceData = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireAdmin(ctx);
+    return await wipeMarketplace(ctx);
+  },
+});
+
+/** CLI/ops wipe with USER_SYNC_SECRET (no JWT). */
+export const clearMarketplaceDataWithSecret = mutation({
+  args: { syncSecret: v.string() },
+  handler: async (ctx, args) => {
+    const expected = process.env.USER_SYNC_SECRET;
+    if (!expected || args.syncSecret !== expected) {
+      throw new Error("Forbidden");
+    }
+    return await wipeMarketplace(ctx);
+  },
+});
 
 export const seedDemoListings = mutation({
   args: { force: v.optional(v.boolean()) },

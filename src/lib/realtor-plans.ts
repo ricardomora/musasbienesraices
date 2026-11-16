@@ -5,6 +5,8 @@ export type RealtorBillingPeriod = "monthly" | "annual";
 export type RealtorRequestStatus =
   | "requested"
   | "reviewing"
+  | "payment_submitted"
+  | "payment_approved"
   | "approved"
   | "rejected"
   | "cancelled";
@@ -15,6 +17,14 @@ export const REALTOR_ANNUAL_DISCOUNT = 0.15;
 export const REALTOR_ANNUAL_PRICE = Math.round(
   REALTOR_MONTHLY_PRICE * 12 * (1 - REALTOR_ANNUAL_DISCOUNT),
 );
+
+/** Pago móvil — mostrado tras crear la solicitud. */
+export const REALTOR_PAGO_MOVIL = {
+  company: "Flash Networks C.A",
+  bank: "Banco Fondo Común (BFC)",
+  phone: "0412-3527469",
+  rif: "J-503982403",
+} as const;
 
 export const REALTOR_PLAN_BENEFITS = [
   "Acceso completo a la plataforma Musas",
@@ -48,9 +58,11 @@ export const REALTOR_PLANS: {
 ];
 
 export const REALTOR_STATUS_LABELS: Record<RealtorRequestStatus, string> = {
-  requested: "Solicitada",
+  requested: "Pendiente de pago",
   reviewing: "En revisión",
-  approved: "Aprobada",
+  payment_submitted: "Pago enviado · por confirmar",
+  payment_approved: "Pago confirmado",
+  approved: "Aprobado · activo",
   rejected: "Rechazada",
   cancelled: "Cancelada",
 };
@@ -72,4 +84,9 @@ export function realtorBillingLabel(period: string | undefined): string {
     return `Anual · ${REALTOR_ANNUAL_PRICE}/año (−15%)`;
   }
   return `Mensual · ${REALTOR_MONTHLY_PRICE}/mes`;
+}
+
+export function realtorAmountLabel(period: string | undefined): string {
+  if (period === "annual") return String(REALTOR_ANNUAL_PRICE);
+  return String(REALTOR_MONTHLY_PRICE);
 }

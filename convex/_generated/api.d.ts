@@ -11,6 +11,7 @@
 import type * as favorites from "../favorites.js";
 import type * as lib from "../lib.js";
 import type * as listings from "../listings.js";
+import type * as notifications from "../notifications.js";
 import type * as preferential from "../preferential.js";
 import type * as questions from "../questions.js";
 import type * as realtors from "../realtors.js";
@@ -28,6 +29,7 @@ declare const fullApi: ApiFromModules<{
   favorites: typeof favorites;
   lib: typeof lib;
   listings: typeof listings;
+  notifications: typeof notifications;
   preferential: typeof preferential;
   questions: typeof questions;
   realtors: typeof realtors;

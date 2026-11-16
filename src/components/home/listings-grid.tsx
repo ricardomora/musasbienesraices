@@ -160,29 +160,21 @@ export function ListingsGrid({
               {favoritesOnly
                 ? "Guarda los espacios que te gustan para encontrarlos aquí."
                 : catalogEmpty
-                  ? "Cuando se publiquen fichas en venta (USD), aparecen aquí. Si eres ops: seed desde Admin o publica el primero."
-                  : "Prueba otra ciudad o amplía el presupuesto en USD."}
+                  ? "Pronto verás fichas aquí. Si tienes un inmueble, puedes publicarlo."
+                  : "Prueba otra ciudad o amplía el presupuesto."}
             </p>
             {catalogEmpty && !favoritesOnly ? (
-              <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-                <a
-                  href="/publicar"
-                  className="interactive-surface inline-flex h-10 items-center rounded-full bg-neon px-5 text-sm font-semibold text-primary-foreground hover:bg-white"
-                >
-                  Publicar en venta
-                </a>
-                <a
-                  href="/admin"
-                  className="interactive-surface inline-flex h-10 items-center rounded-full border border-border px-5 text-sm text-foreground hover:bg-accent"
-                >
-                  Ir a Admin (seed)
-                </a>
-              </div>
+              <a
+                href="/publicar"
+                className="interactive-surface mt-6 inline-flex h-10 items-center rounded-full bg-neon px-5 text-sm font-semibold text-primary-foreground hover:bg-white"
+              >
+                Publicar inmueble
+              </a>
             ) : (
               <button
                 type="button"
                 onClick={onResetFilters}
-                  className="interactive-surface mt-6 inline-flex h-10 items-center rounded-full border border-border px-5 text-sm text-foreground hover:bg-accent"
+                className="interactive-surface mt-6 inline-flex h-10 items-center rounded-full border border-border px-5 text-sm text-foreground hover:bg-accent"
               >
                 Explorar todos
               </button>

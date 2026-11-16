@@ -64,18 +64,11 @@ export default function AyudaPage() {
             <strong className="text-foreground">
               «¿Precio o fotos no cuadran?»
             </strong>{" "}
-            en la ficha. Ops puede pausarla desde Admin.
+            en la ficha. El equipo Musas la revisa.
           </p>
           <p>
             Preferencial no es un directorio abierto: solicitas un paquete y
             Musas coordina fuera de la app (WhatsApp / pago externo).
-          </p>
-          <p>
-            Referencia de producto (paridad de intención, no clon): ver{" "}
-            <code className="text-xs text-muted-foreground">
-              docs/REFERENTE_PROPIEDASH_MAP.md
-            </code>{" "}
-            en el repo.
           </p>
         </section>
       </main>

@@ -33,7 +33,9 @@ const realtorPlanKey = v.union(v.literal("plan1"), v.literal("plan2"));
 
 const realtorRequestStatus = v.union(
   v.literal("requested"),
-  v.literal("reviewing"),
+  v.literal("reviewing"), // legacy
+  v.literal("payment_submitted"),
+  v.literal("payment_approved"),
   v.literal("approved"),
   v.literal("rejected"),
   v.literal("cancelled"),
@@ -138,7 +140,7 @@ export default defineSchema({
     .index("by_user", ["userId"])
     .index("by_status", ["status"]),
 
-  /** Realtor Plan 1 intake (D16=A): request + pay/activate outside app. */
+  /** Realtor Plan 1 intake: request → pago móvil → admin confirma → aprobado. */
   realtorSubscriptionRequests: defineTable({
     userId: v.id("users"),
     planKey: realtorPlanKey,
@@ -150,6 +152,10 @@ export default defineSchema({
     contactPhone: v.optional(v.string()),
     contactEmail: v.optional(v.string()),
     status: realtorRequestStatus,
+    /** Referencia del pago móvil enviada por el agente. */
+    paymentReference: v.optional(v.string()),
+    paymentSubmittedAt: v.optional(v.number()),
+    paymentApprovedAt: v.optional(v.number()),
     adminNote: v.optional(v.string()),
     reviewedBy: v.optional(v.id("users")),
     createdAt: v.number(),
@@ -157,6 +163,20 @@ export default defineSchema({
   })
     .index("by_user", ["userId"])
     .index("by_status", ["status"]),
+
+  /** In-app notices (ej. plan Realtor aprobado). */
+  notifications: defineTable({
+    userId: v.id("users"),
+    title: v.string(),
+    body: v.string(),
+    kind: v.union(
+      v.literal("realtor_payment_approved"),
+      v.literal("realtor_approved"),
+      v.literal("general"),
+    ),
+    read: v.boolean(),
+    createdAt: v.number(),
+  }).index("by_user", ["userId"]),
 
   /** Report fake / suspicious listing (Propiedash parity, soft ops). */
   listingReports: defineTable({
