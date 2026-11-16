@@ -1432,3 +1432,185 @@ Referente usado como **lista de features** (WA, galería, wizard), no como **con
 ### Ask Joaquín
 
 ¿Apruebas los 3 gates como **bloqueantes** para invitar publicadores beta (además de G-Prod)?
+
+---
+
+## INFORME-7 — Línea Realtors: corte lunes (validación, no rebuild)
+
+*Fecha:* 2026-11-14  
+*Autor:* musas-pm  
+*Antecedente:* Fases 0–5 cableadas (explore/publicar/Q&A/Preferencial/admin); prod Semana 0 aún frágil; INFORME-5 moat = listing verify + Preferencial. **Nuevo input Joaquín:** validar línea de negocio **Realtors** el lunes sin reconstruir.  
+*Estado del gate:* **ABIERTO** — sin asumir D14–D20  
+*Aprobaciones nuevas asumidas:* **Ninguna**
+
+### Veredicto PM (1 párrafo)
+
+El producto actual ya es un **marketplace FSBO venta USD** con publicación, explore, contacto (Q&A ± WA pendiente D10), Preferencial request-only y admin ops. **No existe** cuenta Realtor, planes/suscripciones, badge “Realtor Verificado” ni cola admin de solicitudes Realtor. Para el lunes se valida la **hipótesis comercial** (¿un realtor paga/solicita Plan 1 y publica bajo marca Musas?), reutilizando el patrón Preferencial — **no** un CRM ni un segundo producto. Si se construye Plan 2, pagos, contenido educativo full o verify estricto de realtor antes de 3 solicitudes reales, se quema la ventana de lunes y se diluye el moat FSBO ya en curso.
+
+**Tradeoff explícito:** Semana 0 (prod + stock Caracas + D8 Preferencial) sigue siendo P0 de mercado. Realtors lunes = **slice paralelo mínimo** sobre lo existente, no sustituto de G-Prod. Si prod sigue rota, la validación Realtor también es teatro.
+
+---
+
+### (1) Qué ya cubre el producto vs qué falta
+
+| Capacidad pedida MVP Realtors | Estado hoy | Evidencia | Gap lunes |
+|-------------------------------|------------|-----------|-----------|
+| Explore / filtros / ficha venta USD | **Cubierto** (local PASS; prod frágil) | `/`, listings, `listPublished` | Mantener; no tocar |
+| Publicar (mismo sistema) | **Cubierto** | Wizard + UploadThing + `publishListing` | Reusar 100%; realtor usa mismo flujo |
+| Contacto comprador↔vendedor | **Parcial** | Q&A PASS código / N/A E2E; WA = D10 pendiente | Mantener; no bloquear Realtors por WA |
+| Preferencial (servicios FSBO) | **Cubierto** request+admin | `preferentialRequests` + `/preferencial` + `/admin` | **Precedente** — no confundir con Plan Realtor |
+| Admin gestiona solicitudes | **Cubierto** (Preferencial + pause + trust listing) | `updateStatus`, pause, `trustBadge` listing | Extender cola a **solicitudes Realtor** |
+| Registro particular vs Realtor | **Falta** | `users.role` solo `user` \| `admin` | Campo `accountKind` o flag + UI registro/onboarding |
+| Identificar Realtors en UI | **Falta** | Sin badge/perfil realtor | Badge en ficha/owner + filtro opcional light |
+| Sección suscripciones + solicitar | **Falta** | Solo Preferencial (otro producto) | Página Plan 1 + request (clone Preferencial) |
+| Admin aprueba plan / verifica realtor | **Falta** | No hay tabla ni status realtor | Cola admin + status machine |
+| Realtor Verificado (concepto inicial) | **Falta** (≠ `musas_reviewed` listing) | Trust es de **listing**, no de profesional | Badge soft post-aprobación admin |
+| Perfil realtor + contacto clientes | **Parcial** | `contactPhone` user; WA listing opcional | Perfil mínimo (nombre, ciudad, WA, bio corta) |
+| Contenido educativo Plan 1 | **Falta** | — | **Out** lunes o 1 link externo (Notion/Drive) |
+| Plan 2 | **TBD** | — | **Out** |
+| CRM avanzado / pipeline leads | **Falta (bien)** | — | **Out** |
+| Pagos recurrentes in-app | **No (correcto MVP)** | Preferencial = fuera de app | **Out** salvo decisión D16=pago |
+
+**Síntesis:** ~70% del happy path marketplace ya sirve al realtor como **publicador**. El 30% faltante es **identidad + plan request + badge + admin cola** — mismo DNA que Preferencial.
+
+---
+
+### (2) Alcance lunes cortado (IN / OUT)
+
+#### IN — ship mínimo validable (DoD lunes)
+
+| # | Ítem | Criterio PASS |
+|---|------|---------------|
+| R1 | Onboarding: elegir **Particular** vs **Realtor** (post-signup o primer login) | Persiste en Convex; reversible solo vía admin si hace falta |
+| R2 | Realtor puede **publicar** con wizard actual sin fork | Listing creado; owner marcado realtor |
+| R3 | UI identifica realtor (badge “Realtor” en ficha o perfil público mínimo) | Comprador ve señal; no confunde con `musas_reviewed` |
+| R4 | Página **Planes / Suscripciones**: solo **Plan 1** definido + CTA “Solicitar” | Copy beneficios Plan 1; Plan 2 = “Próximamente” o oculto |
+| R5 | Solicitud Plan 1 → status `requested` (+ notas/contacto) | Fila en dashboard realtor + admin |
+| R6 | Admin: listar solicitudes + cambiar status (+ marcar **Realtor Verificado** soft) | Igual UX que Preferencial status |
+| R7 | Explore/contacto/compra **intactos** | Sin regress S0/scripts 1–4+6 |
+
+#### OUT — veto PM lunes (backlog explícito)
+
+| Out | Por qué |
+|-----|---------|
+| Plan 2 features / pricing | TBD; diluye mensaje |
+| Pagos recurrentes / Stripe / BNC | No indispensable; Preferencial ya prueba “pago fuera” |
+| CRM, pipeline, asignación leads, inbox realtor dedicado | Scope agencia; mata validación |
+| Contenido educativo in-app (cursos, LMS) | 1 URL externa basta para claim Plan 1 |
+| Directorio público de realtors | Copia Propiedash; choca con Preferencial cerrada |
+| Verify estricto docs (cédula/RIF/colegio) gate publish | Sin ops nombrado = cola muerta; soft badge post-request |
+| Fork del wizard / listing schema “solo realtor” | Rebuild disfrazado |
+| Alquiler, mapa nacional, analytics vanity | Ya vetados D7 / INFORME-4–5 |
+| Sustituir Preferencial por “suscripción” genérica | Dos líneas: FSBO Preferencial ≠ Realtor Plan |
+
+#### Capacidad / dependencia
+
+| Dependencia | Impacto lunes |
+|-------------|----------------|
+| Prod usable (auth+publish) **o** local invite cerrado | Sin URL real, métricas Realtor = lab |
+| ≥3 realtors beta con WA | Sin reclutas, R1–R6 no validan negocio |
+| D8 ops (humano &lt;24h) | Misma persona puede triage Preferencial **y** Realtor requests |
+
+---
+
+### (3) Decisiones de producto — Joaquín debe confirmar **antes** de construir
+
+| ID | Problema | Opciones | Rec. PM | Bloquea build? |
+|----|----------|----------|---------|----------------|
+| **D14** | ¿Qué es un Realtor en MVP? | **A** `accountKind: particular\|realtor` + plan request · **B** solo solicitud sin cambiar cuenta · **C** rol Clerk separado | **A** | **Sí** |
+| **D15** | Beneficios Plan 1 (scope copy) | **A** publicar + perfil + contacto + badge Verificado *post-aprobación* + link educativo externo · **B** incluir LMS in-app · **C** solo badge sin perfil | **A** | **Sí** (copy) |
+| **D16** | Monetización Plan 1 lunes | **A** solicitar + “a cotizar / pago fuera” (como Preferencial) · **B** precio referencial USD/mes visible · **C** cobro in-app | **A** (o **B** si hay floor cumplible) | **Sí** comercial |
+| **D17** | Relación Preferencial vs Realtor | **A** productos **separados** (FSBO servicios vs plan profesional) · **B** unificar en “Suscripciones” · **C** Preferencial solo para realtors | **A** | **Sí** (IA/nav) |
+| **D18** | Realtor Verificado = ¿qué? | **A** admin marca tras request + checklist liviano (nombre comercial, WA, ciudad) · **B** docs obligatorios día 1 · **C** auto al elegir accountKind | **A** | **Sí** trust |
+| **D19** | ¿Listing de realtor requiere plan aprobado para publicar? | **A** No — publica ya; plan = upgrade/badge · **B** Sí — gate pre-publish | **A** (liquidez lunes) | **Sí** |
+| **D20** | Reclutas lunes | ¿Quiénes (nombres) + canal? | Obligatorio ≥3 realtors | **Sí** métricas |
+| D8 | Ops &lt;24h | Nombre + WA (cubre Pref + Realtor) | Obligatorio | Pitch |
+| D10 | WA ficha | A opt-in (sigue recomendado; no bloquea R1–R6) | A | No lunes Realtors |
+| D11–D13 | Moat listing verify | No mezclar con Realtor Verificado | Separar copy | No |
+
+**Regla copy:** “Realtor Verificado” ≠ “Musas revisó la propiedad” (`musas_reviewed`). Dos sellos distintos o quemamos trust.
+
+---
+
+### (4) Cómo reutilizar Preferencial como precedente
+
+| Pieza Preferencial | Reuso Realtor Plan 1 |
+|--------------------|----------------------|
+| Catálogo estático (`preferential-packages.ts`) | `realtor-plans.ts` — **solo Plan 1** + stub Plan 2 |
+| `create` → `requested` + notes + phone/email | Misma mutation shape (`realtorPlanRequests` o tabla genérica `planRequests`) |
+| `myRequests` dashboard | `/dashboard/suscripciones` o sección hermana |
+| `listAdmin` + `updateStatus` | Misma UX admin (tabs: Preferencial \| Realtors) |
+| Status machine | Subset: `requested → reviewing → active/verified → cancelled` (no hace falta `in_progress` físico) |
+| Copy “pago / activación fuera de la app” | Idéntico principio (D16=A) |
+| Ops humano D8 | Misma cola humana; no automatizar |
+
+**No hacer:** fusionar paquetes fotos/legal con Plan Realtor en una sola tabla sin discriminador — confunde métricas y pitch.
+
+**Esfuerzo estimado (orden mag.):** S–M si clone Preferencial; L+ si se inventa CRM/perfil social/pagos.
+
+---
+
+### (5) Métricas de validación con Realtors reales (lunes → +7d)
+
+| # | Métrica | Umbral lunes / 7d | Cómo medir | Señal |
+|---|---------|-------------------|------------|-------|
+| MR1 | Realtors onboarded (`accountKind=realtor`) | ≥3 | Convex / admin | Hay quién validar |
+| MR2 | Solicitudes Plan 1 `requested` | ≥2 | Admin cola | Intención de pago/plan |
+| MR3 | Time-to-request (signup→solicitar) | ≤20 min p50 | Timestamp | Fricción onboarding |
+| MR4 | Listings publicados por realtors | ≥1 (≥3 ideal 7d) | owner realtor + published | Plan sin inventario = vanity |
+| MR5 | Admin: `requested` → contacted/verified &lt;24h | 100% de las solicitudes | Status + nota ops | Sin esto = teatro |
+| MR6 | “¿Pagarías Plan 1 fuera de app?” (1–5) | n≥3 avg ≥3.5 | Entrevista / form | Willingness to pay |
+| MR7 | Confusión Preferencial vs Plan | ≤1/3 dice “es lo mismo” | Quote cualitativa | Si confunden → falló D17 |
+| MR8 | Regresión marketplace | Scripts 1–4+6 no peores | QA | No romper FSBO |
+
+**Anti-métricas:** # features Realtor shipped · página suscripciones vistas sin request · badge sin humano.
+
+**Criterio go/no-go línea:** si MR2≥2 **y** MR5=100% **y** MR6≥3.5 → invertir en Plan 1 polish (perfil, educativo). Si MR2=0 con ≥3 onboarded → problema de oferta/precio/copy, no de CRM.
+
+---
+
+### (6) Riesgos de negocio si se sobre-construye
+
+| Riesgo | Sev | Efecto | Mitigación |
+|--------|-----|--------|------------|
+| Rebuild “portal de agentes” | **Crítico** | Pierde lunes; FSBO sin cuidado | Clone Preferencial only |
+| Pagos recurrentes día 1 | **Mayor** | Compliance + scope; 0 users que paguen aún | D16=A fuera de app |
+| Mezclar Realtor Verificado con listing verified | **Mayor** | Trust claim mentiroso vs Propiedash | Copy + badges separados |
+| Gate publish solo con plan (D19=B) | **Mayor** | 0 inventario realtor en beta | D19=A |
+| Directorio / CRM | **Mayor** | Ops infinito; Propiedash peor | Veto OUT |
+| Educativo LMS | **Medio** | Semanas de contenido sin WTP medido | 1 link externo |
+| Abandonar G-Prod / D8 por features Realtor | **Crítico** | Validación en lab vacío | Prod+ops siguen P0 |
+| Canibalizar Preferencial FSBO | **Medio** | Mensaje confuso | D17=A nav separada |
+
+---
+
+### Recomendación PM (orden)
+
+1. **Hoy:** Joaquín cierra **D14–D20** (tabla §3) en un mensaje.  
+2. **Tech:** clone Preferencial → Plan Realtor + `accountKind` + badge soft; **cero** pagos/CRM.  
+3. **Design:** 1 página suscripciones + badge + onboarding 2 opciones; no landing nueva.  
+4. **Ops:** D8 cubre Pref + Realtor.  
+5. **Lunes:** 3 realtors reales corren MR1–MR6; QA vigila MR8.  
+6. **No** pausar G-Prod: sin dominio usable, Realtors no valida negocio.
+
+### Decisión del gate
+
+| Pregunta | Estado |
+|----------|--------|
+| ¿Rebuild marketplace? | **No** |
+| ¿Línea Realtors = clone Preferencial + identidad? | **Propuesto** |
+| ¿D14–D20 aprobadas? | **D14–D19 = A** (Joaquín 2026-11-14 «si arranca con eso»). **D20/D8** ops siguen pendientes. |
+| ¿Aprobaciones nuevas asumidas? | Solo D14–D19=A |
+
+### Asks residuales (ops)
+
+1. **D20:** Nombres de ≥3 realtors + fecha/hora sesión lunes.  
+2. **D8:** Nombre + WA ops (Preferencial + Realtor &lt;24h).  
+3. **Prioridad prod:** redeploy + seed sigue P0 en paralelo.
+
+### Handoff
+
+- **Tech:** **SHIPPED** slice D14–D19 (accountKind, `/suscripciones`, admin cola, Verificado soft).  
+- **Design:** review copy Plan 1 + badges.  
+- **Owner:** stress-test Verificado vs Musas Revisado.  
+- **User/QA:** scripts R1–R7 + MR8 con realtors reales (D20).

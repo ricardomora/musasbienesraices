@@ -27,6 +27,18 @@ const packageKey = v.union(
   v.literal("acompanamiento"),
 );
 
+const accountKind = v.union(v.literal("particular"), v.literal("realtor"));
+
+const realtorPlanKey = v.union(v.literal("plan1"), v.literal("plan2"));
+
+const realtorRequestStatus = v.union(
+  v.literal("requested"),
+  v.literal("reviewing"),
+  v.literal("approved"),
+  v.literal("rejected"),
+  v.literal("cancelled"),
+);
+
 export default defineSchema({
   users: defineTable({
     clerkId: v.string(),
@@ -34,12 +46,19 @@ export default defineSchema({
     name: v.optional(v.string()),
     avatarUrl: v.optional(v.string()),
     role: v.union(v.literal("user"), v.literal("admin")),
+    /** D14: particular vs realtor. Optional until onboarding. */
+    accountKind: v.optional(accountKind),
+    /** D18: admin-only; never self-serve. ≠ musas_reviewed on listings. */
+    realtorVerified: v.optional(v.boolean()),
+    realtorVerifiedAt: v.optional(v.number()),
+    realtorVerifiedBy: v.optional(v.id("users")),
     contactPhone: v.optional(v.string()),
     cityId: v.optional(v.string()),
     createdAt: v.number(),
   })
     .index("by_clerkId", ["clerkId"])
-    .index("by_email", ["email"]),
+    .index("by_email", ["email"])
+    .index("by_accountKind", ["accountKind"]),
 
   listings: defineTable({
     ownerId: v.id("users"),
@@ -113,6 +132,26 @@ export default defineSchema({
     contactPhone: v.optional(v.string()),
     contactEmail: v.optional(v.string()),
     status: preferentialStatus,
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_status", ["status"]),
+
+  /** Realtor Plan 1 intake (D16=A): request + pay/activate outside app. */
+  realtorSubscriptionRequests: defineTable({
+    userId: v.id("users"),
+    planKey: realtorPlanKey,
+    /** monthly = 15; annual = 15% off. Optional for legacy rows. */
+    billingPeriod: v.optional(
+      v.union(v.literal("monthly"), v.literal("annual")),
+    ),
+    notes: v.string(),
+    contactPhone: v.optional(v.string()),
+    contactEmail: v.optional(v.string()),
+    status: realtorRequestStatus,
+    adminNote: v.optional(v.string()),
+    reviewedBy: v.optional(v.id("users")),
     createdAt: v.number(),
     updatedAt: v.number(),
   })

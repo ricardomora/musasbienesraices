@@ -17,8 +17,8 @@ type HomeHeaderProps = {
 };
 
 export function HomeHeader({
-  favoriteCount,
-  onShowFavorites,
+  favoriteCount: _favoriteCount,
+  onShowFavorites: _onShowFavorites,
   onPublish,
 }: HomeHeaderProps) {
   const { isLoaded, isSignedIn } = useAuth();
@@ -26,80 +26,66 @@ export function HomeHeader({
   return (
     <header className="absolute inset-x-0 top-0 z-30">
       <div className="mx-auto flex max-w-[96rem] items-center justify-between gap-4 px-5 py-5 sm:px-8 lg:px-12 xl:px-16">
-        <Link
-          href="/"
-          className="interactive-surface inline-flex items-center gap-2.5 text-white"
-        >
-          <span className="inline-flex size-8 items-center justify-center rounded-full border border-neon/45 text-neon">
-            <Home className="size-3.5" aria-hidden />
-          </span>
-          <span className="text-[17px] font-semibold tracking-tight">
-            musas<span className="text-neon">.</span>
-          </span>
-        </Link>
-
-        <nav className="hidden items-center gap-8 text-[14px] text-white/80 md:flex">
-          <a href="#inmuebles" className="interactive-surface hover:text-white">
-            Explorar
-          </a>
-          <Link href="/mapa" className="interactive-surface hover:text-white">
-            Mapa
-          </Link>
-          <a
-            href="#como-funciona"
-            className="interactive-surface hover:text-white"
-          >
-            Cómo funciona
-          </a>
+        <div className="flex items-center gap-6 sm:gap-8">
           <Link
-            href="/preferencial"
-            className="interactive-surface hover:text-white"
+            href="/"
+            className="interactive-surface inline-flex items-center gap-2.5 text-white"
           >
-            Preferencial
+            <span className="inline-flex size-8 items-center justify-center rounded-full border border-neon/45 text-neon">
+              <Home className="size-3.5" aria-hidden />
+            </span>
+            <span className="text-[17px] font-semibold tracking-tight">
+              musas<span className="text-neon">.</span>
+            </span>
           </Link>
-          <Link href="/ayuda" className="interactive-surface hover:text-white">
-            Ayuda
-          </Link>
-          <button
-            type="button"
-            onClick={onShowFavorites}
-            className="interactive-surface hover:text-white"
-          >
-            Favoritos ({favoriteCount})
-          </button>
-          {isLoaded && isSignedIn ? (
-            <>
-              <Link
-                href="/dashboard/inmuebles"
-                className="interactive-surface text-neon hover:text-white"
-              >
-                Mis inmuebles
-              </Link>
-              <Link
-                href="/dashboard/mensajes"
-                className="interactive-surface hover:text-white"
-              >
-                Mensajes
-              </Link>
-            </>
-          ) : null}
-        </nav>
+
+          <nav className="flex items-center gap-6 text-[14px] text-white/80 sm:gap-8">
+            <a href="#inmuebles" className="interactive-surface hover:text-white">
+              Explorar
+            </a>
+            <button
+              type="button"
+              onClick={onPublish}
+              className="interactive-surface hover:text-white"
+            >
+              Publicar un inmueble
+            </button>
+            {isLoaded && isSignedIn ? (
+              <>
+                <Link
+                  href="/dashboard/inmuebles"
+                  className="interactive-surface hidden text-neon hover:text-white md:inline"
+                >
+                  Mis inmuebles
+                </Link>
+                <Link
+                  href="/dashboard/mensajes"
+                  className="interactive-surface hidden hover:text-white md:inline"
+                >
+                  Mensajes
+                </Link>
+              </>
+            ) : null}
+          </nav>
+        </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
           <ThemeToggle
             compact
             className="border-white/30 bg-ink/40 text-white hover:border-white/50"
           />
-          {isLoaded && !isSignedIn ? (
+
+          {!isSignedIn ? (
             <SignInButton mode="modal">
               <button
                 type="button"
-                className="interactive-surface hidden rounded-full border border-white/25 px-3 py-2 text-sm text-white/85 sm:inline-flex"
+                className="interactive-surface rounded-full border border-white/25 px-3 py-2 text-sm text-white/85 hover:border-white/45 hover:text-white"
               >
-                Entrar
+                Iniciar sesión
               </button>
             </SignInButton>
           ) : null}
+
           {isLoaded && isSignedIn ? (
             <>
               <Link
@@ -144,15 +130,6 @@ export function HomeHeader({
               </UserButton>
             </>
           ) : null}
-          <button
-            type="button"
-            onClick={onPublish}
-            className="interactive-surface inline-flex items-center gap-1.5 rounded-full border border-white/30 px-3 py-2.5 text-sm text-white hover:border-white/55 hover:bg-white/5 sm:px-4"
-          >
-            <span className="hidden sm:inline">Publicar mi inmueble</span>
-            <span className="sm:hidden">Publicar</span>
-            <ArrowUpRight className="size-3.5" aria-hidden />
-          </button>
         </div>
       </div>
     </header>

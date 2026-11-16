@@ -11,10 +11,20 @@ import {
   PREFERENTIAL_STATUS_LABELS,
   type PreferentialStatus,
 } from "@/lib/preferential-packages";
+import {
+  REALTOR_STATUS_LABELS,
+  realtorBillingLabel,
+  realtorPlanName,
+  type RealtorRequestStatus,
+} from "@/lib/realtor-plans";
 
 const STATUSES = Object.keys(
   PREFERENTIAL_STATUS_LABELS,
 ) as PreferentialStatus[];
+
+const REALTOR_STATUSES = Object.keys(
+  REALTOR_STATUS_LABELS,
+) as RealtorRequestStatus[];
 
 function AdminPanel() {
   const me = useQuery(api.users.me);
@@ -22,11 +32,21 @@ function AdminPanel() {
     api.preferential.listAdmin,
     me?.role === "admin" ? {} : "skip",
   );
+  const realtorRequests = useQuery(
+    api.realtors.listAdmin,
+    me?.role === "admin" ? {} : "skip",
+  );
+  const realtors = useQuery(
+    api.realtors.listRealtorsAdmin,
+    me?.role === "admin" ? {} : "skip",
+  );
   const listings = useQuery(
     api.listings.listAllAdmin,
     me?.role === "admin" ? {} : "skip",
   );
   const updateStatus = useMutation(api.preferential.updateStatus);
+  const updateRealtorStatus = useMutation(api.realtors.updateStatus);
+  const setRealtorVerified = useMutation(api.realtors.setVerified);
   const setListingStatus = useMutation(api.listings.setListingStatus);
   const setTrustBadge = useMutation(api.listings.setTrustBadge);
   const reports = useQuery(
@@ -65,6 +85,13 @@ function AdminPanel() {
   const openPreferential =
     requests?.filter((r) => r.status !== "done" && r.status !== "cancelled")
       .length ?? 0;
+  const openRealtor =
+    realtorRequests?.filter(
+      (r) => r.status === "requested" || r.status === "reviewing",
+    ).length ?? 0;
+  const realtorCount = realtors?.length ?? 0;
+  const verifiedRealtorCount =
+    realtors?.filter((r) => r.realtorVerified).length ?? 0;
 
   const reviewQueue =
     listings
@@ -92,7 +119,8 @@ function AdminPanel() {
           <p className="mt-3 text-xs text-muted-foreground">
             {reports?.length ?? 0} reportes · {pendingReview} por revisar ·{" "}
             {reviewedCount} revisados · {openPreferential} Preferencial ·{" "}
-            {publishedCount} publicadas · {listingCount} fichas
+            {openRealtor} Realtor req · {verifiedRealtorCount}/{realtorCount}{" "}
+            verificados · {publishedCount} publicadas · {listingCount} fichas
           </p>
         </div>
         <button
@@ -267,6 +295,124 @@ function AdminPanel() {
                     Pausar
                   </button>
                 </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section>
+        <h2 className="text-lg font-semibold text-foreground">
+          Solicitudes Realtor (Plan 1)
+        </h2>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Separado de Preferencial. Coordinación y pago fuera de la app. Badge
+          Verificado ≠ Musas Revisado (ficha).
+        </p>
+        {(realtorRequests?.length ?? 0) === 0 ? (
+          <p className="mt-4 rounded-xl border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">
+            Sin solicitudes Realtor.
+          </p>
+        ) : (
+          <ul className="mt-4 space-y-3">
+            {(realtorRequests ?? []).map((r) => (
+              <li
+                key={r._id}
+                className="rounded-xl border border-border p-4 text-sm"
+              >
+                <p className="text-foreground">
+                  {r.userName ?? r.userEmail} · {realtorPlanName(r.planKey)} ·{" "}
+                  {realtorBillingLabel(r.billingPeriod)}
+                  {r.realtorVerified ? (
+                    <span className="ml-2 text-neon">· Verificado</span>
+                  ) : null}
+                </p>
+                {r.contactPhone ? (
+                  <p className="mt-1 text-neon">WhatsApp: {r.contactPhone}</p>
+                ) : null}
+                <p className="mt-1 text-muted-foreground">{r.notes}</p>
+                <div className="mt-3 flex flex-wrap items-end gap-3">
+                  <label className="block space-y-1">
+                    <span className="text-xs text-muted-foreground">Estado</span>
+                    <select
+                      className="w-full rounded-lg border border-border bg-background px-3 py-2 text-foreground sm:w-auto"
+                      value={r.status}
+                      onChange={(e) =>
+                        void updateRealtorStatus({
+                          id: r._id,
+                          status: e.target.value as RealtorRequestStatus,
+                        }).then(() => toast.success("Estado Realtor OK"))
+                      }
+                    >
+                      {REALTOR_STATUSES.map((s) => (
+                        <option key={s} value={s}>
+                          {REALTOR_STATUS_LABELS[s]}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <button
+                    type="button"
+                    className="rounded-full border border-neon/40 px-3 py-1.5 text-xs text-neon"
+                    onClick={() =>
+                      void setRealtorVerified({
+                        userId: r.userId,
+                        verified: !r.realtorVerified,
+                      }).then(() =>
+                        toast.success(
+                          r.realtorVerified
+                            ? "Verificado quitado"
+                            : "Realtor Verificado",
+                        ),
+                      )
+                    }
+                  >
+                    {r.realtorVerified ? "Quitar Verificado" : "Marcar Verificado"}
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section>
+        <h2 className="text-lg font-semibold text-foreground">
+          Realtors registrados
+        </h2>
+        {(realtors?.length ?? 0) === 0 ? (
+          <p className="mt-4 rounded-xl border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">
+            Nadie eligió cuenta Realtor aún.
+          </p>
+        ) : (
+          <ul className="mt-4 space-y-2">
+            {(realtors ?? []).map((u) => (
+              <li
+                key={u._id}
+                className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border px-4 py-3 text-sm"
+              >
+                <span className="text-foreground">
+                  {u.name ?? u.email}
+                  {u.realtorVerified ? (
+                    <span className="ml-2 text-neon">· Verificado</span>
+                  ) : (
+                    <span className="ml-2 text-muted-foreground">
+                      · sin verificar
+                    </span>
+                  )}
+                </span>
+                <button
+                  type="button"
+                  className="text-neon hover:underline"
+                  onClick={() =>
+                    void setRealtorVerified({
+                      userId: u._id,
+                      verified: !u.realtorVerified,
+                    }).then(() => toast.success("Actualizado"))
+                  }
+                >
+                  {u.realtorVerified ? "Quitar" : "Verificar"}
+                </button>
               </li>
             ))}
           </ul>

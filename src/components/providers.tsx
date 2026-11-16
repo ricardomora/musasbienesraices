@@ -12,6 +12,7 @@ import {
 } from "react";
 import { Toaster } from "sonner";
 import { api } from "../../convex/_generated/api";
+import { AccountKindGate } from "@/components/auth/account-kind-gate";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { useTheme } from "@/components/theme/theme-provider";
 
@@ -122,7 +123,9 @@ export function Providers({ children }: { children: ReactNode }) {
     >
       {convex ? (
         <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-          <EnsureConvexUser>{shell}</EnsureConvexUser>
+          <EnsureConvexUser>
+            <AccountKindGate>{shell}</AccountKindGate>
+          </EnsureConvexUser>
         </ConvexProviderWithClerk>
       ) : (
         shell

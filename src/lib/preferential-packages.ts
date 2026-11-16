@@ -18,21 +18,21 @@ export const PREFERENTIAL_PACKAGES: {
     key: "fotos",
     name: "Sesión fotográfica",
     includes:
-      "Sesión en sitio, selección editada y carga a tu ficha de venta Musas.",
+      "Vamos al inmueble, editamos la selección y las subimos a tu ficha.",
     fromUsd: 120,
   },
   {
     key: "legal",
-    name: "Asesoría legal",
+    name: "Revisión legal",
     includes:
-      "Revisión documental básica y checklist para un cierre de venta más claro.",
+      "Revisamos documentos básicos y te dejamos el checklist de cierre.",
     fromUsd: 200,
   },
   {
     key: "acompanamiento",
     name: "Acompañamiento",
     includes:
-      "Coordinación de visitas de compradores y soporte en la negociación.",
+      "Coordinamos visitas de compradores y te respaldamos en la negociación.",
     fromUsd: 150,
   },
 ];

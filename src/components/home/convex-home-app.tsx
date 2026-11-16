@@ -3,7 +3,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
-import Link from "next/link";
 import { CITIES, type CityId } from "@/data/cities";
 import {
   QUICK_SEARCH_CHIPS,
@@ -333,7 +332,6 @@ export function ConvexHomeApp() {
           });
         }}
         onSearch={() => runSearch("lista")}
-        onSearchMap={() => runSearch("mapa")}
         onChipApply={applyChip}
       />
       {loading ? (
@@ -380,19 +378,6 @@ export function ConvexHomeApp() {
         />
       )}
       <HowItWorks productLive onPublish={goPublish} />
-      <div className="border-t border-white/5 py-6 text-center text-sm text-muted-foreground">
-        <Link href="/mapa" className="text-neon hover:underline">
-          Mapa nacional
-        </Link>
-        {" · "}
-        <Link href="/preferencial" className="text-neon hover:underline">
-          Atención Preferencial
-        </Link>
-        {" · "}
-        <Link href="/dashboard/inmuebles" className="hover:text-white">
-          Mis inmuebles
-        </Link>
-      </div>
     </main>
   );
 }

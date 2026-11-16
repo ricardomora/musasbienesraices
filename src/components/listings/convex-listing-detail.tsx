@@ -175,6 +175,29 @@ export function ConvexListingDetail({ slug }: { slug: string }) {
           {op === "alquiler" ? "Alquiler · USD / mes" : "Venta · USD"}
           {listing.badge ? ` · ${listing.badge}` : ""}
         </p>
+        {listing.ownerAccountKind === "realtor" ? (
+          <p className="mt-3 flex flex-wrap items-center gap-2 text-sm">
+            <span className="text-muted-foreground">
+              {listing.ownerName ?? "Realtor Musas"}
+            </span>
+            <span
+              className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-medium ${
+                listing.ownerRealtorVerified
+                  ? "border-neon/50 text-neon"
+                  : "border-border text-muted-foreground"
+              }`}
+              title={
+                listing.ownerRealtorVerified
+                  ? "Agente revisado por Musas (identidad profesional). No certifica la propiedad."
+                  : "Publicado por un Realtor en Musas. Verificado pendiente."
+              }
+            >
+              {listing.ownerRealtorVerified
+                ? "Realtor Verificado"
+                : "Realtor"}
+            </span>
+          </p>
+        ) : null}
         <p className="mt-4 text-muted-foreground">{listing.description}</p>
         <p className="mt-4 text-2xl font-semibold text-foreground">
           {formatListingPrice(listing)}{" "}

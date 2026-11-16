@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
@@ -15,11 +16,20 @@ import {
   preferentialStatusLabel,
   type PreferentialPackageKey,
 } from "@/lib/preferential-packages";
-import { formatUsd } from "@/data/listings";
 import { BACKEND_CONFIGURED } from "@/lib/backend";
+
+function initialPackageSelection(
+  raw: string | null,
+): PreferentialPackageKey[] {
+  if (raw === "fotos" || raw === "legal" || raw === "acompanamiento") {
+    return [raw];
+  }
+  return [];
+}
 
 function PreferentialForm() {
   const { isSignedIn } = useAuth();
+  const searchParams = useSearchParams();
   const create = useMutation(api.preferential.create);
   const myListings = useQuery(
     api.listings.myListings,
@@ -29,7 +39,9 @@ function PreferentialForm() {
     api.preferential.myRequests,
     BACKEND_CONFIGURED && isSignedIn ? {} : "skip",
   );
-  const [selected, setSelected] = useState<PreferentialPackageKey[]>([]);
+  const [selected, setSelected] = useState<PreferentialPackageKey[]>(() =>
+    initialPackageSelection(searchParams.get("paquete")),
+  );
   const [notes, setNotes] = useState("");
   const [phone, setPhone] = useState("");
   const [listingId, setListingId] = useState<string>("");
@@ -43,14 +55,14 @@ function PreferentialForm() {
   return (
     <div className="mx-auto max-w-4xl px-5 py-14 sm:px-8">
       <p className="text-[11px] tracking-[0.2em] text-neon uppercase">
-        Atención Preferencial
+        Preferencial
       </p>
       <h1 className="mt-3 max-w-2xl text-[clamp(1.8rem,4vw,2.75rem)] font-semibold tracking-tight text-foreground">
-        Paquetes claros para vender con respaldo.
+        Cuando publicar no basta.
       </h1>
       <p className="mt-4 max-w-xl text-muted-foreground">
-        Tres paquetes para vender mejor en USD: fotos, legal o acompañamiento.
-        Eliges aquí; cotización y pago se cierran fuera de la app.
+        Elige fotos, revisión legal o acompañamiento en visitas — o combínalos.
+        Te respondemos por WhatsApp para cotizar y coordinar.
       </p>
 
       <aside
@@ -58,12 +70,12 @@ function PreferentialForm() {
         role="note"
       >
         <strong className="font-medium text-neon">Cómo funciona:</strong>{" "}
-        eliges paquetes → envías solicitud con WhatsApp → Musas te contacta para
-        coordinar y pagar fuera de la plataforma. El estado queda visible aquí.
+        eliges paquetes, envías la solicitud y cerramos cotización y pago fuera
+        de la app.
       </aside>
 
       <p className="mt-10 text-xs tracking-[0.16em] text-muted-foreground uppercase">
-        1 · Elige paquetes
+        1 · ¿Qué necesitas?
       </p>
       <div className="mt-3 grid gap-6 md:grid-cols-3">
         {PREFERENTIAL_PACKAGES.map((pkg) => {
@@ -80,15 +92,15 @@ function PreferentialForm() {
                   : "border-border bg-muted/30 hover:border-neon/35"
               }`}
             >
-              <h2 className="text-lg font-semibold text-foreground">{pkg.name}</h2>
+              <h2 className="text-lg font-semibold text-foreground">
+                {pkg.name}
+              </h2>
               <p className="mt-2 text-sm text-muted-foreground">
                 {pkg.includes}
               </p>
-              <p className="mt-4 text-sm text-neon">
-                desde {formatUsd(pkg.fromUsd)} · a cotizar
-              </p>
+              <p className="mt-4 text-sm text-neon">A cotizar</p>
               <p className="mt-3 text-xs text-muted-foreground">
-                {on ? "Seleccionado" : "Toca para seleccionar"}
+                {on ? "En tu solicitud" : "Agregar"}
               </p>
             </button>
           );
@@ -98,13 +110,13 @@ function PreferentialForm() {
       {!isSignedIn ? (
         <div className="mt-12 rounded-2xl border border-border bg-muted/30 px-5 py-6">
           <p className="text-xs tracking-[0.16em] text-muted-foreground uppercase">
-            2 · Solicitud de contacto
+            2 · Deja tu contacto
           </p>
           <p className="mt-3 text-sm text-muted-foreground">
             <Link href="/sign-in" className="text-neon underline">
               Inicia sesión
             </Link>{" "}
-            para enviar tu solicitud con WhatsApp. Sin cobro en la app.
+            para enviar la solicitud con tu WhatsApp.
           </p>
         </div>
       ) : (
@@ -138,14 +150,13 @@ function PreferentialForm() {
         >
           <div>
             <p className="text-xs tracking-[0.16em] text-muted-foreground uppercase">
-              2 · Solicitud de contacto
+              2 · Deja tu contacto
             </p>
             <h2 className="mt-2 text-lg font-semibold text-foreground">
-              Cuéntanos cómo contactarte
+              Te escribimos para cotizar
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Elige al menos un paquete arriba y deja WhatsApp + notas. Ops
-              responde fuera de la app.
+              Marca al menos un paquete, deja WhatsApp y unas notas.
             </p>
           </div>
           {(myListings?.length ?? 0) > 0 ? (
@@ -177,7 +188,7 @@ function PreferentialForm() {
             />
           </label>
           <label className="block space-y-1 text-sm">
-            <span className="text-muted-foreground">Notas para cotizar *</span>
+            <span className="text-muted-foreground">Notas *</span>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
@@ -185,7 +196,7 @@ function PreferentialForm() {
               required
               minLength={10}
               className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
-              placeholder="Zona, urgencia y qué paquete te interesa más…"
+              placeholder="Zona, urgencia y si ya tienes ficha publicada…"
             />
           </label>
           <button
@@ -201,15 +212,16 @@ function PreferentialForm() {
             </p>
           ) : null}
           <p className="text-xs text-muted-foreground">
-            Al enviar no se cobra nada aquí. Musas te escribe para coordinar y
-            pagar fuera de la plataforma.
+            Cotización y pago se coordinan fuera de la plataforma.
           </p>
         </form>
       )}
 
       {(myRequests?.length ?? 0) > 0 ? (
         <section className="mt-14">
-          <h2 className="text-lg font-semibold text-foreground">Tus solicitudes</h2>
+          <h2 className="text-lg font-semibold text-foreground">
+            Tus solicitudes
+          </h2>
           <ul className="mt-4 space-y-3">
             {myRequests?.map((r) => (
               <li

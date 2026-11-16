@@ -1,6 +1,6 @@
 # Insumos de Joaquín (bloqueadores)
 
-Marca cada ítem cuando esté listo. **Estado 2026-11-12 (INFORME-5):** Propiedash=10 Musas=3 aceptado. Moat propuesto = verify listings + especialistas (D11–D13 pendientes). Bloqueo prod = **env/sync/Clerk live**. D7=**A**. D1–D6 + D8 + D10 pendientes. Roadmap 30/60/90: UX robada + moat L1→L3; no mapa/NL/BCV/directorio.
+Marca cada ítem cuando esté listo. **Estado 2026-11-14 (INFORME-7):** Corte lunes **línea Realtors** = clone Preferencial + `accountKind` + badge soft — **D14–D20 pendientes** (no construir sin OK). Prod = **env/sync/Clerk live** sigue P0. Moat listing (D11–D13) ≠ Realtor Verificado. D7=**A**. D1–D6 deadline silencio venció sin OK explícito.
 
 ## Leyenda de bloqueo beta
 
@@ -59,10 +59,18 @@ Marca cada ítem cuando esté listo. **Estado 2026-11-12 (INFORME-5):** Propieda
 | QA local scripts 1–4+6 | **PASS** corrida 3/3b | — | Q&A N/A (1 cuenta) |
 | INFORME-OWNER formal | **OWNER-1 + OWNER-2 + OWNER-3** | — | OWNER-3: apuesta competitiva VE (Caracas USD + Preferencial); D10 WA ficha |
 | **D10 — WA opt-in en ficha** | **pendiente** (recom owner: sí) | competitivo major | vs hábito VE / ML / Propiedash |
+| **D14 — accountKind particular/realtor** | **pendiente** | **BLOQUEA** build Realtors | INFORME-7 rec **A** |
+| **D15 — Beneficios Plan 1** | **pendiente** | copy | publicar+perfil+contacto+badge+link edu externo |
+| **D16 — Monetización Plan 1** | **pendiente** | comercial | rec **A** solicitar / pago fuera (como Preferencial) |
+| **D17 — Preferencial vs Suscripciones Realtor** | **pendiente** | IA/nav | rec **A** productos separados |
+| **D18 — Realtor Verificado** | **pendiente** | trust | rec **A** admin soft post-request (≠ musas_reviewed) |
+| **D19 — ¿Plan gate para publicar?** | **pendiente** | liquidez | rec **A** no gate; plan = upgrade |
+| **D20 — ≥3 realtors lunes** | **pendiente** | criterio éxito | nombres + sesión |
 
-## Orden recomendado ahora (INFORME-4)
+## Orden recomendado ahora (INFORME-7)
 
-1. **Semana 0:** Vercel env → redeploy → webhook → seed → smoke prod + 2ª cuenta Q&A + D8 ops.
-2. Confirmar D1–D6 + **D10 WA** + lista beta (paralelo).
-3. **W1 UX:** F4 bandas → D10 (si A) → F5/F6 checklist/fotos → F3 sector. **No** mapa/NL/BCV.
-4. **W2:** T&C/disclaimer + share light + métricas M1–M7 (anti-copia).
+1. **Joaquín:** cerrar **D14–D20** + D8 (ops Pref+Realtor) antes de code.
+2. **Semana 0 intacta:** Vercel env → redeploy → webhook → seed → smoke (sin esto, Realtors = lab).
+3. **Slice Realtor:** clone Preferencial → Plan 1 request + accountKind + badge soft. **No** CRM/pagos/LMS/Plan 2.
+4. **Lunes:** ≥3 realtors reales → métricas MR1–MR8 (INFORME-7).
+5. Paralelo si cabe: D10 WA + cierre formal D1–D6. **No** mapa/NL/BCV/directorio.

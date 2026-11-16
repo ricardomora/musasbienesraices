@@ -94,6 +94,8 @@ export const getBySlug = query({
     return {
       ...listing,
       ownerName: owner?.name ?? "Vendedor Musas",
+      ownerAccountKind: owner?.accountKind ?? null,
+      ownerRealtorVerified: owner?.realtorVerified === true,
       isOwner,
     };
   },

@@ -13,6 +13,7 @@ import type * as lib from "../lib.js";
 import type * as listings from "../listings.js";
 import type * as preferential from "../preferential.js";
 import type * as questions from "../questions.js";
+import type * as realtors from "../realtors.js";
 import type * as reports from "../reports.js";
 import type * as seed from "../seed.js";
 import type * as users from "../users.js";
@@ -29,6 +30,7 @@ declare const fullApi: ApiFromModules<{
   listings: typeof listings;
   preferential: typeof preferential;
   questions: typeof questions;
+  realtors: typeof realtors;
   reports: typeof reports;
   seed: typeof seed;
   users: typeof users;

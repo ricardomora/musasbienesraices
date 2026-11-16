@@ -4,15 +4,9 @@ import Image from "next/image";
 import { useRef } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import {
-  ArrowUpRight,
-  Check,
-  FileText,
-  Fingerprint,
   Home,
   MapPin,
   Search,
-  Shield,
-  Sparkles,
   Wallet,
 } from "lucide-react";
 import { CITIES, type CityId } from "@/data/cities";
@@ -39,39 +33,8 @@ type HeroSearchProps = {
   favoriteCount: number;
   onChange: (next: Partial<HeroSearchValues>) => void;
   onSearch: () => void;
-  /** Misma búsqueda pero resultados en mapa con pins. */
-  onSearchMap?: () => void;
   onChipApply?: (chipId: string) => void;
 };
-
-const TRUST = [
-  "Venta y alquiler en USD",
-  "Precios claros en ficha",
-  "Mapa nacional",
-];
-
-const VALUE_PROPS = [
-  {
-    icon: Shield,
-    title: "La información, primero",
-    body: "Cada detalle de venta para decidir con confianza.",
-  },
-  {
-    icon: FileText,
-    title: "Todo en un solo lugar",
-    body: "Precio USD, espacios y características.",
-  },
-  {
-    icon: Fingerprint,
-    title: "A tu ritmo, a tu manera",
-    body: "Sin presión. Tú tienes el control.",
-  },
-  {
-    icon: Sparkles,
-    title: "Menos pasos. Más hogar.",
-    body: "Explora, pregunta y avanza con claridad.",
-  },
-];
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -91,7 +54,6 @@ export function HeroSearch({
   favoriteCount,
   onChange,
   onSearch,
-  onSearchMap,
   onChipApply,
 }: HeroSearchProps) {
   const sectionRef = useRef<HTMLElement>(null);
@@ -199,7 +161,7 @@ export function HeroSearch({
               {...fadeUp(reduce, 0.16)}
             >
               <span className="size-1.5 rounded-full bg-neon" aria-hidden />
-              Venezuela · venta y alquiler en USD
+              Compra, venta y alquileres
             </motion.p>
 
             <h1 className="mt-5 text-[clamp(2.45rem,6.5vw,4.75rem)] leading-[0.98] font-semibold tracking-[-0.03em] text-white">
@@ -229,19 +191,9 @@ export function HeroSearch({
               className="mt-6 max-w-2xl text-[1.05rem] leading-relaxed text-white/90 sm:text-xl sm:leading-relaxed xl:max-w-3xl"
               {...fadeUp(reduce, 0.62)}
             >
-              Compra o alquila en USD. Filtra por ciudad, mapa nacional y
-              pregunta con claridad.
+              Hazlo por ti mismo, o solicita a una Musa que te ayude en este
+              proceso.
             </motion.p>
-
-            <motion.div className="mt-8" {...fadeUp(reduce, 0.78)}>
-              <a
-                href="#inmuebles"
-                className="interactive-surface inline-flex items-center gap-2.5 rounded-full bg-neon px-7 py-3.5 text-[15px] font-semibold text-primary-foreground shadow-[0_0_40px_-12px_color-mix(in_srgb,var(--neon)_70%,transparent)] hover:bg-white"
-              >
-                Encuentra tu hogar
-                <ArrowUpRight className="size-4" aria-hidden />
-              </a>
-            </motion.div>
           </div>
 
           <motion.div
@@ -411,7 +363,7 @@ export function HeroSearch({
                   </span>
                 </label>
 
-                <div className="flex flex-col gap-1.5 p-1.5 sm:p-2">
+                <div className="flex items-center p-1.5 sm:p-2">
                   <button
                     type="button"
                     onClick={onSearch}
@@ -419,14 +371,6 @@ export function HeroSearch({
                   >
                     <Search className="size-4" aria-hidden />
                     Buscar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={onSearchMap}
-                    className="interactive-surface inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-white/20 px-4 text-sm text-white hover:border-neon/50 hover:text-neon"
-                  >
-                    <MapPin className="size-3.5" aria-hidden />
-                    Ver en mapa
                   </button>
                 </div>
               </div>
@@ -456,38 +400,7 @@ export function HeroSearch({
               })}
             </div>
 
-            <motion.ul
-              className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/80"
-              {...fadeUp(reduce, 1.08)}
-            >
-              {TRUST.map((item) => (
-                <li key={item} className="inline-flex items-center gap-1.5">
-                  <Check className="size-3.5 text-neon" aria-hidden />
-                  {item}
-                </li>
-              ))}
-            </motion.ul>
           </motion.div>
-        </div>
-      </div>
-
-      <div className="border-t border-border bg-background">
-        <div className="mx-auto grid max-w-[96rem] gap-10 px-5 py-14 sm:grid-cols-2 sm:gap-12 sm:px-8 sm:py-16 lg:grid-cols-4 lg:gap-14 lg:px-12 xl:px-16">
-          {VALUE_PROPS.map((prop) => (
-            <div key={prop.title} className="space-y-4">
-              <prop.icon
-                className="size-6 text-neon"
-                strokeWidth={1.6}
-                aria-hidden
-              />
-              <h2 className="text-lg font-semibold tracking-tight text-foreground">
-                {prop.title}
-              </h2>
-              <p className="max-w-[16rem] text-[15px] leading-relaxed text-muted-foreground">
-                {prop.body}
-              </p>
-            </div>
-          ))}
         </div>
       </div>
     </section>

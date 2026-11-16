@@ -1,14 +1,19 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { PreferentialPage } from "@/components/preferential/preferential-page";
 
 export const metadata: Metadata = {
-  title: "Atención Preferencial — Paquetes",
+  title: "Preferencial — Musas",
   description:
-    "Paquetes Musas: fotos, legal y acompañamiento. Solicita en app; coordinación y pago fuera.",
+    "Fotos, revisión legal o acompañamiento. Solicita aquí; cotización y coordinación fuera de la app.",
 };
 
 export const instant = false;
 
 export default function Page() {
-  return <PreferentialPage />;
+  return (
+    <Suspense fallback={null}>
+      <PreferentialPage />
+    </Suspense>
+  );
 }

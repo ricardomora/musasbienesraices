@@ -73,6 +73,9 @@ export function AppChrome({
             <Link href="/preferencial" className="hover:text-foreground">
               Preferencial
             </Link>
+            <Link href="/suscripciones" className="hover:text-foreground">
+              Realtors
+            </Link>
             <Link href="/ayuda" className="hover:text-foreground">
               Ayuda
             </Link>

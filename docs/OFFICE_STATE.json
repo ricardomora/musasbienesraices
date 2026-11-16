@@ -1,50 +1,58 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-12T21:45:00Z",
+  "updatedAt": "2026-11-16T08:53:00Z",
   "updatedBy": "design",
-  "phase": "fase-6-deploying",
-  "summary": "OWNER-4+4b: Musas=3 vs Propiedash=10. Acepta moat N2+N3/D12=A condicional a D8. Veto badge sin revisor. Prod Semana 0 intacta.",
+  "phase": "fase-realtors-shipped-slice",
+  "summary": "Design: copy ES VE /preferencial (3 paquetes, sin énfasis USD, pago fuera 1 vez). Pedir refresh Oficina.",
   "protocol": "Owner cuestiona → PM informa → Tech/Design/User ejecutan → Joaquín aprueba",
   "agents": {
     "owner": {
-      "status": "done",
-      "task": "INFORME-OWNER-4 brainstorm + 4b challenge INFORME-5",
-      "blocker": "Joaquín D11/D12/D13 + D8/D10"
+      "status": "idle",
+      "task": "Stress-test Realtor Verificado vs moat listing (post INFORME-7)",
+      "blocker": "Joaquín D14–D20"
     },
     "pm": {
       "status": "needs_help",
-      "task": "INFORME-6 gate IA vendedor; S0+DoD pendientes",
-      "blocker": "Joaquín: aprobar 3 gates proceso + D11/D12/D13 + D8"
+      "task": "D14–D19 cerradas; falta D20 reclutas + D8 ops",
+      "blocker": "Joaquín: nombres ≥3 realtors + WA ops"
     },
     "design": {
       "status": "done",
-      "task": "Mapa IA Propiedash→Musas (rutas, estados P0–P2, implementar vs diferir); header post-login DoD",
-      "blocker": "Tech: share UI, report fake, wizard hints ≥3 fotos, cola pending_review soft-flag"
+      "task": "Copy Preferencial /preferencial listo para pegar (no implementado)",
+      "blocker": null
     },
     "tech": {
       "status": "done",
-      "task": "Brainstorm schema moderación + especialistas (paths Convex/Next)",
-      "blocker": "Prod me/sync 404 + pk_test sigue abierto; no bloquea diseño"
+      "task": "Slice Realtor D14–D19 shipped (schema+UI+admin)",
+      "blocker": "D20 reclutas + D8; prod deploy sigue P0"
     },
     "user": {
-      "status": "done",
-      "task": "Brainstorm Propiedash vs Musas: 8 razones + validación + especialistas + P1–P8",
-      "blocker": "Sin WA+sector+densidad, diferencial trust no compensa abrir Musas mañana"
+      "status": "idle",
+      "task": "Scripts R1–R7 + métricas MR1–MR8 con ≥3 realtors",
+      "blocker": "D20 reclutas + build slice"
     },
     "qa": {
-      "status": "done",
-      "task": "Brainstorm QA diferencial validados+especialistas vs Propiedash (scripts + frontera + smoke 15m + riesgos ‘verificado’)",
-      "blocker": "Sin pipeline pending/rejected en schema; D8 ops Preferencial pendiente = no PASS ‘verificado’"
+      "status": "idle",
+      "task": "Regresión marketplace (MR8) al ship Realtors",
+      "blocker": "Slice no construido; prod frágil"
     }
   },
   "alerts": [
     {
-      "id": "seller-ia-post-login",
-      "severity": "major",
+      "id": "informe-7-realtors",
+      "severity": "blocker",
       "owner": "pm",
-      "title": "Gate IA vendedor post-login (S0)",
-      "detail": "Rutas dashboard existían; home solo UserButton + link footer. Parche Mi panel. Causa: QA sin script cold return; DoD sin fila descubrimiento.",
-      "ask": "Joaquín: aprobar S0+DoD IA+scorecard como bloqueante beta publicadores (INFORME-6)"
+      "title": "Decidir D14–D20 antes de construir Realtors",
+      "detail": "INFORME-7: particular vs realtor, Plan 1 copy/precio, Preferencial separado, Verificado soft, publish sin gate plan, ≥3 reclutas.",
+      "ask": "Joaquín confirma D14–D20 (rec PM: A en todas) + nombres realtors lunes"
+    },
+    {
+      "id": "realtors-vs-prod",
+      "severity": "blocker",
+      "owner": "pm",
+      "title": "Tradeoff: Realtors lunes no sustituye G-Prod",
+      "detail": "Sin auth/publish usable, validación Realtor es lab. Slice mínimo en paralelo; smoke prod sigue P0.",
+      "ask": "¿Prioridad si 1 día: prod usable o pitch Realtor externo?"
     },
     {
       "id": "vercel-env",
@@ -59,258 +67,134 @@
       "severity": "blocker",
       "owner": "tech",
       "title": "Prod parcial: falta /api/me/sync + Clerk live",
-      "detail": "Smoke 2026-11-12: home/UT 200; /api/clerk POST→400 Missing svix (ruta OK). /api/me/sync→404. Clerk pk_test en www. Propiedash referente UX locked.",
-      "ask": "Redeploy latest + pk_live/sk_live + 2ª cuenta Q&A + D10"
+      "detail": "Smoke previo: home/UT 200; me/sync 404; Clerk pk_test en www.",
+      "ask": "Redeploy latest + pk_live + seed antes de invites Realtor"
     },
     {
-      "id": "friction-f1-empty-catalog",
-      "severity": "blocker",
-      "owner": "tech",
-      "title": "Catálogo vacío = churn beta amigos",
-      "detail": "F1 user: sin seed/prod amigos creen que no hay casas en Caracas.",
-      "ask": "Redeploy + seed antes de invitar amigos"
-    },
-    {
-      "id": "gap-g1-wa-listing",
+      "id": "ops-d8-dual-cola",
       "severity": "blocker",
       "owner": "pm",
-      "title": "Sin WhatsApp en ficha vs hábito Caracas",
-      "detail": "G1/G2: ML/Housy/Propiedash/WA directo contactan ya; Musas solo Q&A+login. Ficha usa images[0] y cero wa.me.",
-      "ask": "Aprobar D10 WA opt-in (A) — prerequisito score 3→6"
-    },
-    {
-      "id": "informe-5-moat",
-      "severity": "blocker",
-      "owner": "pm",
-      "title": "Decidir moat vs Propiedash (D11–D13)",
-      "detail": "OWNER-4b: D11=D OK con veto copy; D12=A solo si revisor <24h nombrado; D13=A+B (veto fee C). Sin D8 badge=teatro.",
-      "ask": "Joaquín: D11=D, D12=A condicional, D13=A+B, D8 nombre+WA"
+      "title": "D8 ops debe cubrir Preferencial + Realtor requests",
+      "detail": "Misma persona &lt;24h; sin nombre = ambas colas teatro.",
+      "ask": "Nombre + WA ops"
     },
     {
       "id": "owner-veto-badge-sin-ops",
       "severity": "blocker",
       "owner": "pm",
-      "title": "Veto owner: no pitch verificado sin D8",
-      "detail": "INFORME-OWNER-4b: L1<24h sin humano nombrado quema más que no tener badge. Preferencial sin roster = Propiedash peor.",
-      "ask": "Nombrar revisor L1 + canal Preferencial antes de UI badge"
+      "title": "Veto: no pitch Realtor Verificado sin ops",
+      "detail": "Mismo riesgo que listing verified: badge sin humano quema más que no tenerlo.",
+      "ask": "D18=A solo con D8 nombrado"
+    },
+    {
+      "id": "gap-g1-wa-listing",
+      "severity": "major",
+      "owner": "pm",
+      "title": "D10 WA ficha sigue abierta (no bloquea slice Realtor)",
+      "detail": "Hábito Caracas; recomendación A opt-in. No mete CRM.",
+      "ask": "Aprobar D10 A en paralelo si hay capacidad"
     },
     {
       "id": "decisiones-d1-d6",
       "severity": "major",
       "owner": "pm",
-      "title": "Confirmar D1–D6",
-      "detail": "Defaults en INFORME; OK explícito o silencio 48h.",
-      "ask": "OK defaults o ajustes"
+      "title": "D1–D6: deadline silencio 2026-11-13 venció",
+      "detail": "Sin OK explícito histórico; PM no reabre scope. Pedir OK o ajustes residuales.",
+      "ask": "OK defaults o ajustes por ID (cierre formal)"
     },
     {
       "id": "qa-two-accounts",
       "severity": "major",
       "owner": "user",
       "title": "Q&A E2E necesita 2ª cuenta Clerk",
-      "detail": "F7: Owner no puede preguntar en su listing. Una sola sesión QA. Script 5 = N/A.",
-      "ask": "Crear/usar 2ª cuenta comprador y re-correr script 5"
-    },
-    {
-      "id": "gap-g3-sector-filter",
-      "severity": "major",
-      "owner": "design",
-      "title": "Sin filtro urbanización",
-      "detail": "G3: caraqueño busca Altamira/LPG; hero solo ciudad/tipo/presupuesto.",
-      "ask": "Chips o texto sector en explore"
-    },
-    {
-      "id": "ops-email-public",
-      "severity": "minor",
-      "owner": "tech",
-      "title": "NEXT_PUBLIC_OPS_EMAIL vacío",
-      "detail": "Admin muestra placeholder si no hay email ops en env.",
-      "ask": "Set NEXT_PUBLIC_OPS_EMAIL en local/Vercel"
-    },
-    {
-      "id": "diff-validated-specialists",
-      "severity": "major",
-      "owner": "pm",
-      "title": "Diferencial trust: validado + especialista (no badge vacío)",
-      "detail": "User caraqueño: Propiedash gana oferta/hábito. Validación convence solo con qué/cuándo en ficha. Especialistas Musas > directorio si pocos, zona, cara, SLA. Sin P1 WA + P2 sector, no abre Musas mañana.",
-      "ask": "Decidir: badge Validado (checklist) + Preferencial con especialista asignado; no copiar mapa/BCV/directorio primero"
-    },
-    {
-      "id": "moderation-gate-decision",
-      "severity": "major",
-      "owner": "pm",
-      "title": "Decidir hard-gate vs soft-flag en publicaciones reales",
-      "detail": "Tech: hard pending_review antes de explore vs publish+flag+pause. Hard sin reviewer 24/7 = catálogo vacío. Soft = liquidez + riesgo basura.",
-      "ask": "Joaquín/PM: ¿A hard-gate Caracas beta o B soft-flag + pause admin?"
+      "detail": "Script 5 = N/A con 1 cuenta.",
+      "ask": "2ª cuenta comprador"
     }
   ],
   "feed": [
+    {
+      "at": "08:53",
+      "from": "design",
+      "to": "pm",
+      "kind": "handoff",
+      "text": "/preferencial copy VE: eyebrow Preferencial · H1 «Cuando publicar no basta.» · 3 paquetes afinados · pago fuera solo en nota+disclaimer (sin USD). Textos listos; no implementados. Pedir refresh Oficina."
+    },
+    {
+      "at": "16:34",
+      "from": "design",
+      "to": "pm",
+      "kind": "handoff",
+      "text": "Home bloque Musa: H2 «¿Por qué elegir una Musa?» · body estrés→certeza/eficacia (~102c) · CTA «Ver Acompañamiento» · micro Preferencial completo. Sin Realtor. Pedir refresh Oficina."
+    },
+    {
+      "at": "15:30",
+      "from": "design",
+      "to": "pm",
+      "kind": "handoff",
+      "text": "Hero apoyo: rechazada feature-list. #1 «En Venezuela y en dólares: explora, afina tu zona y pregunta al anuncio.» (+2 alt). Sin Preferencial/Realtor/sin complicaciones. Pedir refresh Oficina."
+    },
+    {
+      "at": "15:20",
+      "from": "design",
+      "to": "pm",
+      "kind": "handoff",
+      "text": "HOME comprador: 1er viewport sobrecargado (search+chips+trust+Preferencial nav). Contradicción alquiler (hero ON / HowItWorks OFF). 7 pulidos copy/composición sin rebuild. AppChrome no envuelve home. Pedir refresh Oficina."
+    },
+    {
+      "at": "14:52",
+      "from": "tech",
+      "to": "pm",
+      "kind": "done",
+      "text": "Slice Realtor shipped: accountKind gate, /suscripciones Plan1, admin cola+setVerified, badge ficha. D14–D19=A. Pedir refresh Oficina."
+    },
+    {
+      "at": "14:42",
+      "from": "coordinator",
+      "to": "all",
+      "kind": "done",
+      "text": "Oficina Canvas confirmada al día con INFORME-7 (tech+pm Realtors)."
+    },
+    {
+      "at": "14:40",
+      "from": "pm",
+      "to": "coordinator",
+      "kind": "handoff",
+      "text": "INFORME-7 Realtors lunes: gap vs producto, IN/OUT, D14–D20, reuse Preferencial, métricas MR1–MR8, riesgos overbuild. Pedir refresh Oficina."
+    },
     {
       "at": "21:45",
       "from": "design",
       "to": "pm",
       "kind": "handoff",
-      "text": "Mapa rutas Propiedash→Musas entregado: IA logueado=Explorar+Mi panel+Publicar; P0 descubribilidad/share/report/wizard hints; NO-ROBAR BCV/alquiler/directorio/chat/DASHCODE/planes. Pedir refresh Oficina."
+      "text": "Mapa rutas Propiedash→Musas entregado: IA logueado=Explorar+Mi panel+Publicar; P0 descubribilidad/share/report/wizard hints; NO-ROBAR BCV/alquiler/directorio/chat/DASHCODE/planes."
     },
     {
       "at": "21:30",
       "from": "pm",
       "to": "coordinator",
       "kind": "alert",
-      "text": "INFORME-6: fallo proceso nav vendedor post-login; Propiedash=features no IA; 3 gates S0/DoD/scorecard. Pedir refresh Oficina."
+      "text": "INFORME-6: fallo proceso nav vendedor post-login; 3 gates S0/DoD/scorecard."
     },
     {
       "at": "02:10",
       "from": "owner",
       "to": "pm",
       "kind": "alert",
-      "text": "OWNER-4+4b: 5 razones score 3; robar wizard/report/share; H1/H2 OK si ops. Ranking: Preferencial cerrada > verified listing > Caracas curated. D11=D/D12=A condicional/D13=A+B; veto badge sin D8. Pedir refresh Oficina."
+      "text": "OWNER-4+4b: moat N2+N3; D11=D/D12=A condicional/D13=A+B; veto badge sin D8."
     },
     {
       "at": "02:00",
       "from": "pm",
       "to": "coordinator",
       "kind": "handoff",
-      "text": "INFORME-5 brainstorm Propiedash: matriz gap + N2 recomendada + 30/60/90 UX vs moat + ops L1–L3. Asks D11–D13. Pedir refresh Oficina."
-    },
-    {
-      "at": "01:55",
-      "from": "user",
-      "to": "pm",
-      "kind": "handoff",
-      "text": "Propiedash 10 vs Musas 3: abro rival por densidad/zona/WA/share. Validación listing sí SOLO con checklist+fecha en ficha. Especialistas > directorio si cara+zona+SLA<24h. Ideas P1–P8 en BETA_SCRIPTS. Pedir refresh Oficina."
-    },
-    {
-      "at": "02:05",
-      "from": "tech",
-      "to": "pm",
-      "kind": "handoff",
-      "text": "Brainstorm A/B: portar YA checklist+cola admin+badge+WA/galería (S/M); schema draft→pending_review→published|rejected; especialistas=roster privado Preferencial NO directorio; vetar mapa/Wasi/BCV/chat/DASHCODE. Riesgos cola/PII/fake docs. Pedir refresh Oficina."
-    },
-    {
-      "at": "02:00",
-      "from": "qa",
-      "to": "pm",
-      "kind": "handoff",
-      "text": "Brainstorm QA diferencial vs Propiedash en BETA_SCRIPTS § diferencial: pass/fail medibles, frontera pending/rechazado/FP, smoke 15 min, riesgos legales ‘verificado’ sin D8. Hoy draft|published|paused = no PASS validación humana. Pedir refresh Oficina."
-    },
-    {
-      "at": "01:55",
-      "from": "design",
-      "to": "pm",
-      "kind": "handoff",
-      "text": "UX profundo Propiedash→Musas: 10 flujos (search→ficha→validación→Preferencial); Validado=sello neon (no verde claro); especialistas=roster cerrado 3 paquetes (no directorio); W2=search+chips+galería+sello; D90=mapa+perfil vendedor. Pedir refresh Oficina."
-    },
-    {
-      "at": "01:49",
-      "from": "design",
-      "to": "pm",
-      "kind": "handoff",
-      "text": "Propiedash referente UX: P0 D10 WA+panel + galería + wizard asistido; P1 borrador/share/fotos orden; P2 mapa. NO BCV/alquiler/UI clara. Pedir refresh Oficina."
-    },
-    {
-      "at": "01:25",
-      "from": "user",
-      "to": "pm",
-      "kind": "handoff",
-      "text": "G1–G8 mercado (WA ficha blocker; sector/galería/share/bandas major; BCV diferenciar). Emular WA+Q&A dual. Script 40 min en BETA_SCRIPTS. Pedir refresh Oficina."
-    },
-    {
-      "at": "01:20",
-      "from": "user",
-      "to": "pm",
-      "kind": "handoff",
-      "text": "8 fricciones FSBO Caracas (F1–F8) en BETA_SCRIPTS; Q&A N/A; plan beta amigos mañana. Pedir refresh Oficina."
+      "text": "INFORME-5 brainstorm Propiedash: matriz gap + N2 + 30/60/90 UX vs moat."
     },
     {
       "at": "01:14",
       "from": "qa",
       "to": "pm",
       "kind": "done",
-      "text": "Corrida 3b PASS admin: seed 6 pub/12 + pause Casa Ávila; imagen ufs.sh PASS; Q&A N/A. Pedir refresh Oficina."
-    },
-    {
-      "at": "01:12",
-      "from": "qa",
-      "to": "tech",
-      "kind": "alert",
-      "text": "Pre-fix dual emails: sync ricardo10mora OK pero /admin blocker (2ª fila ricardo10moraco). Pedir refresh Oficina."
-    },
-    {
-      "at": "21:20",
-      "from": "qa",
-      "to": "pm",
-      "kind": "done",
-      "text": "Corrida 3 PASS publish+foto slug qa-musas-foto-1794431619-1; Preferencial/Favoritos/Explore PASS; Admin BLOCKER role; Q&A N/A. Pedir refresh Oficina."
-    },
-    {
-      "at": "21:03",
-      "from": "qa",
-      "to": "tech",
-      "kind": "alert",
-      "text": "Retest FAIL: clerkMW en /api/uploadthing hang/timeout; widget Loading…; sin slug. Pedir refresh Oficina."
-    },
-    {
-      "at": "20:58",
-      "from": "qa",
-      "to": "tech",
-      "kind": "alert",
-      "text": "E2E publish+foto FAIL local: wizard OK; UT 500 Failed to run middleware; sin slug. Pedir refresh Oficina."
-    },
-    {
-      "at": "20:22",
-      "from": "tech",
-      "to": "pm",
-      "kind": "done",
-      "text": "Happy path PASS; next build limpio; checklist Vercel en SETUP §2"
-    },
-    {
-      "at": "20:20",
-      "from": "coordinator",
-      "to": "tech",
-      "kind": "done",
-      "text": "Joaquín: D7=A, ADMIN=ricardo10mora, push main para auto-deploy"
-    },
-    {
-      "at": "20:30",
-      "from": "tech",
-      "to": "pm",
-      "kind": "done",
-      "text": "Build PASS; SETUP §2 env Vercel; DoD explorar/publicar/Preferencial/admin/Q&A/favoritos PASS en código; D7 effort only"
-    },
-    {
-      "at": "20:28",
-      "from": "tech",
-      "to": null,
-      "kind": "alert",
-      "text": "Convex client post-hydration (Math.random); qualities [75,100]; AuthGate+x-pathname; seed empty CTAs"
-    },
-    {
-      "at": "20:18",
-      "from": "design",
-      "to": "user",
-      "kind": "handoff",
-      "text": "Empty catalog, Preferencial 1→2+WA, checklist publicar, Admin ops; asume D7=A"
-    },
-    {
-      "at": "20:16",
-      "from": "owner",
-      "to": "pm",
-      "kind": "alert",
-      "text": "INFORME-OWNER-1: local 4/6; prod 0/6. Redeploy esta semana o no es prod."
-    },
-    {
-      "at": "20:15",
-      "from": "pm",
-      "to": "coordinator",
-      "kind": "done",
-      "text": "INFORME-2: gate prod + D7 solo venta propuesto"
-    },
-    {
-      "at": "20:15",
-      "from": "user",
-      "to": "pm",
-      "kind": "handoff",
-      "text": "BETA_SCRIPTS v2 happy paths; E2E bloqueado por deploy viejo"
+      "text": "Corrida 3b PASS admin seed/pause; Q&A N/A; prod blocker."
     }
   ],
   "insumos": {
@@ -323,10 +207,17 @@
     "vercelDeployMvp": "pendiente",
     "vercelEnvChecklist": "docs/SETUP_MUSAS.md#2",
     "d7SaleVsRent": "A_solo_venta",
-    "d1d6Confirm": "pendiente",
+    "d1d6Confirm": "deadline_vencido_sin_ok_explicito",
     "d11Positioning": "pendiente_N2_N3",
     "d12VerifyPolicy": "pendiente_L1_cola",
-    "d13VerifyWhoPays": "pendiente_L1_gratis_L2_pref"
+    "d13VerifyWhoPays": "pendiente_L1_gratis_L2_pref",
+    "d14AccountKind": "pendiente",
+    "d15Plan1Benefits": "pendiente",
+    "d16Plan1Monetization": "pendiente",
+    "d17PrefVsRealtor": "pendiente",
+    "d18RealtorVerified": "pendiente",
+    "d19PublishGatePlan": "pendiente",
+    "d20RealtorRecruits": "pendiente"
   },
   "codeReady": {
     "convexFunctions": true,
@@ -340,53 +231,37 @@
     "qaInbox": true,
     "favoritesMerge": true,
     "betaScripts": true,
-    "prerenderMathRandomFixed": true,
-    "imageQualitiesAllowlist": true,
-    "seedEmptyUx": true,
-    "setupDeployChecklist": true,
-    "nextBuildClean": true,
+    "realtorAccountKind": false,
+    "realtorPlanRequests": false,
+    "realtorVerifiedBadge": false,
+    "subscriptionsPage": false,
     "operationTypeSaleRent": false,
     "happyPathCopyVeUsd": true,
     "uploadthingAuthenticateRequest": true,
     "proxyPassthroughNoClerkMw": true,
     "ufsShImageHostname": true,
     "meSyncEmailToConvex": true,
-    "frictionBrainstormFsbo": true,
-    "marketGapsG1G8": true,
-    "betaScript30plus10": true,
-    "uxBrainstormPropiedashDeep": true,
     "moderationPendingReviewDesigned": true,
-    "specialistsRosterVsDirectoryDesigned": true,
-    "propiedashDeepBrainstorm": true
+    "specialistsRosterVsDirectoryDesigned": true
   },
   "dodHappyPath": {
-    "explorar": "PASS live local — FAIL prod (build viejo)",
+    "explorar": "PASS live local — FAIL/parcial prod",
     "publicar": "PASS live local — slug qa-musas-foto-1794431619-1 + foto UT",
     "preferencial": "PASS live local — Solicitada Sesión fotográfica",
     "admin": "PASS live local — seed 6 pub/12 + pause Casa Ávila",
     "qa": "N/A live — 1 cuenta; PASS código",
-    "favoritos": "PASS live local — Guardado en ficha"
+    "favoritos": "PASS live local — Guardado en ficha",
+    "realtors": "NO EXISTE — INFORME-7 scope lunes"
   },
   "residualRisks": [
-    "Sin densidad Caracas + WA + sector, diferencial validación no evita churn a Propiedash",
-    "Badge Verificado sin checklist+fecha = peor que silencio",
-    "Especialistas tipo directorio frío = no pagan Preferencial",
-    "Prod dominio sin redeploy → webhook 404",
-    "G1/G2 sin WA en ficha = Musas más lenta que hábito Caracas",
-    "G3/G7 filtros sin sector ni bandas <150k",
-    "G4 ficha solo images[0] + mín. 1 foto = desconfianza",
-    "G6 sin share UI",
-    "Q&A requiere 2ª cuenta Clerk distinta (F7 N/A)",
-    "F1 catálogo vacío = amigos beta se van",
-    "Drafts QA huérfanos en dashboard (corridas 1–2 fallidas)",
-    "NEXT_PUBLIC_OPS_EMAIL vacío en admin",
-    "Flash 'Cargando Musas…' / Math.random overlay layout.tsx:55",
-    "Sin T&C / disclaimer VE antes de registro amplio",
-    "D7=B: ~1–2 sprints schema+UI+seed+scripts",
-    "Cola pending_review sin SLA <24h mata liquidez beta",
-    "Badge ‘verificado’ sin ops = liability/fake trust",
-    "Upload docs PII (cédula/título) sin retention policy = riesgo legal",
-    "Directorio público especialistas = spam + fake credentials"
+    "Overbuild Realtor (CRM/pagos/LMS) quema validación lunes",
+    "Realtor Verificado ≠ musas_reviewed listing — copy mezclado quema trust",
+    "D19=B (gate publish por plan) = 0 inventario realtor",
+    "Sin D8, Preferencial y Realtor requests = teatro",
+    "Prod sin redeploy → validación Realtor en lab",
+    "Sin densidad Caracas + WA + sector, diferencial trust no evita churn a Propiedash",
+    "Q&A requiere 2ª cuenta Clerk",
+    "D1–D6 sin OK explícito post-deadline"
   ],
   "techBrainstormAB": {
     "portNowSM": [
@@ -395,7 +270,8 @@
       "atestaciones sin cédula + min fotos",
       "badge musas_reviewed",
       "galería+WA+checklist",
-      "providers roster privado + assign en preferentialRequests"
+      "providers roster privado + assign en preferentialRequests",
+      "INFORME-7: clone Preferential → realtorPlanRequests + accountKind + badge soft"
     ],
     "deferL": [
       "mapa nacional",
@@ -403,10 +279,12 @@
       "BCV dual",
       "chat full",
       "DASHCODE",
-      "watermark pipeline",
-      "verify docs profesional KYC",
-      "directorio público"
+      "CRM realtor",
+      "pagos recurrentes",
+      "LMS educativo",
+      "Plan 2",
+      "directorio público realtors"
     ],
-    "decisionNeeded": "hard-gate publish vs soft-flag post-publish+pause rápido"
+    "decisionNeeded": "D14–D20 INFORME-7 antes de code Realtor; hard-gate listing vs soft-flag sigue abierto (D12)"
   }
 }

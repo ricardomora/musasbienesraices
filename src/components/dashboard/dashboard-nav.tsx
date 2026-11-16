@@ -13,6 +13,8 @@ const LINKS = [
   { href: "/dashboard/inmuebles", label: "Mis inmuebles" },
   { href: "/dashboard/mensajes", label: "Mensajes" },
   { href: "/dashboard/preferencial", label: "Preferencial" },
+  { href: "/dashboard/suscripciones", label: "Suscripciones" },
+  { href: "/dashboard/cuenta", label: "Cuenta" },
   { href: "/publicar", label: "Publicar" },
 ] as const;
 

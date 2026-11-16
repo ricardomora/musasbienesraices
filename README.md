@@ -29,7 +29,9 @@ Sin keys: la home usa seed local de demostración; rutas protegidas muestran gat
 | `/publicar` | Wizard vendedor |
 | `/dashboard/*` | Inmuebles, mensajes, preferencial |
 | `/preferencial` | Paquetes + solicitud |
-| `/admin` | Ops + seed |
+| `/suscripciones` | Plan Realtor (solicitud; pago fuera) |
+| `/dashboard/cuenta` | Particular vs Realtor |
+| `/admin` | Ops + Preferencial + Realtor + seed |
 | `/landing` | Story de marca |
 
 ## Docs

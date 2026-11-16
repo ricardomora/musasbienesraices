@@ -126,6 +126,25 @@ export const updateProfile = mutation({
   },
 });
 
+/** D14: particular | realtor. Does not set realtorVerified (admin-only). */
+export const setAccountKind = mutation({
+  args: {
+    accountKind: v.union(v.literal("particular"), v.literal("realtor")),
+  },
+  handler: async (ctx, args) => {
+    const user = await requireUser(ctx);
+    if (args.accountKind === "particular") {
+      await ctx.db.patch(user._id, {
+        accountKind: "particular",
+        realtorVerified: false,
+      });
+    } else {
+      await ctx.db.patch(user._id, { accountKind: "realtor" });
+    }
+    return user._id;
+  },
+});
+
 export const listUsersAdmin = query({
   args: {},
   handler: async (ctx) => {

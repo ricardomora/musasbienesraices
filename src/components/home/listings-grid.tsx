@@ -68,48 +68,16 @@ export function ListingsGrid({
   onSelectListing,
   onResetFilters,
 }: ListingsGridProps) {
-  const opCopy =
-    operationLabel === "alquiler"
-      ? "Alquiler en Venezuela · USD / mes"
-      : "Venta y alquiler · precios en USD";
   const exploreView = view;
 
   return (
     <section
       id="inmuebles"
-      className="scroll-mt-24 bg-background py-16 sm:py-24"
+      className="scroll-mt-24 bg-background py-6 sm:py-8"
       aria-label="Explorar inmuebles"
     >
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="text-[11px] font-medium tracking-[0.2em] text-neon uppercase">
-              — {opCopy}
-            </p>
-            <h2 className="mt-3 max-w-xl text-[clamp(1.8rem,4vw,2.75rem)] leading-tight font-semibold tracking-tight text-foreground">
-              {favoritesOnly
-                ? "Tus lugares favoritos"
-                : "Encuentra un lugar que se sienta tuyo."}
-            </h2>
-            <p className="mt-3 max-w-md text-muted-foreground">
-              {favoritesOnly
-                ? "Tus espacios guardados. Ábrelos cuando quieras volver."
-                : operationLabel === "alquiler"
-                  ? "Alquileres con renta clara en USD/mes. Filtra, guarda y pregunta."
-                  : "Compra o alquila con precio claro en USD. Filtra, guarda y pregunta."}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={onResetFilters}
-            className="interactive-surface inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-neon"
-          >
-            Ver todos los inmuebles
-            <ArrowUpRight className="size-4" aria-hidden />
-          </button>
-        </div>
-
-        <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap gap-2" role="tablist" aria-label="Tipo">
             {FILTERS.map((item) => {
               const active = typeFilter === item.id;
