@@ -52,6 +52,11 @@ const FILTERS: {
   { id: "todos", label: "Todos", icon: SlidersHorizontal },
   { id: "apartamentos", label: "Apartamentos", icon: Building2 },
   { id: "casas", label: "Casas", icon: Home },
+  { id: "locales", label: "Locales", icon: Building2 },
+  { id: "terrenos", label: "Terrenos", icon: Home },
+  { id: "galpones", label: "Galpones", icon: Building2 },
+  { id: "oficinas", label: "Oficinas", icon: Building2 },
+  { id: "quintas", label: "Quintas", icon: Home },
 ];
 
 export function ListingsGrid({
@@ -76,9 +81,13 @@ export function ListingsGrid({
       className="scroll-mt-24 bg-background py-6 sm:py-8"
       aria-label="Explorar inmuebles"
     >
-      <div className="mx-auto max-w-6xl px-5 sm:px-8">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-wrap gap-2" role="tablist" aria-label="Tipo">
+      <div className="mx-auto w-full max-w-[96rem] px-5 sm:px-8 lg:px-12 xl:px-16">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div
+            className="flex flex-wrap gap-2 lg:flex-1"
+            role="tablist"
+            aria-label="Tipo"
+          >
             {FILTERS.map((item) => {
               const active = typeFilter === item.id;
               const Icon = item.icon;
@@ -90,7 +99,7 @@ export function ListingsGrid({
                   aria-selected={active}
                   onClick={() => onTypeFilterChange(item.id)}
                   className={cn(
-                    "interactive-surface inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm",
+                    "interactive-surface inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm sm:gap-2 sm:px-4",
                     active
                       ? "border-neon bg-neon text-primary-foreground"
                       : "border-border bg-card text-muted-foreground hover:border-neon/35 hover:text-foreground",
@@ -193,7 +202,7 @@ export function ListingsGrid({
             />
           </div>
         ) : (
-          <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-10 grid gap-6 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
             {listings.map((listing) => {
               const liked = isFavorite(listing.id);
               return (

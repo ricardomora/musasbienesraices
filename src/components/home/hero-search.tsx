@@ -12,10 +12,13 @@ import {
 import { CITIES, type CityId } from "@/data/cities";
 import {
   budgetsForOperation,
-  QUICK_SEARCH_CHIPS,
   type OperationType,
   type PropertyType,
 } from "@/data/listings";
+import {
+  PROPERTY_TYPES,
+  PROPERTY_TYPE_PLURAL,
+} from "@/lib/property-types";
 import { cn } from "@/lib/utils";
 
 export type HeroSearchValues = {
@@ -33,7 +36,6 @@ type HeroSearchProps = {
   favoriteCount: number;
   onChange: (next: Partial<HeroSearchValues>) => void;
   onSearch: () => void;
-  onChipApply?: (chipId: string) => void;
 };
 
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -54,43 +56,12 @@ export function HeroSearch({
   favoriteCount,
   onChange,
   onSearch,
-  onChipApply,
 }: HeroSearchProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
   const operation: OperationType =
     values.mode === "alquilar" ? "alquiler" : "venta";
   const budgetOptions = budgetsForOperation(operation);
-  const chips = QUICK_SEARCH_CHIPS.filter(
-    (chip) => !chip.operationType || chip.operationType === operation,
-  );
-  const activeChip = chips.find((chip) => {
-    if (chip.verifiedOnly) return values.verifiedOnly;
-    if (chip.sector)
-      return values.sector.toLowerCase() === chip.sector.toLowerCase();
-    if (chip.budgetId && chip.budgetId !== "any")
-      return (
-        values.budgetId === chip.budgetId &&
-        !values.sector &&
-        !values.verifiedOnly
-      );
-    if (chip.type && chip.type !== "all")
-      return (
-        values.type === chip.type &&
-        !values.sector &&
-        !values.verifiedOnly &&
-        values.budgetId === "any"
-      );
-    if (chip.cityId && chip.cityId !== "all")
-      return (
-        values.cityId === chip.cityId &&
-        !values.sector &&
-        !values.verifiedOnly &&
-        values.budgetId === "any" &&
-        values.type === "all"
-      );
-    return false;
-  })?.id;
 
   return (
     <section
@@ -319,15 +290,11 @@ export function HeroSearch({
                       <option value="all" className="bg-ink text-white">
                         Todos los tipos
                       </option>
-                      <option
-                        value="apartamentos"
-                        className="bg-ink text-white"
-                      >
-                        Apartamentos
-                      </option>
-                      <option value="casas" className="bg-ink text-white">
-                        Casas
-                      </option>
+                      {PROPERTY_TYPES.map((t) => (
+                        <option key={t} value={t} className="bg-ink text-white">
+                          {PROPERTY_TYPE_PLURAL[t]}
+                        </option>
+                      ))}
                     </select>
                   </span>
                 </label>
@@ -375,31 +342,6 @@ export function HeroSearch({
                 </div>
               </div>
             </div>
-
-            <div
-              className="mt-3 flex flex-wrap gap-2"
-              aria-label="Búsquedas rápidas"
-            >
-              {chips.map((chip) => {
-                const active = activeChip === chip.id;
-                return (
-                  <button
-                    key={chip.id}
-                    type="button"
-                    onClick={() => onChipApply?.(chip.id)}
-                    className={cn(
-                      "interactive-surface rounded-full border px-3 py-1.5 text-xs sm:text-[13px]",
-                      active
-                        ? "border-neon bg-neon/15 text-neon"
-                        : "border-white/15 bg-white/[0.04] text-white/75 hover:border-white/30 hover:text-white",
-                    )}
-                  >
-                    {chip.label}
-                  </button>
-                );
-              })}
-            </div>
-
           </motion.div>
         </div>
       </div>

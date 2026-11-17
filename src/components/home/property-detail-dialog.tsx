@@ -86,13 +86,19 @@ export function PropertyDetailDialog({
                 </span>
                 <span className="inline-flex items-center gap-1.5">
                   <Ruler className="size-3.5" aria-hidden />
-                  {listing.areaM2} m²
+                  {listing.areaM2} m² construcción
                 </span>
+                {listing.lotM2 && listing.lotM2 > 0 ? (
+                  <span className="inline-flex items-center gap-1.5">
+                    <Ruler className="size-3.5" aria-hidden />
+                    {listing.lotM2} m² terreno
+                  </span>
+                ) : null}
               </div>
 
               <div className="flex items-center justify-between rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm">
                 <span className="text-muted-foreground">
-                  Administración mensual
+                  Condominio mensual
                 </span>
                 <strong className="font-medium text-foreground">
                   {formatUsd(listing.administrationUsd)}

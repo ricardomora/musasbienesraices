@@ -7,7 +7,15 @@ import {
   uniqueListingSlug,
 } from "./lib";
 
-const propertyType = v.union(v.literal("apartamentos"), v.literal("casas"));
+const propertyType = v.union(
+  v.literal("apartamentos"),
+  v.literal("casas"),
+  v.literal("locales"),
+  v.literal("terrenos"),
+  v.literal("galpones"),
+  v.literal("oficinas"),
+  v.literal("quintas"),
+);
 const operationType = v.union(v.literal("venta"), v.literal("alquiler"));
 
 function listingOperation(
@@ -182,6 +190,7 @@ export const updateListing = mutation({
     beds: v.optional(v.number()),
     baths: v.optional(v.number()),
     areaM2: v.optional(v.number()),
+    lotM2: v.optional(v.number()),
     description: v.optional(v.string()),
     features: v.optional(v.array(v.string())),
     images: v.optional(v.array(v.string())),
@@ -210,6 +219,7 @@ export const updateListing = mutation({
       "beds",
       "baths",
       "areaM2",
+      "lotM2",
       "description",
       "features",
       "images",
@@ -242,7 +252,7 @@ export const publishListing = mutation({
     }
     if (!listingIsComplete(listing)) {
       throw new Error(
-        "Completa fotos, pin en el mapa, precio, administración y descripción (mín. 40 caracteres) antes de publicar.",
+        "Completa fotos, pin en el mapa, precio, condominio (0 si no aplica), m² y descripción (mín. 40 caracteres) antes de publicar.",
       );
     }
     await ctx.db.patch(args.id, {

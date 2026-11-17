@@ -14,32 +14,24 @@ export function HowItWorks({ onPublish, productLive = false }: HowItWorksProps) 
         id="porque-una-musa"
         className="scroll-mt-24 border-t border-border bg-background py-8 sm:py-10"
       >
-        <div className="mx-auto max-w-6xl px-5 sm:px-8">
-          <div className="flex flex-col gap-5 rounded-2xl border border-neon/25 bg-neon/[0.04] px-5 py-6 sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:px-7 sm:py-7">
-            <div className="max-w-2xl">
-              <p className="text-[11px] font-medium tracking-[0.2em] text-neon uppercase">
-                Preferencial
-              </p>
-              <h2 className="mt-2 text-[clamp(1.45rem,3vw,2rem)] font-semibold tracking-tight text-foreground">
-                ¿Por qué elegir una Musa?
-              </h2>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground sm:text-[15px]">
-                Elegir, vender o comprar puede ser estresante. Una Musa te quita
-                ese estrés: con experiencia es certera con lo que necesitas y
-                eficaz en el proceso.
-              </p>
-              <p className="mt-2 text-xs text-muted-foreground">
-                Preferencial · Acompañamiento, el plan más completo.
-              </p>
-            </div>
-            <Link
-              href="/preferencial?paquete=acompanamiento"
-              className="interactive-surface inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full bg-neon px-5 text-sm font-semibold text-primary-foreground hover:bg-white"
-            >
-              Contratar Acompañamiento
-              <ArrowUpRight className="size-4" aria-hidden />
-            </Link>
+        <div className="mx-auto flex w-full max-w-[96rem] flex-col items-start justify-between gap-4 px-5 sm:flex-row sm:items-center sm:px-8 lg:px-12 xl:px-16">
+          <div>
+            <h2 className="text-xl font-semibold text-foreground sm:text-2xl">
+              ¿Por qué elegir una Musa?
+            </h2>
+            <p className="mt-1.5 max-w-lg text-sm text-muted-foreground">
+              Elegir, vender o comprar puede ser estresante. Una Musa te quita
+              ese estrés: con experiencia es certera con lo que necesitas y
+              eficaz en el proceso.
+            </p>
           </div>
+          <Link
+            href="/preferencial?paquete=acompanamiento"
+            className="interactive-surface inline-flex h-11 items-center rounded-full border border-border px-5 text-sm font-medium text-foreground hover:border-neon/45 hover:text-neon"
+          >
+            Contratar Acompañamiento
+            <ArrowUpRight className="ml-2 size-4" aria-hidden />
+          </Link>
         </div>
       </section>
 
@@ -47,7 +39,7 @@ export function HowItWorks({ onPublish, productLive = false }: HowItWorksProps) 
         id="publicar"
         className="scroll-mt-24 border-t border-border bg-background py-8 sm:py-10"
       >
-        <div className="mx-auto flex max-w-6xl flex-col gap-8 px-5 sm:gap-10 sm:px-8">
+        <div className="mx-auto flex w-full max-w-[96rem] flex-col gap-8 px-5 sm:gap-10 sm:px-8 lg:px-12 xl:px-16">
           <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
             <div>
               <h2 className="text-xl font-semibold text-foreground sm:text-2xl">
@@ -92,7 +84,7 @@ export function HowItWorks({ onPublish, productLive = false }: HowItWorksProps) 
       </section>
 
       <footer className="border-t border-border bg-card py-10">
-        <div className="mx-auto flex max-w-6xl flex-col gap-6 px-5 text-sm text-muted-foreground sm:px-8">
+        <div className="mx-auto flex w-full max-w-[96rem] flex-col gap-6 px-5 text-sm text-muted-foreground sm:px-8 lg:px-12 xl:px-16">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="inline-flex items-center gap-2 text-foreground">
               <span className="inline-flex size-7 items-center justify-center rounded-full border border-neon/40 text-neon">

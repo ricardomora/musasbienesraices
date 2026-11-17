@@ -51,6 +51,7 @@ function MapExplore() {
         beds: p.beds,
         baths: p.baths,
         areaM2: p.areaM2,
+        lotM2: p.lotM2,
         image: p.image,
         images: p.images,
         alt: p.alt,
@@ -128,6 +129,11 @@ function MapExplore() {
           <option value="all">Todos los tipos</option>
           <option value="apartamentos">Apartamentos</option>
           <option value="casas">Casas</option>
+          <option value="locales">Locales</option>
+          <option value="terrenos">Terrenos</option>
+          <option value="galpones">Galpones</option>
+          <option value="oficinas">Oficinas</option>
+          <option value="quintas">Quintas</option>
         </select>
         {operation !== "all" ? (
           <select

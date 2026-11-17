@@ -1,6 +1,7 @@
 import { cityName, type CityId } from "./cities";
+import type { PropertyType } from "@/lib/property-types";
 
-export type PropertyType = "apartamentos" | "casas";
+export type { PropertyType } from "@/lib/property-types";
 export type OperationType = "venta" | "alquiler";
 
 export type Listing = {
@@ -19,6 +20,7 @@ export type Listing = {
   beds: number;
   baths: number;
   areaM2: number;
+  lotM2?: number;
   image: string;
   images?: string[];
   alt: string;

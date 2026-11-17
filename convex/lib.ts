@@ -61,6 +61,7 @@ export function listingIsComplete(listing: {
   beds: number;
   baths: number;
   areaM2: number;
+  lotM2?: number;
   images: string[];
   cityId: string;
   lat?: number;
@@ -71,6 +72,9 @@ export function listingIsComplete(listing: {
     typeof listing.lng === "number" &&
     Number.isFinite(listing.lat) &&
     Number.isFinite(listing.lng);
+  const hasArea =
+    listing.areaM2 > 0 ||
+    (typeof listing.lotM2 === "number" && listing.lotM2 > 0);
   return (
     listing.title.trim().length >= 3 &&
     listing.neighborhood.trim().length >= 2 &&
@@ -79,7 +83,7 @@ export function listingIsComplete(listing: {
     listing.administrationUsd >= 0 &&
     listing.beds >= 0 &&
     listing.baths >= 0 &&
-    listing.areaM2 > 0 &&
+    hasArea &&
     listing.images.length >= 1 &&
     listing.cityId.trim().length > 0 &&
     hasPin

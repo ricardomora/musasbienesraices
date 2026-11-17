@@ -77,12 +77,17 @@ export function LocalListingDetail({ slug }: { slug: string }) {
             <Bath className="size-3.5" /> {listing.baths} baños
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <Ruler className="size-3.5" /> {listing.areaM2} m²
+            <Ruler className="size-3.5" /> {listing.areaM2} m² construcción
           </span>
+          {listing.lotM2 && listing.lotM2 > 0 ? (
+            <span className="inline-flex items-center gap-1.5">
+              <Ruler className="size-3.5" /> {listing.lotM2} m² terreno
+            </span>
+          ) : null}
         </div>
 
         <div className="mt-6 flex items-center justify-between rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm">
-          <span className="text-muted-foreground">Administración mensual</span>
+          <span className="text-muted-foreground">Condominio mensual</span>
           <strong className="text-foreground">
             {formatUsd(listing.administrationUsd)}
           </strong>

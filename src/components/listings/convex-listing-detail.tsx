@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useAuth, SignInButton } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
@@ -117,16 +116,15 @@ export function ConvexListingDetail({ slug }: { slug: string }) {
           <ArrowLeft className="size-4" /> Volver
         </Link>
 
-        <div className="relative mt-6 aspect-[16/10] overflow-hidden rounded-2xl border border-border">
-          <Image
-            src={image}
-            alt={listing.alt ?? listing.title}
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 48rem"
-            priority
-            unoptimized={image.startsWith("http")}
-          />
+        <div className="relative mt-6 overflow-hidden rounded-2xl border border-border bg-muted/30">
+          <div className="relative flex min-h-[220px] max-h-[70vh] items-center justify-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={image}
+              alt={listing.alt ?? listing.title}
+              className="max-h-[70vh] w-full object-contain"
+            />
+          </div>
           {reviewedLabel ? (
             <span
               className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-md border border-neon/50 bg-ink/75 px-2.5 py-1 text-[11px] font-medium text-neon backdrop-blur-md"
@@ -149,7 +147,7 @@ export function ConvexListingDetail({ slug }: { slug: string }) {
                 <button
                   type="button"
                   onClick={() => setActiveImage(i)}
-                  className={`relative h-16 w-24 shrink-0 overflow-hidden rounded-lg border ${
+                  className={`relative flex h-20 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-muted/40 ${
                     i === safeIndex
                       ? "border-neon"
                       : "border-border opacity-80 hover:opacity-100"
@@ -157,7 +155,7 @@ export function ConvexListingDetail({ slug }: { slug: string }) {
                   aria-label={`Foto ${i + 1}`}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={src} alt="" className="h-full w-full object-cover" />
+                  <img src={src} alt="" className="max-h-full max-w-full object-contain" />
                 </button>
               </li>
             ))}
@@ -205,19 +203,30 @@ export function ConvexListingDetail({ slug }: { slug: string }) {
         </p>
 
         <div className="mt-4 flex flex-wrap gap-4 text-sm text-muted-foreground">
-          <span className="inline-flex items-center gap-1.5">
-            <BedDouble className="size-3.5" /> {listing.beds} habitaciones
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <Bath className="size-3.5" /> {listing.baths} baños
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <Ruler className="size-3.5" /> {listing.areaM2} m²
-          </span>
+          {listing.beds > 0 ? (
+            <span className="inline-flex items-center gap-1.5">
+              <BedDouble className="size-3.5" /> {listing.beds} habitaciones
+            </span>
+          ) : null}
+          {listing.baths > 0 ? (
+            <span className="inline-flex items-center gap-1.5">
+              <Bath className="size-3.5" /> {listing.baths} baños
+            </span>
+          ) : null}
+          {listing.areaM2 > 0 ? (
+            <span className="inline-flex items-center gap-1.5">
+              <Ruler className="size-3.5" /> {listing.areaM2} m² construcción
+            </span>
+          ) : null}
+          {listing.lotM2 && listing.lotM2 > 0 ? (
+            <span className="inline-flex items-center gap-1.5">
+              <Ruler className="size-3.5" /> {listing.lotM2} m² terreno
+            </span>
+          ) : null}
         </div>
 
         <div className="mt-6 flex items-center justify-between rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm">
-          <span className="text-muted-foreground">Administración mensual</span>
+          <span className="text-muted-foreground">Condominio mensual</span>
           <strong className="text-foreground">
             {formatUsd(listing.administrationUsd)}
           </strong>

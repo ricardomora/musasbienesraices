@@ -5,7 +5,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import { CITIES, type CityId } from "@/data/cities";
 import {
-  QUICK_SEARCH_CHIPS,
   budgetsForOperation,
   filterListings,
   type Listing,
@@ -25,7 +24,17 @@ function parseCity(value: string | null): CityId | "all" {
 }
 
 function parseType(value: string | null): PropertyType | "all" {
-  if (value === "apartamentos" || value === "casas") return value;
+  if (
+    value === "apartamentos" ||
+    value === "casas" ||
+    value === "locales" ||
+    value === "terrenos" ||
+    value === "galpones" ||
+    value === "oficinas" ||
+    value === "quintas"
+  ) {
+    return value;
+  }
   return "all";
 }
 
@@ -122,6 +131,7 @@ export function ConvexHomeApp() {
         beds: p.beds,
         baths: p.baths,
         areaM2: p.areaM2,
+        lotM2: p.lotM2,
         image: p.image,
         images: p.images,
         alt: p.alt,
@@ -229,38 +239,6 @@ export function ConvexHomeApp() {
     [search, syncQuery, scrollToListings],
   );
 
-  const applyChip = useCallback(
-    (chipId: string) => {
-      const chip = QUICK_SEARCH_CHIPS.find((c) => c.id === chipId);
-      if (!chip) return;
-      const op = chip.operationType ?? activeOperation;
-      const next: HeroSearchValues = {
-        mode: op === "alquiler" ? "alquilar" : "comprar",
-        cityId: (chip.cityId as CityId | "all") ?? "all",
-        type: (chip.type as PropertyType | "all") ?? "all",
-        budgetId: chip.budgetId ?? "any",
-        q: "",
-        sector: chip.sector ?? "",
-        verifiedOnly: !!chip.verifiedOnly,
-      };
-      setSearch(next);
-      if (next.type !== "all") setTypePill(next.type);
-      else setTypePill("todos");
-      syncQuery({
-        cityId: next.cityId,
-        type: next.type,
-        budgetId: next.budgetId,
-        favoritesOnly: false,
-        operation: op,
-        q: "",
-        sector: next.sector,
-        verifiedOnly: next.verifiedOnly,
-      });
-      scrollToListings();
-    },
-    [syncQuery, scrollToListings, activeOperation],
-  );
-
   const resetFilters = useCallback(() => {
     setSearch({
       mode: "comprar",
@@ -332,7 +310,6 @@ export function ConvexHomeApp() {
           });
         }}
         onSearch={() => runSearch("lista")}
-        onChipApply={applyChip}
       />
       {loading ? (
         <p className="py-20 text-center text-muted-foreground">

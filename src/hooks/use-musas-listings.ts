@@ -27,6 +27,7 @@ export type MusasListingCard = {
   beds: number;
   baths: number;
   areaM2: number;
+  lotM2?: number;
   image: string;
   images: string[];
   alt: string;
@@ -54,6 +55,7 @@ function fromLocal(listing: Listing): MusasListingCard {
     beds: listing.beds,
     baths: listing.baths,
     areaM2: listing.areaM2,
+    lotM2: listing.lotM2,
     image: listing.image,
     images: listing.images ?? [listing.image],
     alt: listing.alt,
@@ -139,6 +141,7 @@ export function usePublishedListings(filters: {
     beds: row.beds,
     baths: row.baths,
     areaM2: row.areaM2,
+    lotM2: row.lotM2,
     image: row.images[0] ?? "/villa-dusk.png",
     images: row.images,
     alt: row.alt ?? row.title,

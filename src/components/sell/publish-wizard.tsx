@@ -5,12 +5,21 @@ import { useRouter } from "next/navigation";
 import { useMutation } from "convex/react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Trash2, Star } from "lucide-react";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { CITIES } from "@/data/cities";
 import type { LatLng } from "@/data/geo";
 import { LocationPickerLazy } from "@/components/explore/location-picker-lazy";
 import { UploadButton, uploadThingFileUrl } from "@/lib/uploadthing";
+import {
+  PROPERTY_TYPES,
+  PROPERTY_TYPE_LABELS,
+  showsBedsBaths,
+  showsConstructionM2,
+  showsLotM2,
+  type PropertyType,
+} from "@/lib/property-types";
 
 export function PublishWizard() {
   const router = useRouter();
@@ -23,7 +32,7 @@ export function PublishWizard() {
   const [busy, setBusy] = useState(false);
   const [form, setForm] = useState({
     title: "",
-    type: "apartamentos" as "apartamentos" | "casas",
+    type: "apartamentos" as PropertyType,
     operationType: "venta" as "venta" | "alquiler",
     cityId: "caracas",
     neighborhood: "",
@@ -32,6 +41,7 @@ export function PublishWizard() {
     beds: "2",
     baths: "2",
     areaM2: "",
+    lotM2: "",
     description: "",
     features: "",
     contactWhatsapp: "",
@@ -70,6 +80,16 @@ export function PublishWizard() {
       );
       return;
     }
+    const construction = Number(form.areaM2) || 0;
+    const lot = Number(form.lotM2) || 0;
+    if (showsConstructionM2(form.type) && construction <= 0) {
+      toast.error("Indica los m² de construcción");
+      return;
+    }
+    if (showsLotM2(form.type) && lot <= 0 && form.type === "terrenos") {
+      toast.error("Indica los m² de terreno");
+      return;
+    }
     if (
       form.lat == null ||
       form.lng == null ||
@@ -91,9 +111,10 @@ export function PublishWizard() {
         neighborhood: form.neighborhood.trim(),
         priceUsd: Number(form.priceUsd) || 0,
         administrationUsd: Number(form.administrationUsd) || 0,
-        beds: Number(form.beds) || 0,
-        baths: Number(form.baths) || 0,
-        areaM2: Number(form.areaM2) || 0,
+        beds: showsBedsBaths(form.type) ? Number(form.beds) || 0 : 0,
+        baths: showsBedsBaths(form.type) ? Number(form.baths) || 0 : 0,
+        areaM2: construction,
+        lotM2: showsLotM2(form.type) ? lot : undefined,
         description: form.description.trim(),
         features: form.features
           .split(",")
@@ -129,6 +150,21 @@ export function PublishWizard() {
     } finally {
       setBusy(false);
     }
+  }
+
+  function removeImage(src: string) {
+    setForm((prev) => ({
+      ...prev,
+      images: prev.images.filter((u) => u !== src),
+    }));
+  }
+
+  function setCoverImage(src: string) {
+    setForm((prev) => {
+      const rest = prev.images.filter((u) => u !== src);
+      return { ...prev, images: [src, ...rest] };
+    });
+    toast.success("Foto principal actualizada");
   }
 
   const checklist = [
@@ -227,13 +263,16 @@ export function PublishWizard() {
               onChange={(e) =>
                 setForm({
                   ...form,
-                  type: e.target.value as "apartamentos" | "casas",
+                  type: e.target.value as PropertyType,
                 })
               }
               className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
             >
-              <option value="apartamentos">Apartamento</option>
-              <option value="casas">Casa</option>
+              {PROPERTY_TYPES.map((t) => (
+                <option key={t} value={t}>
+                  {PROPERTY_TYPE_LABELS[t]}
+                </option>
+              ))}
             </select>
           </label>
           <label className="block space-y-1.5 text-sm">
@@ -308,35 +347,76 @@ export function PublishWizard() {
               </p>
             )}
           </div>
-          {(
-            [
-              [
-                "priceUsd",
-                form.operationType === "alquiler"
-                  ? "Renta mensual (USD / mes)"
-                  : "Precio de venta (USD)",
-                form.operationType === "alquiler" ? "1100" : "220000",
-              ],
-              [
-                "administrationUsd",
-                "Administración USD / mes (si aplica)",
-                "180",
-              ],
-              ["beds", "Habitaciones", "3"],
-              ["baths", "Baños", "2"],
-              ["areaM2", "Área m²", "145"],
-            ] as const
-          ).map(([key, label, placeholder]) => (
-            <label key={key} className="block space-y-1.5 text-sm">
-              <span className="text-muted-foreground">{label}</span>
+          <label className="block space-y-1.5 text-sm">
+            <span className="text-muted-foreground">
+              {form.operationType === "alquiler"
+                ? "Renta mensual (USD / mes)"
+                : "Precio de venta (USD)"}
+            </span>
+            <input
+              value={form.priceUsd}
+              onChange={(e) => setForm({ ...form, priceUsd: e.target.value })}
+              placeholder={form.operationType === "alquiler" ? "1100" : "220000"}
+              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
+            />
+          </label>
+          <label className="block space-y-1.5 text-sm">
+            <span className="text-muted-foreground">
+              Condominio USD / mes (0 si no aplica)
+            </span>
+            <input
+              value={form.administrationUsd}
+              onChange={(e) =>
+                setForm({ ...form, administrationUsd: e.target.value })
+              }
+              placeholder="180"
+              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
+            />
+          </label>
+          {showsBedsBaths(form.type) ? (
+            <>
+              <label className="block space-y-1.5 text-sm">
+                <span className="text-muted-foreground">Habitaciones</span>
+                <input
+                  value={form.beds}
+                  onChange={(e) => setForm({ ...form, beds: e.target.value })}
+                  placeholder="3"
+                  className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
+                />
+              </label>
+              <label className="block space-y-1.5 text-sm">
+                <span className="text-muted-foreground">Baños</span>
+                <input
+                  value={form.baths}
+                  onChange={(e) => setForm({ ...form, baths: e.target.value })}
+                  placeholder="2"
+                  className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
+                />
+              </label>
+            </>
+          ) : null}
+          {showsConstructionM2(form.type) ? (
+            <label className="block space-y-1.5 text-sm">
+              <span className="text-muted-foreground">m² de construcción</span>
               <input
-                value={form[key]}
-                onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                placeholder={placeholder}
+                value={form.areaM2}
+                onChange={(e) => setForm({ ...form, areaM2: e.target.value })}
+                placeholder="145"
                 className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
               />
             </label>
-          ))}
+          ) : null}
+          {showsLotM2(form.type) ? (
+            <label className="block space-y-1.5 text-sm">
+              <span className="text-muted-foreground">m² de terreno</span>
+              <input
+                value={form.lotM2}
+                onChange={(e) => setForm({ ...form, lotM2: e.target.value })}
+                placeholder={form.type === "terrenos" ? "500" : "250"}
+                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
+              />
+            </label>
+          ) : null}
           <label className="block space-y-1.5 text-sm">
             <span className="text-muted-foreground">Descripción (mín. 40 caracteres)</span>
             <textarea
@@ -430,6 +510,9 @@ export function PublishWizard() {
               {form.images.length > 0 && form.images.length < 3
                 ? " · añade más para mejorar la ficha"
                 : ""}
+              {form.images.length > 0
+                ? " · puedes eliminar o marcar la principal"
+                : ""}
             </p>
             <div className="mt-3">
               <UploadButton
@@ -455,14 +538,45 @@ export function PublishWizard() {
             </div>
             {form.images.length > 0 ? (
               <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-                {form.images.map((src) => (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                {form.images.map((src, index) => (
+                  <li
                     key={src}
-                    src={src}
-                    alt=""
-                    className="aspect-[4/3] rounded-lg object-cover"
-                  />
+                    className="group relative overflow-hidden rounded-lg border border-border bg-muted/40"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={src}
+                      alt=""
+                      className="mx-auto max-h-56 w-full object-contain"
+                    />
+                    {index === 0 ? (
+                      <span className="absolute left-2 top-2 rounded-full bg-neon px-2 py-0.5 text-[10px] font-semibold text-primary-foreground">
+                        Principal
+                      </span>
+                    ) : null}
+                    <div className="absolute inset-x-0 bottom-0 flex gap-1 bg-gradient-to-t from-black/70 to-transparent p-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100">
+                      {index !== 0 ? (
+                        <button
+                          type="button"
+                          onClick={() => setCoverImage(src)}
+                          className="inline-flex flex-1 items-center justify-center gap-1 rounded-full bg-white/15 px-2 py-1.5 text-[11px] text-white backdrop-blur hover:bg-white/25"
+                          aria-label="Usar como foto principal"
+                        >
+                          <Star className="size-3" aria-hidden />
+                          Principal
+                        </button>
+                      ) : null}
+                      <button
+                        type="button"
+                        onClick={() => removeImage(src)}
+                        className="inline-flex items-center justify-center gap-1 rounded-full bg-red-500/80 px-2 py-1.5 text-[11px] text-white hover:bg-red-500"
+                        aria-label="Eliminar foto"
+                      >
+                        <Trash2 className="size-3" aria-hidden />
+                        Quitar
+                      </button>
+                    </div>
+                  </li>
                 ))}
               </ul>
             ) : null}

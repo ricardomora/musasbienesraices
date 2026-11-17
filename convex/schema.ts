@@ -1,7 +1,15 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
-const propertyType = v.union(v.literal("apartamentos"), v.literal("casas"));
+const propertyType = v.union(
+  v.literal("apartamentos"),
+  v.literal("casas"),
+  v.literal("locales"),
+  v.literal("terrenos"),
+  v.literal("galpones"),
+  v.literal("oficinas"),
+  v.literal("quintas"),
+);
 
 /** venta = precio total USD; alquiler = USD / mes. */
 const operationType = v.union(v.literal("venta"), v.literal("alquiler"));
@@ -83,10 +91,14 @@ export default defineSchema({
     lat: v.optional(v.number()),
     lng: v.optional(v.number()),
     priceUsd: v.number(),
+    /** Condominio / gastos comunes USD / mes (UI: Condominio). */
     administrationUsd: v.number(),
     beds: v.number(),
     baths: v.number(),
+    /** m² de construcción (0 en terrenos si solo hay lote). */
     areaM2: v.number(),
+    /** m² de terreno — casas, terrenos, quintas, galpones. */
+    lotM2: v.optional(v.number()),
     description: v.string(),
     features: v.array(v.string()),
     images: v.array(v.string()),

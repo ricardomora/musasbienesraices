@@ -12,6 +12,13 @@ import { CITIES } from "@/data/cities";
 import type { LatLng } from "@/data/geo";
 import { LocationPickerLazy } from "@/components/explore/location-picker-lazy";
 import { UploadButton, uploadThingFileUrl } from "@/lib/uploadthing";
+import {
+  PROPERTY_TYPES,
+  PROPERTY_TYPE_LABELS,
+  showsLotM2,
+  type PropertyType,
+} from "@/lib/property-types";
+import { Trash2 } from "lucide-react";
 
 function EditListing() {
   const params = useParams<{ id: string }>();
@@ -37,6 +44,7 @@ function EditListing() {
       beds: String(listing.beds),
       baths: String(listing.baths),
       areaM2: String(listing.areaM2),
+      lotM2: String(listing.lotM2 ?? ""),
       description: listing.description,
       features: listing.features.join(", "),
       contactWhatsapp: listing.contactWhatsapp ?? "",
@@ -72,9 +80,30 @@ function EditListing() {
           <option value="alquiler">Alquiler (USD/mes)</option>
         </select>
       </label>
+      <label className="block space-y-1 text-sm">
+        <span className="text-muted-foreground">Título</span>
+        <input
+          value={form.title ?? ""}
+          onChange={(e) => setForm({ ...form, title: e.target.value })}
+          className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
+        />
+      </label>
+      <label className="block space-y-1 text-sm">
+        <span className="text-muted-foreground">Tipo</span>
+        <select
+          value={form.type ?? "apartamentos"}
+          onChange={(e) => setForm({ ...form, type: e.target.value })}
+          className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
+        >
+          {PROPERTY_TYPES.map((t) => (
+            <option key={t} value={t}>
+              {PROPERTY_TYPE_LABELS[t]}
+            </option>
+          ))}
+        </select>
+      </label>
       {(
         [
-          ["title", "Título"],
           ["neighborhood", "Sector"],
           [
             "priceUsd",
@@ -82,10 +111,10 @@ function EditListing() {
               ? "Renta USD / mes"
               : "Precio USD",
           ],
-          ["administrationUsd", "Admin USD"],
+          ["administrationUsd", "Condominio USD / mes"],
           ["beds", "Habitaciones"],
           ["baths", "Baños"],
-          ["areaM2", "m²"],
+          ["areaM2", "m² de construcción"],
         ] as const
       ).map(([key, label]) => (
         <label key={key} className="block space-y-1 text-sm">
@@ -97,6 +126,16 @@ function EditListing() {
           />
         </label>
       ))}
+      {showsLotM2((form.type as PropertyType) || "casas") ? (
+        <label className="block space-y-1 text-sm">
+          <span className="text-muted-foreground">m² de terreno</span>
+          <input
+            value={form.lotM2 ?? ""}
+            onChange={(e) => setForm({ ...form, lotM2: e.target.value })}
+            className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
+          />
+        </label>
+      ) : null}
       <label className="block space-y-1 text-sm">
         <span className="text-muted-foreground">Ciudad</span>
         <select
@@ -173,6 +212,34 @@ function EditListing() {
           void toast.error(e.message);
         }}
       />
+      {images.length > 0 ? (
+        <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {images.map((src) => (
+            <li
+              key={src}
+              className="relative overflow-hidden rounded-lg border border-border bg-muted/40"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={src}
+                alt=""
+                className="mx-auto max-h-48 w-full object-contain"
+              />
+              <button
+                type="button"
+                onClick={() =>
+                  setImages((prev) => prev.filter((u) => u !== src))
+                }
+                className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-red-500/85 px-2 py-1 text-[11px] text-white"
+                aria-label="Eliminar foto"
+              >
+                <Trash2 className="size-3" aria-hidden />
+                Quitar
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
       <div className="flex flex-wrap gap-3 pt-4">
         <button
           type="button"
@@ -182,10 +249,11 @@ function EditListing() {
               toast.error("Marca la ubicación en el mapa");
               return;
             }
+            const type = (form.type as PropertyType) || "apartamentos";
             void updateListing({
               id,
               title: form.title,
-              type: form.type as "apartamentos" | "casas",
+              type,
               operationType: (form.operationType === "alquiler"
                 ? "alquiler"
                 : "venta") as "venta" | "alquiler",
@@ -196,6 +264,7 @@ function EditListing() {
               beds: Number(form.beds) || 0,
               baths: Number(form.baths) || 0,
               areaM2: Number(form.areaM2) || 0,
+              lotM2: showsLotM2(type) ? Number(form.lotM2) || 0 : undefined,
               description: form.description,
               features: (form.features ?? "")
                 .split(",")
