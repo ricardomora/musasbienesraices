@@ -21,11 +21,13 @@ export function LocationPickerLazy({
   value,
   onChange,
   className,
+  viewNonce,
 }: {
   cityId: string;
   value: LatLng | null;
   onChange: (coords: LatLng) => void;
   className?: string;
+  viewNonce?: number;
 }) {
   return (
     <LocationPickerMap
@@ -33,6 +35,7 @@ export function LocationPickerLazy({
       value={value}
       onChange={onChange}
       className={className}
+      viewNonce={viewNonce}
     />
   );
 }

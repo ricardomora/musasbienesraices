@@ -11,6 +11,7 @@ import { DashboardNav } from "@/components/dashboard/dashboard-nav";
 import { CITIES } from "@/data/cities";
 import type { LatLng } from "@/data/geo";
 import { LocationPickerLazy } from "@/components/explore/location-picker-lazy";
+import { SectorAutocomplete } from "@/components/sell/sector-autocomplete";
 import { UploadButton, uploadThingFileUrl } from "@/lib/uploadthing";
 import {
   PROPERTY_TYPES,
@@ -30,6 +31,7 @@ function EditListing() {
   const [form, setForm] = useState<Record<string, string>>({});
   const [images, setImages] = useState<string[]>([]);
   const [pin, setPin] = useState<LatLng | null>(null);
+  const [mapNonce, setMapNonce] = useState(0);
 
   useEffect(() => {
     if (!listing) return;
@@ -102,9 +104,24 @@ function EditListing() {
           ))}
         </select>
       </label>
+      <label className="block space-y-1 text-sm">
+        <span className="text-muted-foreground">Urbanización / sector</span>
+        <SectorAutocomplete
+          cityId={form.cityId || "caracas"}
+          value={form.neighborhood ?? ""}
+          onChange={(neighborhood) => setForm({ ...form, neighborhood })}
+          onSelectPlace={({ label, coords }) => {
+            setForm({ ...form, neighborhood: label });
+            setPin(coords);
+            setMapNonce((n) => n + 1);
+          }}
+        />
+        <span className="text-xs text-muted-foreground">
+          Escribe y elige una sugerencia: el mapa se centra y coloca el pin.
+        </span>
+      </label>
       {(
         [
-          ["neighborhood", "Sector"],
           [
             "priceUsd",
             form.operationType === "alquiler"
@@ -159,6 +176,7 @@ function EditListing() {
           cityId={form.cityId || "caracas"}
           value={pin}
           onChange={setPin}
+          viewNonce={mapNonce}
         />
         {pin ? (
           <p className="text-[11px] text-neon/80">

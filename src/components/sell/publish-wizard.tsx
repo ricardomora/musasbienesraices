@@ -11,6 +11,7 @@ import type { Id } from "../../../convex/_generated/dataModel";
 import { CITIES } from "@/data/cities";
 import type { LatLng } from "@/data/geo";
 import { LocationPickerLazy } from "@/components/explore/location-picker-lazy";
+import { SectorAutocomplete } from "@/components/sell/sector-autocomplete";
 import { UploadButton, uploadThingFileUrl } from "@/lib/uploadthing";
 import {
   PROPERTY_TYPES,
@@ -30,6 +31,7 @@ export function PublishWizard() {
   const [step, setStep] = useState(1);
   const [listingId, setListingId] = useState<Id<"listings"> | null>(null);
   const [busy, setBusy] = useState(false);
+  const [mapNonce, setMapNonce] = useState(0);
   const [form, setForm] = useState({
     title: "",
     type: "apartamentos" as PropertyType,
@@ -311,14 +313,25 @@ export function PublishWizard() {
         <div className="mt-8 space-y-4">
           <label className="block space-y-1.5 text-sm">
             <span className="text-muted-foreground">Urbanización / sector</span>
-            <input
+            <SectorAutocomplete
+              cityId={form.cityId}
               value={form.neighborhood}
-              onChange={(e) =>
-                setForm({ ...form, neighborhood: e.target.value })
+              onChange={(neighborhood) =>
+                setForm((prev) => ({ ...prev, neighborhood }))
               }
-              placeholder="Los Palos Grandes"
-              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
+              onSelectPlace={({ label, coords }) => {
+                setForm((prev) => ({
+                  ...prev,
+                  neighborhood: label,
+                  lat: coords.lat,
+                  lng: coords.lng,
+                }));
+                setMapNonce((n) => n + 1);
+              }}
             />
+            <span className="text-xs text-muted-foreground">
+              Escribe y elige una sugerencia: el mapa se centra y coloca el pin.
+            </span>
           </label>
           <div className="space-y-2">
             <p className="text-sm text-muted-foreground">Ubicación en el mapa</p>
@@ -328,13 +341,18 @@ export function PublishWizard() {
             </p>
             <LocationPickerLazy
               cityId={form.cityId}
+              viewNonce={mapNonce}
               value={
                 form.lat != null && form.lng != null
                   ? { lat: form.lat, lng: form.lng }
                   : null
               }
               onChange={(coords: LatLng) =>
-                setForm({ ...form, lat: coords.lat, lng: coords.lng })
+                setForm((prev) => ({
+                  ...prev,
+                  lat: coords.lat,
+                  lng: coords.lng,
+                }))
               }
             />
             {form.lat != null && form.lng != null ? (
@@ -343,7 +361,7 @@ export function PublishWizard() {
               </p>
             ) : (
               <p className="text-[11px] text-amber-200/80">
-                Sin pin — toca el mapa para marcar.
+                Sin pin — elige un sector o toca el mapa.
               </p>
             )}
           </div>

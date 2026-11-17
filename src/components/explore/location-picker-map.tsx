@@ -36,21 +36,23 @@ function Recenter({
   hasPin,
   lat,
   lng,
+  viewNonce,
 }: {
   cityId: string;
   hasPin: boolean;
   lat?: number;
   lng?: number;
+  viewNonce?: number;
 }) {
   const map = useMap();
   useEffect(() => {
     if (hasPin && typeof lat === "number" && typeof lng === "number") {
-      map.setView([lat, lng], 14);
+      map.flyTo([lat, lng], 15, { duration: 0.75 });
       return;
     }
     const c = CITY_CENTROIDS[cityId] ?? CITY_CENTROIDS.caracas;
     map.setView([c.lat, c.lng], 12);
-  }, [cityId, hasPin, lat, lng, map]);
+  }, [cityId, hasPin, lat, lng, viewNonce, map]);
   return null;
 }
 
@@ -59,6 +61,8 @@ type LocationPickerMapProps = {
   value: LatLng | null;
   onChange: (coords: LatLng) => void;
   className?: string;
+  /** Incrementa al elegir un sector para forzar flyTo. */
+  viewNonce?: number;
 };
 
 export function LocationPickerMap({
@@ -66,6 +70,7 @@ export function LocationPickerMap({
   value,
   onChange,
   className,
+  viewNonce = 0,
 }: LocationPickerMapProps) {
   const { theme, setTheme } = useMapTheme();
   const tiles = getMapTileConfig(theme);
@@ -76,22 +81,22 @@ export function LocationPickerMap({
   const bg = theme === "dark" ? "#0a0f0d" : "#e8eef2";
 
   return (
-    <div className="relative space-y-2">
+    <div className="relative z-0 space-y-2">
       <div className="flex items-center justify-between gap-2">
         <p className="text-[11px] text-muted-foreground">
-          Capa del mapa (sigue la app; puedes forzar otra)
+          Capa del mapa
         </p>
         <MapThemeToggle theme={theme} onChange={setTheme} />
       </div>
       <div
         className={
           className ??
-          "h-64 w-full overflow-hidden rounded-xl border border-white/15 sm:h-72"
+          "relative z-0 h-64 w-full overflow-hidden rounded-xl border border-white/15 sm:h-72"
         }
       >
         <MapContainer
           center={center}
-          zoom={value ? 14 : 12}
+          zoom={value ? 15 : 12}
           scrollWheelZoom
           className="h-full w-full"
           style={{ background: bg }}
@@ -109,10 +114,12 @@ export function LocationPickerMap({
             hasPin={!!value}
             lat={value?.lat}
             lng={value?.lng}
+            viewNonce={viewNonce}
           />
           <ClickToPin onPick={onChange} />
           {value ? (
             <Marker
+              key={`${value.lat.toFixed(5)}-${value.lng.toFixed(5)}-${viewNonce}`}
               position={[value.lat, value.lng]}
               icon={pinIcon}
               draggable
