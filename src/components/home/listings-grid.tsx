@@ -1,12 +1,15 @@
 "use client";
 
 import Image from "next/image";
+import { useState, type MouseEvent } from "react";
 import {
   ArrowUpRight,
   Bath,
   BedDouble,
   Building2,
   Check,
+  ChevronLeft,
+  ChevronRight,
   Heart,
   Home,
   LayoutGrid,
@@ -27,6 +30,91 @@ import { cn } from "@/lib/utils";
 
 type TypeFilter = "todos" | PropertyType;
 export type ExploreView = "lista" | "mapa";
+
+function listingGallery(listing: Listing): string[] {
+  const fromImages = (listing.images ?? []).filter(Boolean);
+  if (fromImages.length > 0) return fromImages;
+  return listing.image ? [listing.image] : [];
+}
+
+function ListingCardGallery({
+  listing,
+  onOpen,
+}: {
+  listing: Listing;
+  onOpen: () => void;
+}) {
+  const photos = listingGallery(listing);
+  const [index, setIndex] = useState(0);
+  const safeIndex = photos.length > 0 ? index % photos.length : 0;
+  const current = photos[safeIndex] ?? listing.image;
+  const multi = photos.length > 1;
+
+  function go(delta: number, e: MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!multi) return;
+    setIndex((prev) => (prev + delta + photos.length) % photos.length);
+  }
+
+  return (
+    <div className="relative aspect-[4/3] overflow-hidden bg-muted/40">
+      <button
+        type="button"
+        aria-label={`Ver ${listing.title}`}
+        onClick={onOpen}
+        className="absolute inset-0 z-0"
+      >
+        <Image
+          src={current}
+          alt={listing.alt}
+          fill
+          className="object-cover transition duration-500 ease-out hover:scale-[1.03]"
+          sizes="(max-width: 768px) 100vw, 33vw"
+          unoptimized={current.startsWith("http")}
+        />
+      </button>
+
+      {multi ? (
+        <>
+          <button
+            type="button"
+            aria-label="Foto anterior"
+            onClick={(e) => go(-1, e)}
+            className="interactive-surface absolute left-2 top-1/2 z-10 inline-flex size-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-ink/50 text-white backdrop-blur-md hover:bg-ink/75"
+          >
+            <ChevronLeft className="size-4" aria-hidden />
+          </button>
+          <button
+            type="button"
+            aria-label="Foto siguiente"
+            onClick={(e) => go(1, e)}
+            className="interactive-surface absolute right-2 top-1/2 z-10 inline-flex size-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-ink/50 text-white backdrop-blur-md hover:bg-ink/75"
+          >
+            <ChevronRight className="size-4" aria-hidden />
+          </button>
+          <div
+            className="pointer-events-none absolute bottom-2 left-1/2 z-10 flex -translate-x-1/2 gap-1.5"
+            aria-hidden
+          >
+            {photos.map((src, i) => (
+              <span
+                key={`${src}-${i}`}
+                className={cn(
+                  "size-1.5 rounded-full",
+                  i === safeIndex ? "bg-neon" : "bg-white/50",
+                )}
+              />
+            ))}
+          </div>
+          <span className="pointer-events-none absolute bottom-2 right-2 z-10 rounded-md bg-ink/60 px-2 py-0.5 text-[10px] font-medium text-white/90 backdrop-blur-md">
+            {safeIndex + 1}/{photos.length}
+          </span>
+        </>
+      ) : null}
+    </div>
+  );
+}
 
 type ListingsGridProps = {
   listings: Listing[];
@@ -210,21 +298,11 @@ export function ListingsGrid({
                   key={listing.id}
                   className="overflow-hidden rounded-xl border border-border bg-card"
                 >
-                  <div className="relative aspect-[4/3] overflow-hidden">
-                    <button
-                      type="button"
-                      aria-label={`Ver ${listing.title}`}
-                      onClick={() => onSelectListing(listing)}
-                      className="absolute inset-0 z-0"
-                    >
-                      <Image
-                        src={listing.image}
-                        alt={listing.alt}
-                        fill
-                        className="object-cover transition duration-500 ease-out hover:scale-[1.03]"
-                        sizes="(max-width: 768px) 100vw, 33vw"
-                      />
-                    </button>
+                  <div className="relative">
+                    <ListingCardGallery
+                      listing={listing}
+                      onOpen={() => onSelectListing(listing)}
+                    />
                     <div className="pointer-events-none absolute left-3 top-3 z-10 flex flex-col gap-1.5">
                       <span className="rounded-md bg-ink/75 px-2.5 py-1 text-[11px] font-medium text-white/90 backdrop-blur-md">
                         {listingOperation(listing) === "alquiler"
@@ -249,7 +327,7 @@ export function ListingsGrid({
                       }
                       aria-pressed={liked}
                       onClick={() => onToggleFavorite(listing.id)}
-                      className="interactive-surface absolute right-3 top-3 z-10 inline-flex size-9 items-center justify-center rounded-full border border-white/20 bg-ink/45 text-white backdrop-blur-md hover:bg-ink/70"
+                      className="interactive-surface absolute right-3 top-3 z-20 inline-flex size-9 items-center justify-center rounded-full border border-white/20 bg-ink/45 text-white backdrop-blur-md hover:bg-ink/70"
                     >
                       <Heart
                         className={cn(

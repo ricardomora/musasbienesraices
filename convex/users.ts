@@ -117,11 +117,28 @@ export const updateProfile = mutation({
   },
   handler: async (ctx, args) => {
     const user = await requireUser(ctx);
-    await ctx.db.patch(user._id, {
-      contactPhone: args.contactPhone ?? user.contactPhone,
-      cityId: args.cityId ?? user.cityId,
-      name: args.name ?? user.name,
-    });
+    const patch: {
+      contactPhone?: string;
+      cityId?: string;
+      name?: string;
+    } = {};
+    if (args.name !== undefined) {
+      const name = args.name.trim();
+      if (name.length < 2) throw new Error("Indica tu nombre (mín. 2 caracteres)");
+      patch.name = name;
+    }
+    if (args.contactPhone !== undefined) {
+      const phone = args.contactPhone.trim();
+      if (phone && phone.length < 7) {
+        throw new Error("Teléfono / WhatsApp inválido");
+      }
+      patch.contactPhone = phone || undefined;
+    }
+    if (args.cityId !== undefined) {
+      const cityId = args.cityId.trim();
+      patch.cityId = cityId || undefined;
+    }
+    await ctx.db.patch(user._id, patch);
     return user._id;
   },
 });

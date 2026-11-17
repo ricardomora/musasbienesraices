@@ -6,6 +6,7 @@ import { UserButton, useAuth } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { NotificationsBell } from "@/components/dashboard/notifications-bell";
 import { BACKEND_CONFIGURED } from "@/lib/backend";
 import { cn } from "@/lib/utils";
 
@@ -14,9 +15,7 @@ const LINKS = [
   { href: "/dashboard/mensajes", label: "Mensajes" },
   { href: "/dashboard/preferencial", label: "Preferencial" },
   { href: "/dashboard/suscripciones", label: "Suscripciones" },
-  { href: "/dashboard/notificaciones", label: "Avisos" },
   { href: "/dashboard/cuenta", label: "Cuenta" },
-  { href: "/publicar", label: "Publicar" },
 ] as const;
 
 export function DashboardNav() {
@@ -24,10 +23,6 @@ export function DashboardNav() {
   const { isSignedIn } = useAuth();
   const me = useQuery(
     api.users.me,
-    BACKEND_CONFIGURED && isSignedIn ? {} : "skip",
-  );
-  const unread = useQuery(
-    api.notifications.unreadCount,
     BACKEND_CONFIGURED && isSignedIn ? {} : "skip",
   );
   const isAdmin = me?.role === "admin";
@@ -40,7 +35,6 @@ export function DashboardNav() {
       {LINKS.map((l) => {
         const active =
           pathname === l.href || pathname.startsWith(`${l.href}/`);
-        const isAvisos = l.href === "/dashboard/notificaciones";
         return (
           <Link
             key={l.href}
@@ -52,9 +46,6 @@ export function DashboardNav() {
             )}
           >
             {l.label}
-            {isAvisos && (unread ?? 0) > 0 ? (
-              <span className="ml-1 text-neon">({unread})</span>
-            ) : null}
           </Link>
         );
       })}
@@ -71,6 +62,7 @@ export function DashboardNav() {
         </Link>
       ) : null}
       <div className="ml-auto flex items-center gap-3">
+        {isSignedIn ? <NotificationsBell /> : null}
         <ThemeToggle compact />
         <Link
           href="/"
