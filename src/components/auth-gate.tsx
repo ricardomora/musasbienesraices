@@ -2,13 +2,40 @@
 
 import { useAuth } from "@clerk/nextjs";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, type ReactNode } from "react";
+import {
+  useEffect,
+  useSyncExternalStore,
+  type ReactNode,
+} from "react";
+
+function useIsClient() {
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+}
 
 /**
  * Client-side route protection.
  * Avoids server `auth()` which requires clerkMiddleware (hangs under Next 16 proxy).
+ * useAuth only after hydration so static prerender never runs outside ClerkProvider.
  */
 export function AuthGate({ children }: { children: ReactNode }) {
+  const isClient = useIsClient();
+
+  if (!isClient) {
+    return (
+      <p className="p-10 text-center text-sm text-muted-foreground">
+        Comprobando sesión…
+      </p>
+    );
+  }
+
+  return <AuthGateClient>{children}</AuthGateClient>;
+}
+
+function AuthGateClient({ children }: { children: ReactNode }) {
   const { isLoaded, isSignedIn } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
