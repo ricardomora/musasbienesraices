@@ -63,6 +63,8 @@ export default defineSchema({
     realtorVerifiedAt: v.optional(v.number()),
     realtorVerifiedBy: v.optional(v.id("users")),
     contactPhone: v.optional(v.string()),
+    /** Handle or URL — shown on fichas when listing has no override. */
+    contactInstagram: v.optional(v.string()),
     cityId: v.optional(v.string()),
     createdAt: v.number(),
   })
@@ -88,6 +90,8 @@ export default defineSchema({
     reviewedAt: v.optional(v.number()),
     reviewedBy: v.optional(v.id("users")),
     contactWhatsapp: v.optional(v.string()),
+    /** Per-listing Instagram; falls back to owner.contactInstagram on ficha. */
+    contactInstagram: v.optional(v.string()),
     lat: v.optional(v.number()),
     lng: v.optional(v.number()),
     priceUsd: v.number(),
@@ -168,6 +172,8 @@ export default defineSchema({
     paymentReference: v.optional(v.string()),
     paymentSubmittedAt: v.optional(v.number()),
     paymentApprovedAt: v.optional(v.number()),
+    /** Fin del periodo pagado (mensual ≈ 30d / anual ≈ 365d desde aprobación). */
+    periodEndsAt: v.optional(v.number()),
     adminNote: v.optional(v.string()),
     reviewedBy: v.optional(v.id("users")),
     createdAt: v.number(),

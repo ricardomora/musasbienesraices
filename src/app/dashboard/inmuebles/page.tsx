@@ -15,9 +15,17 @@ import { toast } from "sonner";
 import { api } from "../../../../convex/_generated/api";
 import { BackendGate } from "@/components/system/backend-gate";
 import { DashboardNav } from "@/components/dashboard/dashboard-nav";
+import {
+  ListingPreferentialChip,
+  activeRequestForListing,
+} from "@/components/dashboard/listing-preferential-module";
 import { cityName, type CityId } from "@/data/cities";
 import { formatUsd } from "@/data/listings";
 import { PROPERTY_TYPE_LABELS, type PropertyType } from "@/lib/property-types";
+import {
+  packageName,
+  preferentialStatusLabel,
+} from "@/lib/preferential-packages";
 import { cn } from "@/lib/utils";
 
 const STATUS_LABEL: Record<string, string> = {
@@ -28,6 +36,7 @@ const STATUS_LABEL: Record<string, string> = {
 
 function MyListings() {
   const listings = useQuery(api.listings.myListings);
+  const requests = useQuery(api.preferential.myRequests);
   const setStatus = useMutation(api.listings.setListingStatus);
 
   return (
@@ -38,7 +47,7 @@ function MyListings() {
             Mis inmuebles
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Edita, pausa o publica tus fichas.
+            Edita, pausa o publica tus fichas. Preferencial se pide por inmueble.
             {listings
               ? ` · ${listings.length} ficha${listings.length === 1 ? "" : "s"}`
               : ""}
@@ -76,6 +85,7 @@ function MyListings() {
             const typeLabel =
               PROPERTY_TYPE_LABELS[l.type as PropertyType] ?? l.type;
             const status = STATUS_LABEL[l.status] ?? l.status;
+            const activePref = activeRequestForListing(requests, l._id);
             return (
               <li
                 key={l._id}
@@ -210,12 +220,80 @@ function MyListings() {
                       Publicar
                     </button>
                   )}
+                  <ListingPreferentialChip
+                    listingId={l._id}
+                    active={activePref}
+                  />
                 </div>
               </li>
             );
           })}
         </ul>
       )}
+
+      <section
+        id="solicitudes-preferencial"
+        className="mt-14 scroll-mt-8 border-t border-border pt-10"
+      >
+        <h2 className="text-xl font-semibold text-foreground">
+          Mis solicitudes Preferencial
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Fotos, legal o acompañamiento por ficha. Coordinación y pago fuera de
+          la app.
+        </p>
+        {requests === undefined ? (
+          <p className="mt-6 text-sm text-muted-foreground">Cargando…</p>
+        ) : requests.length === 0 ? (
+          <p className="mt-6 text-sm text-muted-foreground">
+            Aún no hay solicitudes. Usa{" "}
+            <span className="text-neon">Pedir una Musa</span> en la ficha que
+            quieras potenciar.
+          </p>
+        ) : (
+          <ul className="mt-6 space-y-3">
+            {requests.map((r) => (
+              <li
+                key={r._id}
+                className="rounded-xl border border-border bg-card px-4 py-3 text-sm"
+              >
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <p className="font-medium text-neon">
+                    {preferentialStatusLabel(r.status)}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {new Date(r.createdAt).toLocaleString("es-VE")}
+                  </p>
+                </div>
+                <p className="mt-1 text-foreground">
+                  {r.packageKeys.map(packageName).join(" · ")}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {r.listingTitle
+                    ? r.listingTitle
+                    : "Sin inmueble vinculado"}
+                  {r.listingId ? (
+                    <>
+                      {" · "}
+                      <Link
+                        href={`/dashboard/inmuebles/${r.listingId}`}
+                        className="text-neon hover:underline"
+                      >
+                        Editar
+                      </Link>
+                    </>
+                  ) : null}
+                </p>
+                {r.notes ? (
+                  <p className="mt-2 line-clamp-2 text-muted-foreground">
+                    {r.notes}
+                  </p>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }

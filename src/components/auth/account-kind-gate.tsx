@@ -33,8 +33,8 @@ export function AccountKindGate({ children }: { children: ReactNode }) {
       await setAccountKind({ accountKind: kind });
       toast.success(
         kind === "realtor"
-          ? "Cuenta Realtor lista. Puedes publicar y ver suscripciones."
-          : "Cuenta particular lista.",
+          ? "Perfil de agente guardado. El Plan Agente se activa tras pagar y que Musas confirme el pago."
+          : "Cuenta particular lista. Ya puedes explorar y publicar.",
       );
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Error");
@@ -56,8 +56,9 @@ export function AccountKindGate({ children }: { children: ReactNode }) {
               ¿Cómo vas a usar la plataforma?
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              Ambos pueden explorar y publicar inmuebles. Si eres agente, te
-              mostramos el Plan Realtor y la etiqueta profesional.
+              Ambos pueden explorar y publicar. Elegir Realtor solo marca tu
+              perfil de agente: el Plan Agente (insignia verificada) se activa
+              después del pago móvil y la confirmación de Musas.
             </p>
             <div className="mt-8 grid gap-3 sm:grid-cols-2">
               <button
@@ -70,7 +71,8 @@ export function AccountKindGate({ children }: { children: ReactNode }) {
                   Particular
                 </p>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Compro, alquilo o publico mi propio inmueble.
+                  Compro, alquilo o publico mi propio inmueble. Sin plan de
+                  agente.
                 </p>
               </button>
               <button
@@ -81,7 +83,8 @@ export function AccountKindGate({ children }: { children: ReactNode }) {
               >
                 <p className="text-lg font-semibold text-foreground">Realtor</p>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Soy agente inmobiliario y quiero publicar y crecer con Musas.
+                  Soy agente. Luego pago el Plan Agente (~$15/mes) para la
+                  insignia verificada.
                 </p>
               </button>
             </div>

@@ -8,11 +8,12 @@ import { api } from "../../../../../convex/_generated/api";
 import type { Id } from "../../../../../convex/_generated/dataModel";
 import { BackendGate } from "@/components/system/backend-gate";
 import { DashboardNav } from "@/components/dashboard/dashboard-nav";
+import { ListingPreferentialModule } from "@/components/dashboard/listing-preferential-module";
 import { CITIES } from "@/data/cities";
 import type { LatLng } from "@/data/geo";
 import { LocationPickerLazy } from "@/components/explore/location-picker-lazy";
 import { SectorAutocomplete } from "@/components/sell/sector-autocomplete";
-import { UploadButton, uploadThingFileUrl } from "@/lib/uploadthing";
+import { ListingImageUploadButton } from "@/components/sell/listing-image-upload-button";
 import {
   PROPERTY_TYPES,
   PROPERTY_TYPE_LABELS,
@@ -26,6 +27,7 @@ function EditListing() {
   const router = useRouter();
   const id = params.id as Id<"listings">;
   const listing = useQuery(api.listings.getMine, { id });
+  const preferentialRequests = useQuery(api.preferential.myRequests);
   const updateListing = useMutation(api.listings.updateListing);
   const publishListing = useMutation(api.listings.publishListing);
   const [form, setForm] = useState<Record<string, string>>({});
@@ -50,6 +52,7 @@ function EditListing() {
       description: listing.description,
       features: listing.features.join(", "),
       contactWhatsapp: listing.contactWhatsapp ?? "",
+      contactInstagram: listing.contactInstagram ?? "",
     });
     setImages(listing.images);
     setPin(
@@ -69,6 +72,10 @@ function EditListing() {
   return (
     <div className="mx-auto max-w-2xl space-y-4 px-5 py-10 sm:px-8">
       <h1 className="text-2xl font-semibold text-foreground">Editar inmueble</h1>
+      <ListingPreferentialModule
+        listingId={id}
+        requests={preferentialRequests}
+      />
       <label className="block space-y-1 text-sm">
         <span className="text-muted-foreground">Operación</span>
         <select
@@ -218,18 +225,28 @@ function EditListing() {
           className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
         />
       </label>
-      <UploadButton
-        endpoint="listingImageUploader"
-        onClientUploadComplete={(res) => {
-          const urls = res
-            .map((f) => uploadThingFileUrl(f))
-            .filter((u): u is string => Boolean(u));
-          setImages((prev) => [...prev, ...urls]);
-        }}
-        onUploadError={(e) => {
-          void toast.error(e.message);
-        }}
-      />
+      <label className="block space-y-1 text-sm">
+        <span className="text-muted-foreground">
+          Instagram en ficha (vacío = usa el de tu perfil)
+        </span>
+        <input
+          value={form.contactInstagram ?? ""}
+          onChange={(e) =>
+            setForm({ ...form, contactInstagram: e.target.value })
+          }
+          placeholder="@tuagencia"
+          className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
+        />
+      </label>
+      <div className="space-y-1.5">
+        <p className="text-sm text-muted-foreground">Fotos del inmueble</p>
+        <ListingImageUploadButton
+          currentCount={images.length}
+          onUploaded={(urls) => {
+            setImages((prev) => [...prev, ...urls]);
+          }}
+        />
+      </div>
       {images.length > 0 ? (
         <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
           {images.map((src) => (
@@ -289,6 +306,7 @@ function EditListing() {
                 .map((s) => s.trim())
                 .filter(Boolean),
               contactWhatsapp: (form.contactWhatsapp ?? "").trim(),
+              contactInstagram: (form.contactInstagram ?? "").trim(),
               lat: pin.lat,
               lng: pin.lng,
               images,

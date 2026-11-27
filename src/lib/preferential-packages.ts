@@ -57,3 +57,16 @@ export function preferentialStatusLabel(status: string): string {
     PREFERENTIAL_STATUS_LABELS[status as PreferentialStatus] ?? status
   );
 }
+
+/** Solicitud abierta (aún no completada ni cancelada). */
+export function isPreferentialActive(status: string): boolean {
+  return status !== "done" && status !== "cancelled";
+}
+
+export function preferentialHref(listingId?: string, paquete?: PreferentialPackageKey) {
+  const params = new URLSearchParams();
+  if (listingId) params.set("listingId", listingId);
+  if (paquete) params.set("paquete", paquete);
+  const q = params.toString();
+  return q ? `/preferencial?${q}` : "/preferencial";
+}

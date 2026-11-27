@@ -2,7 +2,22 @@
 
 import { SignIn } from "@clerk/nextjs";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { BACKEND_CONFIGURED } from "@/lib/backend";
+import { safeRedirectPath } from "@/lib/clerk-redirect";
+
+function SignInWithRedirect() {
+  const searchParams = useSearchParams();
+  const redirect = safeRedirectPath(searchParams.get("redirect_url"));
+
+  return (
+    <SignIn
+      forceRedirectUrl={redirect ?? undefined}
+      fallbackRedirectUrl={redirect ?? "/"}
+    />
+  );
+}
 
 export default function SignInPage() {
   if (!BACKEND_CONFIGURED) {
@@ -24,7 +39,9 @@ export default function SignInPage() {
 
   return (
     <main className="flex flex-1 items-center justify-center bg-background px-4 py-16">
-      <SignIn />
+      <Suspense fallback={<p className="text-sm text-muted-foreground">Cargando…</p>}>
+        <SignInWithRedirect />
+      </Suspense>
     </main>
   );
 }

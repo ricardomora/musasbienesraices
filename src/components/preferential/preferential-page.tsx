@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
@@ -30,6 +30,7 @@ function initialPackageSelection(
 function PreferentialForm() {
   const { isSignedIn } = useAuth();
   const searchParams = useSearchParams();
+  const listingFromUrl = searchParams.get("listingId") ?? "";
   const create = useMutation(api.preferential.create);
   const myListings = useQuery(
     api.listings.myListings,
@@ -44,7 +45,21 @@ function PreferentialForm() {
   );
   const [notes, setNotes] = useState("");
   const [phone, setPhone] = useState("");
-  const [listingId, setListingId] = useState<string>("");
+  const [listingId, setListingId] = useState<string>(listingFromUrl);
+  const listingLocked = Boolean(
+    listingFromUrl &&
+      myListings?.some((l) => l._id === listingFromUrl),
+  );
+  const lockedListingTitle = myListings?.find(
+    (l) => l._id === listingFromUrl,
+  )?.title;
+
+  useEffect(() => {
+    if (!listingFromUrl) return;
+    if (myListings?.some((l) => l._id === listingFromUrl)) {
+      setListingId(listingFromUrl);
+    }
+  }, [listingFromUrl, myListings]);
 
   function toggle(key: PreferentialPackageKey) {
     setSelected((prev) =>
@@ -64,6 +79,14 @@ function PreferentialForm() {
         Elige fotos, revisión legal o acompañamiento en visitas — o combínalos.
         Te respondemos por WhatsApp para cotizar y coordinar.
       </p>
+      {listingLocked && lockedListingTitle ? (
+        <p className="mt-3 text-sm text-neon">
+          Para este inmueble:{" "}
+          <span className="font-medium text-foreground">
+            {lockedListingTitle}
+          </span>
+        </p>
+      ) : null}
 
       <aside
         className="mt-6 rounded-xl border border-neon/25 bg-neon/5 px-4 py-3 text-sm leading-relaxed text-foreground"
@@ -160,21 +183,27 @@ function PreferentialForm() {
             </p>
           </div>
           {(myListings?.length ?? 0) > 0 ? (
-            <label className="block space-y-1 text-sm">
-              <span className="text-muted-foreground">Inmueble (opcional)</span>
-              <select
-                value={listingId}
-                onChange={(e) => setListingId(e.target.value)}
-                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
-              >
-                <option value="">Sin vincular</option>
-                {myListings?.map((l) => (
-                  <option key={l._id} value={l._id}>
-                    {l.title}
-                  </option>
-                ))}
-              </select>
-            </label>
+            listingLocked ? (
+              <input type="hidden" name="listingId" value={listingId} />
+            ) : (
+              <label className="block space-y-1 text-sm">
+                <span className="text-muted-foreground">
+                  Inmueble (recomendado)
+                </span>
+                <select
+                  value={listingId}
+                  onChange={(e) => setListingId(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
+                >
+                  <option value="">Sin vincular</option>
+                  {myListings?.map((l) => (
+                    <option key={l._id} value={l._id}>
+                      {l.title}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )
           ) : null}
           <label className="block space-y-1 text-sm">
             <span className="text-muted-foreground">WhatsApp / teléfono *</span>

@@ -65,10 +65,22 @@ export const myRequests = query({
       .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
       .unique();
     if (!user) return [];
-    return await ctx.db
+    const rows = await ctx.db
       .query("preferentialRequests")
       .withIndex("by_user", (q) => q.eq("userId", user._id))
       .collect();
+    const enriched = await Promise.all(
+      rows.map(async (row) => {
+        const listing = row.listingId
+          ? await ctx.db.get(row.listingId)
+          : null;
+        return {
+          ...row,
+          listingTitle: listing?.title ?? null,
+        };
+      }),
+    );
+    return enriched.sort((a, b) => b.createdAt - a.createdAt);
   },
 });
 

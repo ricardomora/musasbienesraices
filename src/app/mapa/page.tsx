@@ -177,7 +177,9 @@ function MapExplore() {
               <p className="mt-0.5 text-muted-foreground">
                 {l.neighborhood} ·{" "}
                 {l.operationType === "alquiler" ? "Alquiler" : "Venta"}
-                {l.trustBadge === "musas_reviewed" ? " · Revisado" : ""}
+                {l.trustBadge === "musas_reviewed"
+                  ? " · Musas Revisado"
+                  : " · En verificación"}
               </p>
             </Link>
           </li>

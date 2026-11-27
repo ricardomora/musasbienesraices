@@ -13,7 +13,7 @@ import {
   Heart,
   Link2,
   MapPin,
-  MessageCircle,
+  Phone,
   Ruler,
   Share2,
   ShieldCheck,
@@ -28,7 +28,10 @@ import {
   listingOperation,
 } from "@/data/listings";
 import { useAuthFavorites } from "@/hooks/use-auth-favorites";
+import { InstagramIcon, WhatsAppIcon } from "@/components/icons/brand-icons";
+import { ListingTrustBadge } from "@/components/listings/listing-trust-badge";
 import { AppChrome } from "@/components/system/app-chrome";
+import { instagramHref } from "@/lib/clerk-redirect";
 import {
   REPORT_REASONS,
   type ReportReasonId,
@@ -37,6 +40,12 @@ import {
 function whatsappHref(raw: string) {
   const digits = raw.replace(/\D/g, "");
   return digits ? `https://wa.me/${digits}` : null;
+}
+
+function displayPhone(raw: string) {
+  const digits = raw.replace(/\D/g, "");
+  if (digits.length >= 10) return raw.trim();
+  return raw.trim();
 }
 
 export function ConvexListingDetail({ slug }: { slug: string }) {
@@ -87,8 +96,13 @@ export function ConvexListingDetail({ slug }: { slug: string }) {
     listing.images.length > 0 ? listing.images : ["/villa-dusk.png"];
   const safeIndex = Math.min(activeImage, gallery.length - 1);
   const image = gallery[safeIndex] ?? gallery[0];
-  const wa = listing.contactWhatsapp
-    ? whatsappHref(listing.contactWhatsapp)
+  const contactNumber =
+    listing.contactWhatsapp?.trim() ||
+    listing.ownerContactPhone?.trim() ||
+    "";
+  const wa = contactNumber ? whatsappHref(contactNumber) : null;
+  const ig = listing.contactInstagram
+    ? instagramHref(listing.contactInstagram)
     : null;
   const pageUrl =
     typeof window !== "undefined"
@@ -98,13 +112,6 @@ export function ConvexListingDetail({ slug }: { slug: string }) {
   const shareWa = `https://wa.me/?text=${encodeURIComponent(
     `${listing.title} — ${formatListingPrice(listing)} USD en Musas (${op})\n${pageUrl}`,
   )}`;
-  const reviewedLabel =
-    listing.trustBadge === "musas_reviewed" && listing.reviewedAt
-      ? `Musas Revisado · ${new Date(listing.reviewedAt).toLocaleDateString("es-VE")}`
-      : listing.trustBadge === "musas_reviewed"
-        ? "Musas Revisado"
-        : null;
-
   return (
     <AppChrome>
     <main className="flex-1 bg-background pb-20">
@@ -125,18 +132,12 @@ export function ConvexListingDetail({ slug }: { slug: string }) {
               className="max-h-[70vh] w-full object-contain"
             />
           </div>
-          {reviewedLabel ? (
-            <span
-              className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-md border border-neon/50 bg-ink/75 px-2.5 py-1 text-[11px] font-medium text-neon backdrop-blur-md"
-              title="Revisamos fotos, precio USD y contacto del dueño — no certificamos agentes."
-            >
-              <ShieldCheck className="size-3.5" aria-hidden />
-              {reviewedLabel}
-            </span>
-          ) : listing.status === "published" ? (
-            <span className="absolute left-3 top-3 rounded-md border border-white/20 bg-ink/70 px-2.5 py-1 text-[11px] text-white/75 backdrop-blur-md">
-              Publicado · revisión Musas pendiente
-            </span>
+          {listing.status === "published" ? (
+            <ListingTrustBadge
+              trustBadge={listing.trustBadge}
+              reviewedAt={listing.reviewedAt}
+              className="absolute left-3 top-3"
+            />
           ) : null}
         </div>
 
@@ -173,28 +174,55 @@ export function ConvexListingDetail({ slug }: { slug: string }) {
           {op === "alquiler" ? "Alquiler · USD / mes" : "Venta · USD"}
           {listing.badge ? ` · ${listing.badge}` : ""}
         </p>
-        {listing.ownerAccountKind === "realtor" ? (
-          <p className="mt-3 flex flex-wrap items-center gap-2 text-sm">
-            <span className="text-muted-foreground">
-              {listing.ownerName ?? "Realtor Musas"}
-            </span>
-            <span
-              className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-medium ${
-                listing.ownerRealtorVerified
-                  ? "border-neon/50 text-neon"
-                  : "border-border text-muted-foreground"
-              }`}
-              title={
-                listing.ownerRealtorVerified
-                  ? "Agente revisado por Musas (identidad profesional). No certifica la propiedad."
-                  : "Publicado por un Realtor en Musas. Verificado pendiente."
-              }
-            >
-              {listing.ownerRealtorVerified
-                ? "Realtor Verificado"
-                : "Realtor"}
-            </span>
-          </p>
+        {listing.ownerRealtorVerified ? (
+          <div
+            className="mt-5 rounded-2xl border-2 border-emerald-500/70 bg-emerald-500/5 px-4 py-3.5 shadow-[0_0_0_1px_rgba(16,185,129,0.12)]"
+            title="Agente con Plan Agente aprobado por Musas. No certifica la propiedad."
+          >
+            <p className="mb-3 inline-flex items-center gap-1.5 text-[11px] font-semibold tracking-[0.14em] text-emerald-600 uppercase dark:text-emerald-400">
+              <ShieldCheck className="size-3.5" aria-hidden />
+              Realtor verificado
+            </p>
+            <div className="flex items-center gap-3 overflow-x-auto">
+              {listing.ownerAvatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={listing.ownerAvatarUrl}
+                  alt=""
+                  className="size-10 shrink-0 rounded-full border border-emerald-500/40 object-cover"
+                />
+              ) : (
+                <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-full border border-emerald-500/40 bg-emerald-500/10 text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+                  {(listing.ownerName ?? "R").slice(0, 1).toUpperCase()}
+                </span>
+              )}
+              <p className="min-w-0 shrink truncate text-sm font-medium text-foreground">
+                {listing.ownerName ?? "Agente Musas"}
+              </p>
+              {wa ? (
+                <a
+                  href={wa}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="interactive-surface ml-auto inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-emerald-500/50 bg-emerald-500/10 px-3.5 text-xs font-medium text-emerald-700 hover:bg-emerald-500/15 dark:text-emerald-300"
+                >
+                  <WhatsAppIcon className="size-3.5" aria-hidden />
+                  WhatsApp
+                </a>
+                ) : null}
+                {ig ? (
+                  <a
+                    href={ig}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`interactive-surface inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-emerald-500/50 bg-emerald-500/10 px-3.5 text-xs font-medium text-emerald-700 hover:bg-emerald-500/15 dark:text-emerald-300 ${wa ? "" : "ml-auto"}`}
+                  >
+                    <InstagramIcon className="size-3.5" aria-hidden />
+                    Instagram
+                  </a>
+                ) : null}
+            </div>
+          </div>
         ) : null}
         <p className="mt-4 text-muted-foreground">{listing.description}</p>
         <p className="mt-4 text-2xl font-semibold text-foreground">
@@ -272,19 +300,52 @@ export function ConvexListingDetail({ slug }: { slug: string }) {
             target="_blank"
             rel="noopener noreferrer"
             className="interactive-surface inline-flex h-11 items-center gap-2 rounded-full border border-border px-5 text-sm text-foreground hover:bg-accent"
+            title="Comparte este inmueble por WhatsApp"
           >
             <Share2 className="size-4" aria-hidden />
-            WhatsApp grupo
+            Compartir por WhatsApp
           </a>
-          {wa ? (
+          {!listing.ownerRealtorVerified && wa ? (
             <a
               href={wa}
               target="_blank"
               rel="noopener noreferrer"
               className="interactive-surface inline-flex h-11 items-center gap-2 rounded-full border border-neon/40 px-5 text-sm text-neon hover:bg-neon/10"
             >
-              <MessageCircle className="size-4" aria-hidden />
-              WhatsApp vendedor
+              <WhatsAppIcon className="size-4" aria-hidden />
+              WhatsApp
+              {contactNumber ? (
+                <span className="font-normal text-neon/80">
+                  · {displayPhone(contactNumber)}
+                </span>
+              ) : null}
+            </a>
+          ) : null}
+          {!listing.ownerRealtorVerified && contactNumber ? (
+            <a
+              href={`tel:${contactNumber.replace(/\D/g, "")}`}
+              className="interactive-surface inline-flex h-11 items-center gap-2 rounded-full border border-border px-5 text-sm text-foreground hover:bg-accent"
+            >
+              <Phone className="size-4" aria-hidden />
+              Llamar
+            </a>
+          ) : null}
+          {!listing.ownerRealtorVerified && ig ? (
+            <a
+              href={ig}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="interactive-surface inline-flex h-11 items-center gap-2 rounded-full border border-border px-5 text-sm text-foreground hover:bg-accent"
+            >
+              <InstagramIcon className="size-4" aria-hidden />
+              Instagram
+              {listing.contactInstagram ? (
+                <span className="font-normal text-muted-foreground">
+                  {listing.contactInstagram.startsWith("@")
+                    ? listing.contactInstagram
+                    : `@${listing.contactInstagram.replace(/^@/, "")}`}
+                </span>
+              ) : null}
             </a>
           ) : null}
           {listing.isOwner ? (

@@ -16,6 +16,13 @@ export type Listing = {
   /** Soft trust badge after admin review (not a gate to publish). */
   trustBadge?: "none" | "musas_reviewed";
   contactWhatsapp?: string;
+  contactInstagram?: string;
+  /** Enriched from owner when listing comes from Convex. */
+  ownerName?: string;
+  ownerAvatarUrl?: string;
+  ownerRealtorVerified?: boolean;
+  ownerContactPhone?: string;
+  ownerEmail?: string;
   priceUsd: number;
   beds: number;
   baths: number;

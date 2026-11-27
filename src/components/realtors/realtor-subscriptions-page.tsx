@@ -3,10 +3,9 @@
 import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
-import type { Id } from "../../../convex/_generated/dataModel";
 import { AppChrome } from "@/components/system/app-chrome";
 import { BackendGate } from "@/components/system/backend-gate";
 import { BACKEND_CONFIGURED } from "@/lib/backend";
@@ -16,13 +15,19 @@ import {
   REALTOR_MONTHLY_PRICE,
   REALTOR_PAGO_MOVIL,
   REALTOR_PLAN_BENEFITS,
+  isRealtorPlanPeriodActive,
   realtorAmountLabel,
   realtorBillingLabel,
+  realtorPeriodEndsLabel,
   realtorPlanName,
   realtorStatusLabel,
   type RealtorBillingPeriod,
 } from "@/lib/realtor-plans";
 import { cn } from "@/lib/utils";
+
+const RETURN_TO = "/suscripciones";
+const signInHref = `/sign-in?redirect_url=${encodeURIComponent(RETURN_TO)}`;
+const signUpHref = `/sign-up?redirect_url=${encodeURIComponent(RETURN_TO)}`;
 
 function PaymentInstructions({
   amount,
@@ -53,8 +58,8 @@ function PaymentInstructions({
         <li>RIF: {REALTOR_PAGO_MOVIL.rif}</li>
       </ul>
       <p className="mt-3 text-xs text-muted-foreground">
-        Realiza el pago y luego registra la referencia abajo para que Musas lo
-        confirme.
+        Realiza el pago y registra la referencia abajo. Musas confirma y te
+        avisa en notificaciones.
       </p>
     </aside>
   );
@@ -67,24 +72,38 @@ function RealtorSubscriptionsForm() {
     BACKEND_CONFIGURED && isSignedIn ? {} : "skip",
   );
   const create = useMutation(api.realtors.createRequest);
-  const submitPayment = useMutation(api.realtors.submitPaymentReference);
   const myRequests = useQuery(
     api.realtors.myRequests,
+    BACKEND_CONFIGURED && isSignedIn ? {} : "skip",
+  );
+  const planSummary = useQuery(
+    api.realtors.myPlanSummary,
     BACKEND_CONFIGURED && isSignedIn ? {} : "skip",
   );
   const [billingPeriod, setBillingPeriod] =
     useState<RealtorBillingPeriod>("monthly");
   const [notes, setNotes] = useState("");
   const [phone, setPhone] = useState("");
-  const [paymentRefs, setPaymentRefs] = useState<Record<string, string>>({});
+  const [paymentReference, setPaymentReference] = useState("");
+  const [busy, setBusy] = useState(false);
 
-  const openRequest = (myRequests ?? []).find(
-    (r) =>
-      r.status === "requested" ||
-      r.status === "reviewing" ||
-      r.status === "payment_submitted",
-  );
-  const approved = (myRequests ?? []).find((r) => r.status === "approved");
+  useEffect(() => {
+    if (!me) return;
+    setPhone((prev) => prev || me.contactPhone || "");
+    setNotes((prev) => {
+      if (prev) return prev;
+      if (!me.name) return prev;
+      return `Agente: ${me.name}${me.cityId ? ` · Ciudad: ${me.cityId}` : ""}`;
+    });
+  }, [me]);
+
+  const openRequest = planSummary?.openRequest ?? null;
+  const activePlan = planSummary?.activePlan ?? null;
+  const expiredPlan = planSummary?.expiredPlan ?? null;
+  const canCreateRequest = planSummary?.canCreateRequest === true;
+  const approvedActive =
+    activePlan &&
+    isRealtorPlanPeriodActive(activePlan.status, activePlan.periodEndsAt);
 
   return (
     <div className="mx-auto max-w-4xl px-5 py-14 sm:px-8">
@@ -100,11 +119,33 @@ function RealtorSubscriptionsForm() {
         verificación Musas.
       </p>
 
-      {approved || me?.realtorVerified ? (
+      {approvedActive ? (
         <aside className="mt-6 rounded-xl border border-neon/40 bg-neon/10 px-4 py-3 text-sm text-foreground">
           <strong className="text-neon">Listo.</strong> Tu Plan Agente está
           activo
-          {me?.realtorVerified ? " y eres Realtor Verificado" : ""}.
+          {me?.realtorVerified ? " y eres Realtor Verificado" : ""}
+          {realtorPeriodEndsLabel(activePlan?.periodEndsAt)
+            ? ` · vence el ${realtorPeriodEndsLabel(activePlan?.periodEndsAt)}`
+            : ""}
+          .{" "}
+          <Link href="/dashboard/cuenta#plan-agente" className="underline">
+            Ver en Cuenta
+          </Link>
+        </aside>
+      ) : expiredPlan ? (
+        <aside className="mt-6 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-foreground">
+          Tu plan venció
+          {realtorPeriodEndsLabel(expiredPlan.periodEndsAt)
+            ? ` el ${realtorPeriodEndsLabel(expiredPlan.periodEndsAt)}`
+            : ""}
+          . Puedes renovar abajo (solo hay un Plan Agente por ahora).
+        </aside>
+      ) : me?.accountKind === "realtor" && !openRequest ? (
+        <aside className="mt-6 rounded-xl border border-border bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
+          Tu perfil es de agente, pero el{" "}
+          <span className="text-foreground">Plan Agente aún no está activo</span>
+          . Paga con los datos abajo y envía la referencia; Musas lo confirma
+          desde admin.
         </aside>
       ) : null}
 
@@ -182,23 +223,23 @@ function RealtorSubscriptionsForm() {
             Empieza como agente Musas
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Crea tu cuenta y vuelve para solicitar el plan y registrar el pago
-            móvil.
+            Crea tu cuenta o inicia sesión. Te devolvemos aquí para completar
+            datos y la referencia del pago en un solo paso.
           </p>
           <Link
-            href="/sign-up"
+            href={signUpHref}
             className="interactive-surface mt-5 inline-flex h-11 items-center rounded-full bg-neon px-6 text-sm font-semibold text-primary-foreground hover:bg-white"
           >
             Registrarme como agente
           </Link>
           <p className="mt-3 text-sm text-muted-foreground">
             ¿Ya tienes cuenta?{" "}
-            <Link href="/sign-in" className="text-neon underline">
+            <Link href={signInHref} className="text-neon underline">
               Inicia sesión
             </Link>
           </p>
         </div>
-      ) : !openRequest && !approved ? (
+      ) : canCreateRequest ? (
         <form
           className="mt-12 space-y-4 rounded-2xl border border-border bg-muted/30 px-5 py-6"
           onSubmit={(e) => {
@@ -207,39 +248,53 @@ function RealtorSubscriptionsForm() {
               toast.error("Indica un WhatsApp o teléfono.");
               return;
             }
+            if (paymentReference.trim().length < 4) {
+              toast.error("Indica la referencia del pago móvil.");
+              return;
+            }
+            setBusy(true);
             void create({
               planKey: "plan1",
               billingPeriod,
               notes,
               contactPhone: phone.trim(),
+              paymentReference: paymentReference.trim(),
             })
               .then(() => {
                 toast.success(
-                  "Solicitud creada. Realiza el pago móvil y registra la referencia.",
+                  "Solicitud y referencia enviadas. Musas confirmará el pago.",
                 );
                 setNotes("");
+                setPaymentReference("");
               })
               .catch((err) =>
                 toast.error(err instanceof Error ? err.message : "Error"),
-              );
+              )
+              .finally(() => setBusy(false));
           }}
         >
           <div>
             <p className="text-xs tracking-[0.16em] text-muted-foreground uppercase">
-              2 · Solicitud de verificación
+              2 · Solicitud y pago
             </p>
             <h2 className="mt-2 text-lg font-semibold text-foreground">
-              Pedir ser Realtor Verificado
+              Datos del agente + referencia de pago
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Plan: {realtorBillingLabel(billingPeriod)}. Paga con los datos
-              abajo y, tras enviar la solicitud, registra la referencia.
+              Plan: {realtorBillingLabel(billingPeriod)}. Un solo envío: tus
+              datos y la referencia del pago móvil.
             </p>
           </div>
           <PaymentInstructions
             amount={realtorAmountLabel(billingPeriod)}
             period={billingPeriod}
           />
+          {me?.email ? (
+            <p className="text-sm text-muted-foreground">
+              Cuenta:{" "}
+              <span className="text-foreground">{me.name || me.email}</span>
+            </p>
+          ) : null}
           <label className="block space-y-1 text-sm">
             <span className="text-muted-foreground">WhatsApp / teléfono *</span>
             <input
@@ -256,18 +311,32 @@ function RealtorSubscriptionsForm() {
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              rows={4}
+              rows={3}
               required
               minLength={10}
               className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
               placeholder="Ciudad, nombre comercial, años de experiencia…"
             />
           </label>
+          <label className="block space-y-1 text-sm">
+            <span className="text-muted-foreground">
+              Referencia del pago móvil *
+            </span>
+            <input
+              value={paymentReference}
+              onChange={(e) => setPaymentReference(e.target.value)}
+              required
+              minLength={4}
+              className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
+              placeholder="Ej. 123456789"
+            />
+          </label>
           <button
             type="submit"
-            className="interactive-surface h-11 rounded-full bg-neon px-6 text-sm font-semibold text-primary-foreground"
+            disabled={busy}
+            className="interactive-surface h-11 rounded-full bg-neon px-6 text-sm font-semibold text-primary-foreground disabled:opacity-50"
           >
-            Enviar solicitud
+            {busy ? "Enviando…" : "Enviar solicitud y referencia"}
           </button>
         </form>
       ) : null}
@@ -276,7 +345,7 @@ function RealtorSubscriptionsForm() {
         <section className="mt-12 space-y-4 rounded-2xl border border-border bg-muted/30 px-5 py-6">
           <div>
             <p className="text-xs tracking-[0.16em] text-muted-foreground uppercase">
-              3 · Pago y verificación
+              Estado
             </p>
             <h2 className="mt-2 text-lg font-semibold text-foreground">
               {realtorStatusLabel(openRequest.status)}
@@ -290,63 +359,16 @@ function RealtorSubscriptionsForm() {
             amount={realtorAmountLabel(openRequest.billingPeriod)}
             period={openRequest.billingPeriod}
           />
-          {openRequest.status === "payment_submitted" ? (
+          {openRequest.paymentReference ? (
             <p className="text-sm text-neon">
-              Referencia registrada
-              {openRequest.paymentReference
-                ? `: ${openRequest.paymentReference}`
-                : ""}
-              . Musas confirmará el pago y te avisará en notificaciones.
+              Referencia registrada: {openRequest.paymentReference}. Musas
+              confirmará el pago y te avisará en notificaciones.
             </p>
           ) : (
-            <form
-              className="space-y-3"
-              onSubmit={(e) => {
-                e.preventDefault();
-                const ref = (paymentRefs[openRequest._id] ?? "").trim();
-                if (ref.length < 4) {
-                  toast.error("Indica la referencia del pago móvil.");
-                  return;
-                }
-                void submitPayment({
-                  id: openRequest._id as Id<"realtorSubscriptionRequests">,
-                  paymentReference: ref,
-                })
-                  .then(() =>
-                    toast.success(
-                      "Referencia enviada. Te avisamos cuando confirmen el pago.",
-                    ),
-                  )
-                  .catch((err) =>
-                    toast.error(err instanceof Error ? err.message : "Error"),
-                  );
-              }}
-            >
-              <label className="block space-y-1 text-sm">
-                <span className="text-muted-foreground">
-                  Referencia del pago móvil *
-                </span>
-                <input
-                  value={paymentRefs[openRequest._id] ?? ""}
-                  onChange={(e) =>
-                    setPaymentRefs((prev) => ({
-                      ...prev,
-                      [openRequest._id]: e.target.value,
-                    }))
-                  }
-                  required
-                  minLength={4}
-                  className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
-                  placeholder="Ej. 123456789"
-                />
-              </label>
-              <button
-                type="submit"
-                className="interactive-surface h-11 rounded-full bg-neon px-6 text-sm font-semibold text-primary-foreground"
-              >
-                Ya pagué · enviar referencia
-              </button>
-            </form>
+            <p className="text-sm text-muted-foreground">
+              Tu solicitud quedó abierta sin referencia. Vuelve a enviar una
+              nueva desde soporte u ops si hace falta.
+            </p>
           )}
         </section>
       ) : null}

@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useState, type MouseEvent } from "react";
 import {
-  ArrowUpRight,
   Bath,
   BedDouble,
   Building2,
@@ -19,14 +18,28 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import {
-  formatListingPrice,
   listingLocation,
   listingOperation,
   type Listing,
   type PropertyType,
 } from "@/data/listings";
+import { InstagramIcon, WhatsAppIcon } from "@/components/icons/brand-icons";
+import { ListingTrustBadge } from "@/components/listings/listing-trust-badge";
 import { ListingsMapLazy } from "@/components/explore/listings-map-lazy";
+import { instagramHref } from "@/lib/clerk-redirect";
 import { cn } from "@/lib/utils";
+
+function whatsappHref(raw: string) {
+  const digits = raw.replace(/\D/g, "");
+  return digits ? `https://wa.me/${digits}` : null;
+}
+
+function formatCardPrice(listing: Listing) {
+  const amount = listing.priceUsd.toLocaleString("en-US");
+  const suffix =
+    listingOperation(listing) === "alquiler" ? "/mes" : "";
+  return { amount: `$${amount}`, suffix };
+}
 
 type TypeFilter = "todos" | PropertyType;
 export type ExploreView = "lista" | "mapa";
@@ -58,7 +71,7 @@ function ListingCardGallery({
   }
 
   return (
-    <div className="relative aspect-[4/3] overflow-hidden bg-muted/40">
+    <div className="relative aspect-[16/10] overflow-hidden rounded-xl bg-muted/40">
       <button
         type="button"
         aria-label={`Ver ${listing.title}`}
@@ -94,7 +107,7 @@ function ListingCardGallery({
             <ChevronRight className="size-4" aria-hidden />
           </button>
           <div
-            className="pointer-events-none absolute bottom-2 left-1/2 z-10 flex -translate-x-1/2 gap-1.5"
+            className="pointer-events-none absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 gap-1.5"
             aria-hidden
           >
             {photos.map((src, i) => (
@@ -102,14 +115,11 @@ function ListingCardGallery({
                 key={`${src}-${i}`}
                 className={cn(
                   "size-1.5 rounded-full",
-                  i === safeIndex ? "bg-neon" : "bg-white/50",
+                  i === safeIndex ? "bg-white" : "bg-white/45",
                 )}
               />
             ))}
           </div>
-          <span className="pointer-events-none absolute bottom-2 right-2 z-10 rounded-md bg-ink/60 px-2 py-0.5 text-[10px] font-medium text-white/90 backdrop-blur-md">
-            {safeIndex + 1}/{photos.length}
-          </span>
         </>
       ) : null}
     </div>
@@ -293,40 +303,64 @@ export function ListingsGrid({
           <div className="mt-10 grid gap-6 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
             {listings.map((listing) => {
               const liked = isFavorite(listing.id);
+              const isAlquiler = listingOperation(listing) === "alquiler";
+              const opLabel = isAlquiler ? "En alquiler" : "En venta";
+              const realtorVerified = listing.ownerRealtorVerified === true;
+              const contactNumber =
+                listing.contactWhatsapp?.trim() ||
+                listing.ownerContactPhone?.trim() ||
+                "";
+              const wa = contactNumber ? whatsappHref(contactNumber) : null;
+              const ig = listing.contactInstagram
+                ? instagramHref(listing.contactInstagram)
+                : null;
+              const price = formatCardPrice(listing);
+
               return (
                 <article
                   key={listing.id}
-                  className="overflow-hidden rounded-xl border border-border bg-card"
+                  role="link"
+                  tabIndex={0}
+                  aria-label={`${listing.title} — ${opLabel}`}
+                  onClick={() => onSelectListing(listing)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      onSelectListing(listing);
+                    }
+                  }}
+                  className={cn(
+                    "interactive-surface relative cursor-pointer overflow-hidden rounded-2xl bg-card p-3 transition",
+                    realtorVerified
+                      ? "border border-neon/70 shadow-[0_0_24px_color-mix(in_srgb,var(--neon)_12%,transparent)] hover:border-neon"
+                      : "border border-border hover:border-neon/35",
+                  )}
                 >
                   <div className="relative">
                     <ListingCardGallery
                       listing={listing}
                       onOpen={() => onSelectListing(listing)}
                     />
-                    <div className="pointer-events-none absolute left-3 top-3 z-10 flex flex-col gap-1.5">
-                      <span className="rounded-md bg-ink/75 px-2.5 py-1 text-[11px] font-medium text-white/90 backdrop-blur-md">
-                        {listingOperation(listing) === "alquiler"
-                          ? "Alquiler"
-                          : "Venta"}
-                      </span>
-                      {listing.trustBadge === "musas_reviewed" ? (
-                        <span className="rounded-md border border-neon/50 bg-ink/75 px-2.5 py-1 text-[11px] font-medium text-neon backdrop-blur-md">
-                          Musas Revisado
-                        </span>
-                      ) : null}
-                      {listing.badge ? (
-                        <span className="rounded-md bg-ink/70 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur-md">
-                          {listing.badge}
+
+                    <div className="pointer-events-none absolute left-3 top-3 z-10 flex max-w-[75%] flex-wrap gap-1.5">
+                      <ListingTrustBadge trustBadge={listing.trustBadge} />
+                      {realtorVerified ? (
+                        <span className="inline-flex items-center rounded-full border border-[color:var(--realtor-amber)] bg-ink/80 px-2.5 py-1 text-[10px] font-semibold tracking-[0.08em] text-[color:var(--realtor-amber)] uppercase backdrop-blur-md">
+                          Realtor calificado
                         </span>
                       ) : null}
                     </div>
+
                     <button
                       type="button"
                       aria-label={
                         liked ? "Quitar de favoritos" : "Guardar favorito"
                       }
                       aria-pressed={liked}
-                      onClick={() => onToggleFavorite(listing.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleFavorite(listing.id);
+                      }}
                       className="interactive-surface absolute right-3 top-3 z-20 inline-flex size-9 items-center justify-center rounded-full border border-white/20 bg-ink/45 text-white backdrop-blur-md hover:bg-ink/70"
                     >
                       <Heart
@@ -337,9 +371,22 @@ export function ListingsGrid({
                         aria-hidden
                       />
                     </button>
+
+                    <span className="pointer-events-none absolute bottom-3 right-3 z-10 rounded-full bg-ink/70 px-2.5 py-1 text-[10px] font-semibold tracking-[0.12em] text-white uppercase backdrop-blur-md">
+                      {opLabel}
+                    </span>
                   </div>
 
-                  <div className="space-y-3 p-4 sm:p-5">
+                  <div className="space-y-2 px-1.5 pt-4 pb-2">
+                    <p className="text-[1.55rem] leading-none font-semibold tracking-tight text-foreground">
+                      {price.amount}
+                      <span className="ml-1.5 text-sm font-normal text-muted-foreground">
+                        USD{price.suffix}
+                      </span>
+                    </p>
+                    <h3 className="text-lg font-semibold tracking-tight text-foreground">
+                      {listing.title}
+                    </h3>
                     <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
                       <MapPin
                         className="size-3.5 shrink-0 text-neon/80"
@@ -347,47 +394,98 @@ export function ListingsGrid({
                       />
                       {listingLocation(listing)}
                     </p>
-                    <h3 className="text-xl font-semibold tracking-tight text-foreground">
-                      {listing.title}
-                    </h3>
-                    <p className="text-lg font-medium text-foreground">
-                      {formatListingPrice(listing)}
-                      <span className="ml-1.5 text-sm font-normal text-muted-foreground">
-                        USD
-                      </span>
-                    </p>
-                    <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                      <span className="inline-flex items-center gap-1.5">
-                        <BedDouble className="size-3.5" aria-hidden />
-                        {listing.beds} hab.
-                      </span>
-                      <span className="inline-flex items-center gap-1.5">
-                        <Bath className="size-3.5" aria-hidden />
-                        {listing.baths} baños
-                      </span>
-                      <span className="inline-flex items-center gap-1.5">
-                        <Ruler className="size-3.5" aria-hidden />
-                        {listing.areaM2} m²
-                      </span>
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 pt-0.5 text-sm text-muted-foreground">
+                      {listing.beds > 0 ? (
+                        <span className="inline-flex items-center gap-1.5">
+                          <BedDouble className="size-3.5" aria-hidden />
+                          {listing.beds} hab.
+                        </span>
+                      ) : null}
+                      {listing.beds > 0 && listing.baths > 0 ? (
+                        <span className="text-[8px] text-muted-foreground/60" aria-hidden>
+                          ◆
+                        </span>
+                      ) : null}
+                      {listing.baths > 0 ? (
+                        <span className="inline-flex items-center gap-1.5">
+                          <Bath className="size-3.5" aria-hidden />
+                          {listing.baths} baños
+                        </span>
+                      ) : null}
+                      {(listing.beds > 0 || listing.baths > 0) &&
+                      listing.areaM2 > 0 ? (
+                        <span className="text-[8px] text-muted-foreground/60" aria-hidden>
+                          ◆
+                        </span>
+                      ) : null}
+                      {listing.areaM2 > 0 ? (
+                        <span className="inline-flex items-center gap-1.5">
+                          <Ruler className="size-3.5" aria-hidden />
+                          {listing.areaM2} m²
+                        </span>
+                      ) : null}
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between border-t border-border px-4 py-3.5 text-sm sm:px-5">
-                    <span className="inline-flex items-center gap-1.5 text-muted-foreground">
-                      <Check className="size-3.5 text-neon" aria-hidden />
-                      {listing.trustBadge === "musas_reviewed"
-                        ? "Musas Revisado"
-                        : "Ficha publicada"}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => onSelectListing(listing)}
-                      className="interactive-surface inline-flex items-center gap-1.5 text-neon hover:text-foreground"
+                  {realtorVerified ? (
+                    <div
+                      className="mt-2 flex items-center gap-3 border-t border-border/80 px-1.5 pt-3 pb-1"
+                      onClick={(e) => e.stopPropagation()}
+                      onKeyDown={(e) => e.stopPropagation()}
                     >
-                      Ver inmueble
-                      <ArrowUpRight className="size-3.5" aria-hidden />
-                    </button>
-                  </div>
+                      <div className="relative shrink-0">
+                        {listing.ownerAvatarUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={listing.ownerAvatarUrl}
+                            alt=""
+                            className="size-10 rounded-full object-cover"
+                          />
+                        ) : (
+                          <span className="inline-flex size-10 items-center justify-center rounded-full bg-muted text-sm font-semibold text-foreground">
+                            {(listing.ownerName ?? "R").slice(0, 1).toUpperCase()}
+                          </span>
+                        )}
+                        <span className="absolute -right-0.5 -bottom-0.5 inline-flex size-4 items-center justify-center rounded-full bg-emerald-500 text-white ring-2 ring-card">
+                          <Check className="size-2.5 stroke-[3]" aria-hidden />
+                        </span>
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-foreground">
+                          {listing.ownerName ?? "Agente Musas"}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Realtor Calificado
+                        </p>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-2">
+                        {wa ? (
+                          <a
+                            href={wa}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="WhatsApp del realtor"
+                            className="interactive-surface inline-flex size-9 items-center justify-center rounded-full border border-neon/50 text-neon hover:bg-neon/10"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <WhatsAppIcon aria-hidden />
+                          </a>
+                        ) : null}
+                        {ig ? (
+                          <a
+                            href={ig}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Instagram del realtor"
+                            className="interactive-surface inline-flex size-9 items-center justify-center rounded-full border border-neon/50 text-neon hover:bg-neon/10"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <InstagramIcon aria-hidden />
+                          </a>
+                        ) : null}
+                      </div>
+                    </div>
+                  ) : null}
                 </article>
               );
             })}

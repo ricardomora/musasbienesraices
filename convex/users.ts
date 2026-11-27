@@ -112,6 +112,7 @@ export const me = query({
 export const updateProfile = mutation({
   args: {
     contactPhone: v.optional(v.string()),
+    contactInstagram: v.optional(v.string()),
     cityId: v.optional(v.string()),
     name: v.optional(v.string()),
   },
@@ -119,6 +120,7 @@ export const updateProfile = mutation({
     const user = await requireUser(ctx);
     const patch: {
       contactPhone?: string;
+      contactInstagram?: string;
       cityId?: string;
       name?: string;
     } = {};
@@ -133,6 +135,17 @@ export const updateProfile = mutation({
         throw new Error("Teléfono / WhatsApp inválido");
       }
       patch.contactPhone = phone || undefined;
+    }
+    if (args.contactInstagram !== undefined) {
+      const ig = args.contactInstagram.trim().replace(/^@+/, "");
+      if (ig && ig.length < 2) {
+        throw new Error("Instagram inválido");
+      }
+      patch.contactInstagram = ig
+        ? ig.startsWith("http")
+          ? ig
+          : `@${ig}`
+        : undefined;
     }
     if (args.cityId !== undefined) {
       const cityId = args.cityId.trim();

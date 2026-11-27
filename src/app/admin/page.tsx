@@ -393,16 +393,23 @@ function AdminPanel() {
                       ))}
                     </select>
                   </label>
-                  {r.status !== "approved" && r.status !== "rejected" ? (
+                  {r.status === "payment_submitted" ||
+                  r.status === "payment_approved" ? (
                     <button
                       type="button"
                       className="rounded-full border border-neon/40 px-3 py-1.5 text-xs text-neon"
                       onClick={() =>
-                        void approveRealtorPayment({ id: r._id }).then(() =>
-                          toast.success(
-                            "Pago confirmado · Realtor Verificado + aviso enviado",
-                          ),
-                        )
+                        void approveRealtorPayment({ id: r._id })
+                          .then(() =>
+                            toast.success(
+                              "Pago confirmado · Plan Agente activo · Realtor Verificado",
+                            ),
+                          )
+                          .catch((err) =>
+                            toast.error(
+                              err instanceof Error ? err.message : "Error",
+                            ),
+                          )
                       }
                     >
                       Confirmar pago y activar

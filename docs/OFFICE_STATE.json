@@ -1,117 +1,205 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-16T08:53:00Z",
-  "updatedBy": "design",
-  "phase": "fase-realtors-shipped-slice",
-  "summary": "Design: copy ES VE /preferencial (3 paquetes, sin énfasis USD, pago fuera 1 vez). Pedir refresh Oficina.",
+  "updatedAt": "2026-11-27T01:20:00Z",
+  "updatedBy": "pm",
+  "phase": "fase-beta-feedback-triage",
+  "summary": "OWNER-6 vs INFORME-9 D24: publish-first sí; híbrido sort revisados; Owner mantiene etiqueta honesta ficha/grid. PM pedía ocultar «por revisar». Joaquín confirma D24.",
   "protocol": "Owner cuestiona → PM informa → Tech/Design/User ejecutan → Joaquín aprueba",
   "agents": {
     "owner": {
-      "status": "idle",
-      "task": "Stress-test Realtor Verificado vs moat listing (post INFORME-7)",
-      "blocker": "Joaquín D14–D20"
+      "status": "done",
+      "task": "OWNER-6 publish-first + tag revisión pendiente",
+      "blocker": null
     },
     "pm": {
       "status": "needs_help",
-      "task": "D14–D19 cerradas; falta D20 reclutas + D8 ops",
-      "blocker": "Joaquín: nombres ≥3 realtors + WA ops"
+      "task": "D25 Preferencial por ficha (nav out) + cerrar D24",
+      "blocker": "Joaquín: D25 híbrido A+B vs solo A"
     },
     "design": {
       "status": "done",
-      "task": "Copy Preferencial /preferencial listo para pegar (no implementado)",
+      "task": "Preferencial per-inmueble: 3 patrones UX (nav out); handoff PM/Tech",
       "blocker": null
     },
     "tech": {
-      "status": "done",
-      "task": "Slice Realtor D14–D19 shipped (schema+UI+admin)",
-      "blocker": "D20 reclutas + D8; prod deploy sigue P0"
+      "status": "idle",
+      "task": "P0: audit WA ficha + D22 baja listing; D23 solo post-repro; NO max fotos",
+      "blocker": "Joaquín D22 + repro Jimena"
     },
     "user": {
-      "status": "idle",
-      "task": "Scripts R1–R7 + métricas MR1–MR8 con ≥3 realtors",
-      "blocker": "D20 reclutas + build slice"
+      "status": "needs_help",
+      "task": "Repro Jimena contacto + script interrupt upload (gate D23)",
+      "blocker": "URL usable"
     },
     "qa": {
-      "status": "idle",
-      "task": "Regresión marketplace (MR8) al ship Realtors",
-      "blocker": "Slice no construido; prod frágil"
+      "status": "needs_help",
+      "task": "PASS/FAIL upload background en ≥2 devices antes de epic D23",
+      "blocker": "Script interrupt"
     }
   },
   "alerts": [
     {
-      "id": "informe-7-realtors",
+      "id": "d25-pref-nav-por-ficha",
+      "severity": "major",
+      "owner": "pm",
+      "title": "D25: quitar Preferencial del nav dashboard",
+      "detail": "INFORME-10: upsell por listing; rec híbrido CTA tarjeta + bloque editar + agregado Mis inmuebles; /preferencial público con deep link.",
+      "ask": "¿Apruebas D25 Opción D?"
+    },
+    {
+      "id": "d24-por-revisar-public",
+      "severity": "major",
+      "owner": "pm",
+      "title": "D24: veto tag «por revisar» en explore",
+      "detail": "INFORME-9: publish-first OK; sello negativo público no. Micro-C: sort/filtro Musas Revisado.",
+      "ask": "¿OK A + no tag negativo + sort revisados?"
+    },
+    {
+      "id": "d24-publish-first",
+      "severity": "major",
+      "owner": "pm",
+      "title": "D24: publish-first + etiqueta honesta (Owner vs INFORME-9)",
+      "detail": "Owner: mantener visible inmediato; ficha OK; grid ✓ engañoso; sort revisados primero; veto pre-publish. PM INFORME-9 pedía quitar tag público.",
+      "ask": "Joaquín confirma D24 + D2/D12"
+    },
+    {
+      "id": "owner5b-vs-informe8",
       "severity": "blocker",
       "owner": "pm",
-      "title": "Decidir D14–D20 antes de construir Realtors",
-      "detail": "INFORME-7: particular vs realtor, Plan 1 copy/precio, Preferencial separado, Verificado soft, publish sin gate plan, ≥3 reclutas.",
-      "ask": "Joaquín confirma D14–D20 (rec PM: A en todas) + nombres realtors lunes"
+      "title": "Joaquín: Top5 Owner vs INFORME-8 (upload no es P0 ciego)",
+      "detail": "Owner: contacto audit→borrar→3tipos/políticas→comprobante+D8→Publicar/WA. D23 solo con repro QA. Fotos límite=ruido (UT=12). $20=Plan Realtor no floors Preferencial.",
+      "ask": "¿Apruebas orden Owner? ¿D23 gated por repro?"
     },
     {
-      "id": "realtors-vs-prod",
+      "id": "upload-background-p0",
+      "severity": "major",
+      "owner": "qa",
+      "title": "D23 upload: bajar de blocker a major hasta repro",
+      "detail": "Owner veto epic sin script interrupt ≥2 devices. Si FAIL sistemático → vuelve P0.",
+      "ask": "User/QA: PASS/FAIL drop al bloquear pantalla"
+    },
+    {
+      "id": "contacto-ficha-d10",
+      "severity": "blocker",
+      "owner": "tech",
+      "title": "Jimena contacto: repro antes de rebuild (código WA existe)",
+      "detail": "contactWhatsapp + CTA ya en ficha/wizard. Gap = opt-in vacío, UI, o prod vieja.",
+      "ask": "Repro Jimena; reportar causa"
+    },
+    {
+      "id": "d22-borrar-listing",
       "severity": "blocker",
       "owner": "pm",
-      "title": "Tradeoff: Realtors lunes no sustituye G-Prod",
-      "detail": "Sin auth/publish usable, validación Realtor es lab. Slice mínimo en paralelo; smoke prod sigue P0.",
-      "ask": "¿Prioridad si 1 día: prod usable o pitch Realtor externo?"
+      "title": "Javier: baja listing = P0 trust (Owner ≥ CTA Publicar)",
+      "detail": "Rec Owner B/C: pause+request o soft-delete+audit.",
+      "ask": "Joaquín cierra D22"
     },
     {
-      "id": "vercel-env",
-      "severity": "blocker",
-      "owner": "tech",
-      "title": "Env Vercel deben existir para que el deploy funcione",
-      "detail": "Push solo sube código. Sin Clerk/Convex/UT/secrets en Vercel, auth y API fallan.",
-      "ask": "Confirmar Project Settings → Environment Variables en Vercel Musas"
+      "id": "precio-hold-20",
+      "severity": "major",
+      "owner": "pm",
+      "title": "Hold $20 = Plan Realtor; no mezclar Preferencial 120/150/200",
+      "detail": "Robert vs Rex/Wasi. Matias 'cobrar menos' = ruido estratégico.",
+      "ask": "Confirmar hold Plan $20; Preferencial floors intactos"
     },
     {
-      "id": "deploy-prod-mvp",
+      "id": "veto-pasarela-idealista",
       "severity": "blocker",
-      "owner": "tech",
-      "title": "Prod parcial: falta /api/me/sync + Clerk live",
-      "detail": "Smoke previo: home/UT 200; me/sync 404; Clerk pk_test en www.",
-      "ask": "Redeploy latest + pk_live + seed antes de invites Realtor"
+      "owner": "pm",
+      "title": "Veto Owner+PM: pasarela / Idealista / team / pixel / IG paid",
+      "detail": "Jimena pasarela = copy. Matias crédito = vanity mortal.",
+      "ask": "Confirmar veto MVP"
+    },
+    {
+      "id": "ops-comprobante",
+      "severity": "major",
+      "owner": "pm",
+      "title": "Gustavo: comprobante = ops manual, no Stripe",
+      "detail": "Playbook WA/email al confirmar pago fuera.",
+      "ask": "D8: quién envía comprobante hoy"
     },
     {
       "id": "ops-d8-dual-cola",
       "severity": "blocker",
       "owner": "pm",
-      "title": "D8 ops debe cubrir Preferencial + Realtor requests",
-      "detail": "Misma persona &lt;24h; sin nombre = ambas colas teatro.",
+      "title": "D8 ops sigue pendiente (Pref + Realtor + comprobante)",
+      "detail": "Sin humano, Preferencial y comprobantes = teatro.",
       "ask": "Nombre + WA ops"
     },
     {
-      "id": "owner-veto-badge-sin-ops",
+      "id": "fotos-limite-ruido",
+      "severity": "minor",
+      "owner": "pm",
+      "title": "Veto ticket subir max fotos (UT ya 12)",
+      "detail": "INFORME-8 lo marcó MEDIO; Owner = ruido. Empujar ≥3–6 usadas.",
+      "ask": "Sacar de Top5 / paralelo"
+    },
+    {
+      "id": "vercel-env",
       "severity": "blocker",
-      "owner": "pm",
-      "title": "Veto: no pitch Realtor Verificado sin ops",
-      "detail": "Mismo riesgo que listing verified: badge sin humano quema más que no tenerlo.",
-      "ask": "D18=A solo con D8 nombrado"
-    },
-    {
-      "id": "gap-g1-wa-listing",
-      "severity": "major",
-      "owner": "pm",
-      "title": "D10 WA ficha sigue abierta (no bloquea slice Realtor)",
-      "detail": "Hábito Caracas; recomendación A opt-in. No mete CRM.",
-      "ask": "Aprobar D10 A en paralelo si hay capacidad"
-    },
-    {
-      "id": "decisiones-d1-d6",
-      "severity": "major",
-      "owner": "pm",
-      "title": "D1–D6: deadline silencio 2026-11-13 venció",
-      "detail": "Sin OK explícito histórico; PM no reabre scope. Pedir OK o ajustes residuales.",
-      "ask": "OK defaults o ajustes por ID (cierre formal)"
-    },
-    {
-      "id": "qa-two-accounts",
-      "severity": "major",
-      "owner": "user",
-      "title": "Q&A E2E necesita 2ª cuenta Clerk",
-      "detail": "Script 5 = N/A con 1 cuenta.",
-      "ask": "2ª cuenta comprador"
+      "owner": "tech",
+      "title": "Prod / env Vercel sigue frágil",
+      "detail": "Feedback beta no sustituye G-Prod.",
+      "ask": "G-Prod en paralelo a Top5 UX"
     }
   ],
   "feed": [
+    {
+      "at": "01:22",
+      "from": "pm",
+      "to": "coordinator",
+      "kind": "decision",
+      "text": "INFORME-10 D25: 4 opciones UX Preferencial por ficha; rec híbrido A+B+agregado; veto nav + solicitud sin listing. Alinear con design chip/módulo. Pedir refresh Oficina."
+    },
+    {
+      "at": "01:20",
+      "from": "design",
+      "to": "pm",
+      "kind": "decision",
+      "text": "Preferencial fuera del nav dashboard. Recomendación: chip estado en Mis inmuebles + módulo lateral neon en Editar (venta); inbox solicitudes bajo Cuenta/notif. Nav→2 ítems. Pedir refresh Oficina."
+    },
+    {
+      "at": "00:43",
+      "from": "design",
+      "to": "tech",
+      "kind": "decision",
+      "text": "Listing card mock Joaquín: foto inset rounded; overlay TL Revisado + pill amber REALTOR; TR corazón; BR EN VENTA/ALQUILER; dots centro; body precio→título→pin→stats con |; realtor borde verde + footer avatar/check, WA+Mail; sin ribbon esquina ni eyebrow op. Tokens --realtor-amber. Refrescar Oficina."
+    },
+    {
+      "at": "20:10",
+      "from": "design",
+      "to": "tech",
+      "kind": "decision",
+      "text": "Listing card: quitar Venta/Alquiler del overlay; eyebrow en cuerpo (arriba de ubicación, 11px neon/muted); quitar footer; trust solo en foto; card entera clickable. Refrescar Oficina. [SUPERSEDED por mock 00:43]"
+    },
+    {
+      "at": "23:45",
+      "from": "owner",
+      "to": "pm",
+      "kind": "decision",
+      "text": "INFORME-OWNER-6: publish-first aceptable; veto pre-publish; híbrido; objeción ocultar «revisión pendiente» (grid ✓ engañoso). D24 pendiente Joaquín."
+    },
+    {
+      "at": "23:34",
+      "from": "pm",
+      "to": "coordinator",
+      "kind": "done",
+      "text": "INFORME-9: publish-first A+micro-C; no «por revisar» al comprador; copy wizard SLA condicional D8. Pedir refresh Oficina."
+    },
+    {
+      "at": "23:20",
+      "from": "owner",
+      "to": "pm",
+      "kind": "alert",
+      "text": "OWNER-5b: challenge INFORME-8. Upload no P0 sin repro; fotos ruido; $20≠Preferencial; borrado≥CTA. Pedir refresh Oficina."
+    },
+    {
+      "at": "23:10",
+      "from": "pm",
+      "to": "coordinator",
+      "kind": "handoff",
+      "text": "INFORME-8 triage beta 6 testers: priorización ALTO→DESCARTAR, Top5 semana, hold $20 vs Rex/Wasi. Pedir refresh Oficina."
+    },
     {
       "at": "08:53",
       "from": "design",
@@ -134,13 +222,6 @@
       "text": "Hero apoyo: rechazada feature-list. #1 «En Venezuela y en dólares: explora, afina tu zona y pregunta al anuncio.» (+2 alt). Sin Preferencial/Realtor/sin complicaciones. Pedir refresh Oficina."
     },
     {
-      "at": "15:20",
-      "from": "design",
-      "to": "pm",
-      "kind": "handoff",
-      "text": "HOME comprador: 1er viewport sobrecargado (search+chips+trust+Preferencial nav). Contradicción alquiler (hero ON / HowItWorks OFF). 7 pulidos copy/composición sin rebuild. AppChrome no envuelve home. Pedir refresh Oficina."
-    },
-    {
       "at": "14:52",
       "from": "tech",
       "to": "pm",
@@ -148,53 +229,11 @@
       "text": "Slice Realtor shipped: accountKind gate, /suscripciones Plan1, admin cola+setVerified, badge ficha. D14–D19=A. Pedir refresh Oficina."
     },
     {
-      "at": "14:42",
-      "from": "coordinator",
-      "to": "all",
-      "kind": "done",
-      "text": "Oficina Canvas confirmada al día con INFORME-7 (tech+pm Realtors)."
-    },
-    {
       "at": "14:40",
       "from": "pm",
       "to": "coordinator",
       "kind": "handoff",
       "text": "INFORME-7 Realtors lunes: gap vs producto, IN/OUT, D14–D20, reuse Preferencial, métricas MR1–MR8, riesgos overbuild. Pedir refresh Oficina."
-    },
-    {
-      "at": "21:45",
-      "from": "design",
-      "to": "pm",
-      "kind": "handoff",
-      "text": "Mapa rutas Propiedash→Musas entregado: IA logueado=Explorar+Mi panel+Publicar; P0 descubribilidad/share/report/wizard hints; NO-ROBAR BCV/alquiler/directorio/chat/DASHCODE/planes."
-    },
-    {
-      "at": "21:30",
-      "from": "pm",
-      "to": "coordinator",
-      "kind": "alert",
-      "text": "INFORME-6: fallo proceso nav vendedor post-login; 3 gates S0/DoD/scorecard."
-    },
-    {
-      "at": "02:10",
-      "from": "owner",
-      "to": "pm",
-      "kind": "alert",
-      "text": "OWNER-4+4b: moat N2+N3; D11=D/D12=A condicional/D13=A+B; veto badge sin D8."
-    },
-    {
-      "at": "02:00",
-      "from": "pm",
-      "to": "coordinator",
-      "kind": "handoff",
-      "text": "INFORME-5 brainstorm Propiedash: matriz gap + N2 + 30/60/90 UX vs moat."
-    },
-    {
-      "at": "01:14",
-      "from": "qa",
-      "to": "pm",
-      "kind": "done",
-      "text": "Corrida 3b PASS admin seed/pause; Q&A N/A; prod blocker."
     }
   ],
   "insumos": {
@@ -208,16 +247,25 @@
     "vercelEnvChecklist": "docs/SETUP_MUSAS.md#2",
     "d7SaleVsRent": "A_solo_venta",
     "d1d6Confirm": "deadline_vencido_sin_ok_explicito",
+    "d8OpsPreferential": "pendiente",
+    "d10WaListing": "pendiente_cierra_con_D21_informe8",
     "d11Positioning": "pendiente_N2_N3",
     "d12VerifyPolicy": "pendiente_L1_cola",
     "d13VerifyWhoPays": "pendiente_L1_gratis_L2_pref",
-    "d14AccountKind": "pendiente",
-    "d15Plan1Benefits": "pendiente",
-    "d16Plan1Monetization": "pendiente",
-    "d17PrefVsRealtor": "pendiente",
-    "d18RealtorVerified": "pendiente",
-    "d19PublishGatePlan": "pendiente",
-    "d20RealtorRecruits": "pendiente"
+    "d14AccountKind": "A_aprobada",
+    "d15Plan1Benefits": "A_aprobada",
+    "d16Plan1Monetization": "A_aprobada",
+    "d17PrefVsRealtor": "A_aprobada",
+    "d18RealtorVerified": "A_aprobada",
+    "d19PublishGatePlan": "A_aprobada",
+    "d20RealtorRecruits": "pendiente",
+    "d21ContactoFicha": "pendiente_rec_A_condicional_repro",
+    "d22BorradoListing": "pendiente_owner_B_or_C",
+    "d23UploadPersistence": "pendiente_gated_repro_not_blind_P0",
+    "d24PublishFirstTag": "pendiente_owner_hibrido_vs_informe9",
+    "d24PorRevisarPublic": "pendiente_rec_rechazar_tag_comprador",
+    "d25PreferencialPorFicha": "pendiente_rec_opcion_D",
+    "preferencialPriceSignal": "hold_20_plan_realtor_not_pref_floors"
   },
   "codeReady": {
     "convexFunctions": true,
@@ -231,10 +279,10 @@
     "qaInbox": true,
     "favoritesMerge": true,
     "betaScripts": true,
-    "realtorAccountKind": false,
-    "realtorPlanRequests": false,
-    "realtorVerifiedBadge": false,
-    "subscriptionsPage": false,
+    "realtorAccountKind": true,
+    "realtorPlanRequests": true,
+    "realtorVerifiedBadge": true,
+    "subscriptionsPage": true,
     "operationTypeSaleRent": false,
     "happyPathCopyVeUsd": true,
     "uploadthingAuthenticateRequest": true,
@@ -246,45 +294,44 @@
   },
   "dodHappyPath": {
     "explorar": "PASS live local — FAIL/parcial prod",
-    "publicar": "PASS live local — slug qa-musas-foto-1794431619-1 + foto UT",
-    "preferencial": "PASS live local — Solicitada Sesión fotográfica",
-    "admin": "PASS live local — seed 6 pub/12 + pause Casa Ávila",
+    "publicar": "PASS live local — riesgo móvil background (Matias)",
+    "preferencial": "PASS form — pago fuera; gap comprobante/pasarela expectativa",
+    "admin": "PASS live local",
     "qa": "N/A live — 1 cuenta; PASS código",
-    "favoritos": "PASS live local — Guardado en ficha",
-    "realtors": "NO EXISTE — INFORME-7 scope lunes"
+    "favoritos": "PASS live local",
+    "realtors": "Slice shipped — falta D20 reclutas + D8"
   },
   "residualRisks": [
-    "Overbuild Realtor (CRM/pagos/LMS) quema validación lunes",
-    "Realtor Verificado ≠ musas_reviewed listing — copy mezclado quema trust",
-    "D19=B (gate publish por plan) = 0 inventario realtor",
-    "Sin D8, Preferencial y Realtor requests = teatro",
-    "Prod sin redeploy → validación Realtor en lab",
-    "Sin densidad Caracas + WA + sector, diferencial trust no evita churn a Propiedash",
-    "Q&A requiere 2ª cuenta Clerk",
-    "D1–D6 sin OK explícito post-deadline"
+    "Upload móvil drop = churn asesores a Wasi/Rex",
+    "Expectativa pasarela sin copy claro = fricción Preferencial",
+    "Sin contacto en ficha = ficha muerta vs hábito VE",
+    "Sin borrado = particular pierde control (Javier)",
+    "Bajar precio sin conversión = race to bottom",
+    "Idealista crédito / pixel / IG intl diluyen semana",
+    "D8 ops sigue vacío → comprobante Gustavo imposible a escala",
+    "Prod frágil → feedback no se convierte en revenue"
   ],
   "techBrainstormAB": {
     "portNowSM": [
-      "cola review en /admin + index by_status pending_review",
-      "draft→pending_review→published|rejected (+paused)",
-      "atestaciones sin cédula + min fotos",
-      "badge musas_reviewed",
-      "galería+WA+checklist",
-      "providers roster privado + assign en preferentialRequests",
-      "INFORME-7: clone Preferential → realtorPlanRequests + accountKind + badge soft"
+      "audit WA CTA ficha (repro Jimena)",
+      "D22 pause+request o soft-delete listing",
+      "copy 3 tipos + checkbox T&C requests",
+      "ops playbook comprobante email/WA",
+      "CTA Publicar + clarificar/quitar Whatsapp grupo",
+      "audit share sin teléfono"
     ],
     "deferL": [
+      "D23 upload epic sin repro",
+      "subir maxFileCount >12",
+      "pasarela in-app",
+      "crédito/financiamiento Idealista",
+      "pixel ads (sin campañas)",
+      "IG bidireccional + ads intl",
+      "ficha equipo Musas",
       "mapa nacional",
-      "Wasi",
-      "BCV dual",
-      "chat full",
-      "DASHCODE",
-      "CRM realtor",
-      "pagos recurrentes",
-      "LMS educativo",
-      "Plan 2",
-      "directorio público realtors"
+      "Wasi import",
+      "BCV dual"
     ],
-    "decisionNeeded": "D14–D20 INFORME-7 antes de code Realtor; hard-gate listing vs soft-flag sigue abierto (D12)"
+    "decisionNeeded": "Joaquín: Top5 Owner vs INFORME-8; D23 gated; hold $20=Plan Realtor"
   }
 }

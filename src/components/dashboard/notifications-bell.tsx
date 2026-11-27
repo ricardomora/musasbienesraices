@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
-import { Bell } from "lucide-react";
+import { Bell, MessageCircle } from "lucide-react";
 import { useAuth } from "@clerk/nextjs";
 import { api } from "../../../convex/_generated/api";
 import { BACKEND_CONFIGURED } from "@/lib/backend";
@@ -13,12 +13,20 @@ export function NotificationsBell() {
   const { isSignedIn } = useAuth();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
-  const unread = useQuery(
+  const notifUnread = useQuery(
     api.notifications.unreadCount,
+    BACKEND_CONFIGURED && isSignedIn ? {} : "skip",
+  );
+  const msgUnread = useQuery(
+    api.questions.inboxUnreadCount,
     BACKEND_CONFIGURED && isSignedIn ? {} : "skip",
   );
   const rows = useQuery(
     api.notifications.myNotifications,
+    BACKEND_CONFIGURED && isSignedIn && open ? {} : "skip",
+  );
+  const messagePreview = useQuery(
+    api.questions.inboxUnreadPreview,
     BACKEND_CONFIGURED && isSignedIn && open ? {} : "skip",
   );
   const markRead = useMutation(api.notifications.markRead);
@@ -39,8 +47,11 @@ export function NotificationsBell() {
     };
   }, [open]);
 
-  const count = unread ?? 0;
-  const preview = (rows ?? []).slice(0, 5);
+  const avisosCount = notifUnread ?? 0;
+  const mensajesCount = msgUnread ?? 0;
+  const count = avisosCount + mensajesCount;
+  const avisos = (rows ?? []).slice(0, 4);
+  const mensajes = messagePreview ?? [];
 
   return (
     <div ref={rootRef} className="relative">
@@ -48,8 +59,8 @@ export function NotificationsBell() {
         type="button"
         aria-label={
           count > 0
-            ? `Notificaciones, ${count} sin leer`
-            : "Notificaciones"
+            ? `Avisos y mensajes, ${count} pendientes`
+            : "Avisos y mensajes"
         }
         aria-expanded={open}
         aria-haspopup="dialog"
@@ -70,64 +81,128 @@ export function NotificationsBell() {
       {open ? (
         <div
           role="dialog"
-          aria-label="Panel de notificaciones"
+          aria-label="Panel de avisos y mensajes"
           className="absolute right-0 z-50 mt-2 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-border bg-card shadow-xl"
         >
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
-            <p className="text-sm font-semibold text-foreground">Avisos</p>
+            <p className="text-sm font-semibold text-foreground">
+              Avisos y mensajes
+            </p>
             {count > 0 ? (
-              <span className="text-xs text-neon">{count} sin leer</span>
+              <span className="text-xs text-neon">{count} pendientes</span>
             ) : null}
           </div>
 
-          <ul className="max-h-72 overflow-y-auto">
-            {preview.map((n) => (
-              <li
-                key={n._id}
-                className={cn(
-                  "border-b border-border px-4 py-3 text-sm last:border-b-0",
-                  !n.read && "bg-neon/5",
-                )}
-              >
-                <p className="font-medium text-foreground">{n.title}</p>
-                <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
-                  {n.body}
-                </p>
-                <div className="mt-2 flex items-center justify-between gap-2">
-                  <span className="text-[11px] text-muted-foreground">
-                    {new Date(n.createdAt).toLocaleString("es-VE")}
-                  </span>
+          <div className="max-h-80 overflow-y-auto">
+            <div className="border-b border-border px-4 py-2">
+              <p className="text-[11px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
+                Mensajes
+                {mensajesCount > 0 ? ` · ${mensajesCount}` : ""}
+              </p>
+            </div>
+            <ul>
+              {mensajes.map((t) => (
+                <li key={t.question._id}>
+                  <Link
+                    href="/dashboard/mensajes"
+                    onClick={() => setOpen(false)}
+                    className="block border-b border-border bg-neon/5 px-4 py-3 text-sm transition hover:bg-neon/10"
+                  >
+                    <p className="flex items-center gap-1.5 font-medium text-foreground">
+                      <MessageCircle className="size-3.5 text-neon" aria-hidden />
+                      {t.askerName}
+                    </p>
+                    <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
+                      {t.question.body}
+                    </p>
+                    <p className="mt-1 text-[11px] text-muted-foreground">
+                      {t.listingTitle} ·{" "}
+                      {new Date(t.question.createdAt).toLocaleString("es-VE")}
+                    </p>
+                  </Link>
+                </li>
+              ))}
+              {messagePreview?.length === 0 ? (
+                <li className="border-b border-border px-4 py-4 text-sm text-muted-foreground">
+                  Sin preguntas pendientes.
+                </li>
+              ) : null}
+              {messagePreview === undefined ? (
+                <li className="border-b border-border px-4 py-4 text-sm text-muted-foreground">
+                  Cargando mensajes…
+                </li>
+              ) : null}
+            </ul>
+
+            <div className="border-b border-border px-4 py-2">
+              <p className="text-[11px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
+                Avisos
+                {avisosCount > 0 ? ` · ${avisosCount}` : ""}
+              </p>
+            </div>
+            <ul>
+              {avisos.map((n) => (
+                <li
+                  key={n._id}
+                  className={cn(
+                    "border-b border-border px-4 py-3 text-sm last:border-b-0",
+                    !n.read && "bg-neon/5",
+                  )}
+                >
+                  <Link
+                    href="/dashboard/notificaciones"
+                    onClick={() => {
+                      if (!n.read) void markRead({ id: n._id });
+                      setOpen(false);
+                    }}
+                    className="block"
+                  >
+                    <p className="font-medium text-foreground">{n.title}</p>
+                    <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
+                      {n.body}
+                    </p>
+                    <p className="mt-1 text-[11px] text-muted-foreground">
+                      {new Date(n.createdAt).toLocaleString("es-VE")}
+                    </p>
+                  </Link>
                   {!n.read ? (
                     <button
                       type="button"
-                      className="text-[11px] text-neon hover:underline"
+                      className="mt-1 text-[11px] text-neon hover:underline"
                       onClick={() => void markRead({ id: n._id })}
                     >
                       Marcar leída
                     </button>
                   ) : null}
-                </div>
-              </li>
-            ))}
-            {rows?.length === 0 ? (
-              <li className="px-4 py-6 text-sm text-muted-foreground">
-                Sin notificaciones aún.
-              </li>
-            ) : null}
-            {rows === undefined ? (
-              <li className="px-4 py-6 text-sm text-muted-foreground">
-                Cargando…
-              </li>
-            ) : null}
-          </ul>
+                </li>
+              ))}
+              {rows?.length === 0 ? (
+                <li className="px-4 py-4 text-sm text-muted-foreground">
+                  Sin avisos aún.
+                </li>
+              ) : null}
+              {rows === undefined ? (
+                <li className="px-4 py-4 text-sm text-muted-foreground">
+                  Cargando avisos…
+                </li>
+              ) : null}
+            </ul>
+          </div>
 
-          <div className="border-t border-border p-2">
+          <div className="grid grid-cols-2 gap-2 border-t border-border p-2">
+            <Link
+              href="/dashboard/mensajes"
+              onClick={() => setOpen(false)}
+              className="interactive-surface flex h-10 items-center justify-center rounded-xl text-sm font-medium text-neon hover:bg-neon/10"
+            >
+              Mensajes
+            </Link>
             <Link
               href="/dashboard/notificaciones"
               onClick={() => setOpen(false)}
               className="interactive-surface flex h-10 items-center justify-center rounded-xl text-sm font-medium text-neon hover:bg-neon/10"
             >
-              Ver más
+              Avisos
             </Link>
           </div>
         </div>

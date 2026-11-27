@@ -12,7 +12,7 @@ import { CITIES } from "@/data/cities";
 import type { LatLng } from "@/data/geo";
 import { LocationPickerLazy } from "@/components/explore/location-picker-lazy";
 import { SectorAutocomplete } from "@/components/sell/sector-autocomplete";
-import { UploadButton, uploadThingFileUrl } from "@/lib/uploadthing";
+import { ListingImageUploadButton } from "@/components/sell/listing-image-upload-button";
 import {
   PROPERTY_TYPES,
   PROPERTY_TYPE_LABELS,
@@ -48,6 +48,8 @@ export function PublishWizard() {
     features: "",
     contactWhatsapp: "",
     showWhatsapp: false,
+    contactInstagram: "",
+    showInstagram: false,
     lat: null as number | null,
     lng: null as number | null,
     images: [] as string[],
@@ -124,6 +126,9 @@ export function PublishWizard() {
           .filter(Boolean),
         contactWhatsapp: form.showWhatsapp
           ? form.contactWhatsapp.trim()
+          : "",
+        contactInstagram: form.showInstagram
+          ? form.contactInstagram.trim()
           : "",
         lat: form.lat,
         lng: form.lng,
@@ -492,6 +497,37 @@ export function PublishWizard() {
               />
             </label>
           ) : null}
+          <label className="flex items-start gap-3 rounded-xl border border-border bg-muted/20 px-4 py-3 text-sm">
+            <input
+              type="checkbox"
+              checked={form.showInstagram}
+              onChange={(e) =>
+                setForm({ ...form, showInstagram: e.target.checked })
+              }
+              className="mt-1"
+            />
+            <span className="space-y-1">
+              <span className="block text-foreground">
+                Mostrar Instagram en la ficha (opt-in)
+              </span>
+              <span className="block text-xs text-muted-foreground">
+                Ideal para asesores con proyección en redes.
+              </span>
+            </span>
+          </label>
+          {form.showInstagram ? (
+            <label className="block space-y-1.5 text-sm">
+              <span className="text-muted-foreground">Instagram (@ o URL)</span>
+              <input
+                value={form.contactInstagram}
+                onChange={(e) =>
+                  setForm({ ...form, contactInstagram: e.target.value })
+                }
+                placeholder="@tuagencia"
+                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground"
+              />
+            </label>
+          ) : null}
           <div className="flex gap-3 pt-2">
             <button
               type="button"
@@ -519,7 +555,14 @@ export function PublishWizard() {
               Fotos: mínimo 1 para publicar. Recomendamos{" "}
               <strong className="text-foreground">3–6 fotos</strong> (fachada,
               sala, cocina, habitación). ¿Sesión profesional?{" "}
-              <Link href="/preferencial" className="text-neon hover:underline">
+              <Link
+                href={
+                  listingId
+                    ? `/preferencial?listingId=${listingId}&paquete=fotos`
+                    : "/preferencial?paquete=fotos"
+                }
+                className="text-neon hover:underline"
+              >
                 Preferencial
               </Link>
             </p>
@@ -533,24 +576,13 @@ export function PublishWizard() {
                 : ""}
             </p>
             <div className="mt-3">
-              <UploadButton
-                endpoint="listingImageUploader"
-                onClientUploadComplete={(res) => {
-                  const urls = res
-                    .map((f) => uploadThingFileUrl(f))
-                    .filter((u): u is string => Boolean(u));
+              <ListingImageUploadButton
+                currentCount={form.images.length}
+                onUploaded={(urls) => {
                   setForm((prev) => ({
                     ...prev,
                     images: [...prev.images, ...urls],
                   }));
-                  toast.success(
-                    urls.length
-                      ? "Fotos subidas"
-                      : "Subida OK pero sin URL — reintenta",
-                  );
-                }}
-                onUploadError={(e) => {
-                  void toast.error(e.message);
                 }}
               />
             </div>
@@ -619,15 +651,23 @@ export function PublishWizard() {
             </button>
           </div>
           <p className="text-xs text-muted-foreground">
-            Al publicar, la ficha queda visible de inmediato
-            {form.operationType === "alquiler" ? " como alquiler USD/mes" : ""}.
-            El tag <span className="text-neon">Musas Revisado</span> lo pone el
-            equipo después.{" "}
+            Al publicar, la ficha queda visible con el estado{" "}
+            <span className="text-foreground">En verificación</span>
+            {form.operationType === "alquiler" ? " (alquiler USD/mes)" : ""}.
+            Cuando el equipo la revise, verás el check verde{" "}
+            <span className="text-emerald-600 dark:text-emerald-400">
+              Musas Revisado
+            </span>
+            .{" "}
             {form.operationType === "venta" ? (
               <>
                 ¿Fotos o acompañamiento?{" "}
                 <Link
-                  href="/preferencial"
+                  href={
+                    listingId
+                      ? `/preferencial?listingId=${listingId}`
+                      : "/preferencial"
+                  }
                   className="text-neon hover:underline"
                 >
                   Preferencial

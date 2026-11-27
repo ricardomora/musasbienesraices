@@ -1,6 +1,12 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { requireAdmin, requireUser } from "./lib";
+import {
+  findActiveRealtorPlan,
+  findOpenRealtorRequest,
+  listUserRealtorRequests,
+  periodLengthMs,
+} from "./lib/realtorPlan";
 
 const planKey = v.union(v.literal("plan1"), v.literal("plan2"));
 
@@ -23,11 +29,25 @@ export const createRequest = mutation({
     notes: v.string(),
     contactPhone: v.optional(v.string()),
     contactEmail: v.optional(v.string()),
+    /** One-step intake: include payment ref to skip the second form. */
+    paymentReference: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const user = await requireUser(ctx);
     if (args.planKey === "plan2") {
       throw new Error("El Plan 2 aún no está disponible");
+    }
+    const open = await findOpenRealtorRequest(ctx, user._id);
+    if (open) {
+      throw new Error(
+        "Ya tienes una solicitud en curso. Espera la confirmación de Musas.",
+      );
+    }
+    const active = await findActiveRealtorPlan(ctx, user._id);
+    if (active) {
+      throw new Error(
+        "Ya tienes el Plan Agente activo. Podrás renovar cuando venza el periodo.",
+      );
     }
     if (user.accountKind !== "realtor") {
       await ctx.db.patch(user._id, { accountKind: "realtor" });
@@ -40,7 +60,15 @@ export const createRequest = mutation({
     if (!phone) {
       throw new Error("Indica un WhatsApp o teléfono");
     }
+    const paymentReference = args.paymentReference?.trim();
+    if (paymentReference !== undefined && paymentReference.length < 4) {
+      throw new Error("Indica la referencia del pago móvil (mín. 4 caracteres)");
+    }
     const now = Date.now();
+    const withPayment = Boolean(paymentReference);
+    if (!user.contactPhone || user.contactPhone !== phone) {
+      await ctx.db.patch(user._id, { contactPhone: phone });
+    }
     return await ctx.db.insert("realtorSubscriptionRequests", {
       userId: user._id,
       planKey: args.planKey,
@@ -48,7 +76,13 @@ export const createRequest = mutation({
       notes,
       contactPhone: phone,
       contactEmail: args.contactEmail?.trim() || user.email,
-      status: "requested",
+      status: withPayment ? "payment_submitted" : "requested",
+      ...(withPayment
+        ? {
+            paymentReference,
+            paymentSubmittedAt: now,
+          }
+        : {}),
       createdAt: now,
       updatedAt: now,
     });
@@ -102,18 +136,21 @@ export const approvePaymentAndActivate = mutation({
     const admin = await requireAdmin(ctx);
     const row = await ctx.db.get(args.id);
     if (!row) throw new Error("Solicitud no encontrada");
-    if (
-      row.status !== "payment_submitted" &&
-      row.status !== "payment_approved" &&
-      row.status !== "requested" &&
-      row.status !== "reviewing"
-    ) {
-      throw new Error("Estado inválido para confirmar pago");
+    if (row.status !== "payment_submitted" && row.status !== "payment_approved") {
+      throw new Error(
+        "Solo se puede activar con pago enviado (referencia registrada)",
+      );
+    }
+    const ref = row.paymentReference?.trim();
+    if (!ref || ref.length < 4) {
+      throw new Error("Falta la referencia de pago móvil");
     }
     const now = Date.now();
+    const periodEndsAt = now + periodLengthMs(row.billingPeriod);
     await ctx.db.patch(args.id, {
       status: "approved",
       paymentApprovedAt: now,
+      periodEndsAt,
       adminNote: args.adminNote?.trim() || row.adminNote,
       reviewedBy: admin._id,
       updatedAt: now,
@@ -124,10 +161,11 @@ export const approvePaymentAndActivate = mutation({
       realtorVerifiedAt: now,
       realtorVerifiedBy: admin._id,
     });
+    const endsLabel = new Date(periodEndsAt).toLocaleDateString("es-VE");
     await ctx.db.insert("notifications", {
       userId: row.userId,
       title: "Plan Agente aprobado",
-      body: "Tu pago fue confirmado. Ya eres Realtor Verificado en Musas.",
+      body: `Tu pago fue confirmado. Eres Realtor Verificado hasta el ${endsLabel}.`,
       kind: "realtor_approved",
       read: false,
       createdAt: now,
@@ -146,10 +184,125 @@ export const myRequests = query({
       .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
       .unique();
     if (!user) return [];
-    return await ctx.db
-      .query("realtorSubscriptionRequests")
-      .withIndex("by_user", (q) => q.eq("userId", user._id))
-      .collect();
+    return await listUserRealtorRequests(ctx, user._id);
+  },
+});
+
+function withEffectivePeriod<T extends {
+  status: string;
+  billingPeriod?: "monthly" | "annual";
+  paymentApprovedAt?: number;
+  periodEndsAt?: number;
+  updatedAt: number;
+  createdAt: number;
+}>(row: T) {
+  if (row.status !== "approved") return row;
+  if (row.periodEndsAt != null) return row;
+  const start = row.paymentApprovedAt ?? row.updatedAt ?? row.createdAt;
+  return {
+    ...row,
+    paymentApprovedAt: row.paymentApprovedAt ?? start,
+    periodEndsAt: start + periodLengthMs(row.billingPeriod),
+  };
+}
+
+/** Resumen del plan para Cuenta: activo / en curso / vencido / sin plan. */
+export const myPlanSummary = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return null;
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+      .unique();
+    if (!user) return null;
+    const now = Date.now();
+    const rawRows = await listUserRealtorRequests(ctx, user._id);
+    const needsPeriodBackfill = rawRows.some(
+      (r) =>
+        r.status === "approved" &&
+        (r.periodEndsAt == null || r.paymentApprovedAt == null),
+    );
+    const rows = rawRows.map(withEffectivePeriod);
+    const open = rows.find((r) =>
+      ["requested", "reviewing", "payment_submitted", "payment_approved"].includes(
+        r.status,
+      ),
+    );
+    const active = rows.find(
+      (r) =>
+        r.status === "approved" &&
+        (r.periodEndsAt == null || r.periodEndsAt > now),
+    );
+    const latestApproved = rows
+      .filter((r) => r.status === "approved")
+      .sort(
+        (a, b) =>
+          (b.paymentApprovedAt ?? b.createdAt) -
+          (a.paymentApprovedAt ?? a.createdAt),
+      )[0];
+    const expired =
+      !active &&
+      latestApproved &&
+      latestApproved.periodEndsAt != null &&
+      latestApproved.periodEndsAt <= now
+        ? latestApproved
+        : null;
+
+    return {
+      canCreateRequest: !open && !active,
+      openRequest: open ?? null,
+      activePlan: active ?? null,
+      expiredPlan: expired ?? null,
+      needsPeriodBackfill,
+      realtorVerified: user.realtorVerified === true,
+    };
+  },
+});
+
+/**
+ * Completa periodEndsAt / paymentApprovedAt en planes aprobados legacy
+ * (aprobados antes de guardar vencimiento).
+ */
+export const ensurePeriodEndsAt = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const user = await requireUser(ctx);
+    const rows = await listUserRealtorRequests(ctx, user._id);
+    let patched = 0;
+    for (const row of rows) {
+      if (row.status !== "approved") continue;
+      if (row.periodEndsAt != null && row.paymentApprovedAt != null) continue;
+      const start = row.paymentApprovedAt ?? row.updatedAt ?? row.createdAt;
+      await ctx.db.patch(row._id, {
+        paymentApprovedAt: row.paymentApprovedAt ?? start,
+        periodEndsAt: row.periodEndsAt ?? start + periodLengthMs(row.billingPeriod),
+      });
+      patched += 1;
+    }
+    return { patched };
+  },
+});
+
+/** Admin: backfill global de periodEndsAt en solicitudes aprobadas. */
+export const backfillAllPeriodEndsAt = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireAdmin(ctx);
+    const rows = await ctx.db.query("realtorSubscriptionRequests").collect();
+    let patched = 0;
+    for (const row of rows) {
+      if (row.status !== "approved") continue;
+      if (row.periodEndsAt != null && row.paymentApprovedAt != null) continue;
+      const start = row.paymentApprovedAt ?? row.updatedAt ?? row.createdAt;
+      await ctx.db.patch(row._id, {
+        paymentApprovedAt: row.paymentApprovedAt ?? start,
+        periodEndsAt: row.periodEndsAt ?? start + periodLengthMs(row.billingPeriod),
+      });
+      patched += 1;
+    }
+    return { patched };
   },
 });
 
@@ -182,6 +335,21 @@ export const updateStatus = mutation({
     const admin = await requireAdmin(ctx);
     const row = await ctx.db.get(args.id);
     if (!row) throw new Error("Solicitud no encontrada");
+    if (args.status === "approved") {
+      const ref = row.paymentReference?.trim();
+      if (
+        row.status !== "payment_submitted" &&
+        row.status !== "payment_approved" &&
+        row.status !== "approved"
+      ) {
+        throw new Error(
+          "Para aprobar el plan usa «Confirmar pago y activar» con referencia de pago",
+        );
+      }
+      if (!ref || ref.length < 4) {
+        throw new Error("Falta la referencia de pago móvil");
+      }
+    }
     const now = Date.now();
     await ctx.db.patch(args.id, {
       status: args.status,
@@ -193,6 +361,11 @@ export const updateStatus = mutation({
         : {}),
     });
     if (args.status === "approved") {
+      const periodEndsAt = now + periodLengthMs(row.billingPeriod);
+      await ctx.db.patch(args.id, {
+        periodEndsAt,
+        paymentApprovedAt: row.paymentApprovedAt ?? now,
+      });
       await ctx.db.patch(row.userId, {
         accountKind: "realtor",
         realtorVerified: true,

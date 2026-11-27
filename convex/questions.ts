@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, query, type QueryCtx } from "./_generated/server";
 import { requireUser } from "./lib";
 
 export const listForListing = query({
@@ -112,45 +112,67 @@ export const answer = mutation({
   },
 });
 
+async function sellerInboxThreads(ctx: QueryCtx) {
+  const identity = await ctx.auth.getUserIdentity();
+  if (!identity) return [];
+  const user = await ctx.db
+    .query("users")
+    .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+    .unique();
+  if (!user) return [];
+  const myListings = await ctx.db
+    .query("listings")
+    .withIndex("by_owner", (q) => q.eq("ownerId", user._id))
+    .collect();
+
+  const threads = [];
+  for (const listing of myListings) {
+    const qs = await ctx.db
+      .query("questions")
+      .withIndex("by_listing", (q) => q.eq("listingId", listing._id))
+      .collect();
+    for (const q of qs) {
+      const answer = await ctx.db
+        .query("answers")
+        .withIndex("by_question", (a) => a.eq("questionId", q._id))
+        .unique();
+      const asker = await ctx.db.get(q.askerId);
+      threads.push({
+        question: q,
+        answer,
+        listingTitle: listing.title,
+        listingSlug: listing.slug,
+        askerName: asker?.name ?? "Comprador",
+        unanswered: !answer,
+      });
+    }
+  }
+
+  return threads.sort(
+    (a, b) => b.question.createdAt - a.question.createdAt,
+  );
+}
+
 export const inboxForSeller = query({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) return [];
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-    if (!user) return [];
-    const myListings = await ctx.db
-      .query("listings")
-      .withIndex("by_owner", (q) => q.eq("ownerId", user._id))
-      .collect();
+    return await sellerInboxThreads(ctx);
+  },
+});
 
-    const threads = [];
-    for (const listing of myListings) {
-      const qs = await ctx.db
-        .query("questions")
-        .withIndex("by_listing", (q) => q.eq("listingId", listing._id))
-        .collect();
-      for (const q of qs) {
-        const answer = await ctx.db
-          .query("answers")
-          .withIndex("by_question", (a) => a.eq("questionId", q._id))
-          .unique();
-        const asker = await ctx.db.get(q.askerId);
-        threads.push({
-          question: q,
-          answer,
-          listingTitle: listing.title,
-          listingSlug: listing.slug,
-          askerName: asker?.name ?? "Comprador",
-        });
-      }
-    }
+/** Preguntas en tus fichas sin respuesta (= mensajes pendientes). */
+export const inboxUnreadCount = query({
+  args: {},
+  handler: async (ctx) => {
+    const threads = await sellerInboxThreads(ctx);
+    return threads.filter((t) => t.unanswered).length;
+  },
+});
 
-    return threads.sort(
-      (a, b) => b.question.createdAt - a.question.createdAt,
-    );
+export const inboxUnreadPreview = query({
+  args: {},
+  handler: async (ctx) => {
+    const threads = await sellerInboxThreads(ctx);
+    return threads.filter((t) => t.unanswered).slice(0, 5);
   },
 });

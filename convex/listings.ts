@@ -6,6 +6,7 @@ import {
   requireUser,
   uniqueListingSlug,
 } from "./lib";
+import { isRealtorPlanActiveForUser } from "./lib/realtorPlan";
 
 const propertyType = v.union(
   v.literal("apartamentos"),
@@ -71,7 +72,31 @@ export const listPublished = query({
       });
     }
 
-    return items.sort((a, b) => b.updatedAt - a.updatedAt);
+    const sorted = items.sort((a, b) => b.updatedAt - a.updatedAt);
+    return await Promise.all(
+      sorted.map(async (listing) => {
+        const owner = await ctx.db.get(listing.ownerId);
+        const listingIg = listing.contactInstagram?.trim() || "";
+        const ownerIg = owner?.contactInstagram?.trim() || "";
+        const ownerRealtorVerified = owner
+          ? await isRealtorPlanActiveForUser(
+              ctx,
+              owner._id,
+              owner.realtorVerified,
+            )
+          : false;
+        return {
+          ...listing,
+          contactInstagram: listingIg || ownerIg || undefined,
+          ownerName: owner?.name ?? "Vendedor Musas",
+          ownerAvatarUrl: owner?.avatarUrl,
+          ownerAccountKind: owner?.accountKind ?? null,
+          ownerRealtorVerified,
+          ownerContactPhone: owner?.contactPhone,
+          ownerEmail: owner?.email,
+        };
+      }),
+    );
   },
 });
 
@@ -99,11 +124,20 @@ export const getBySlug = query({
     }
 
     const owner = await ctx.db.get(listing.ownerId);
+    const listingIg = listing.contactInstagram?.trim() || "";
+    const ownerIg = owner?.contactInstagram?.trim() || "";
+    const ownerRealtorVerified = owner
+      ? await isRealtorPlanActiveForUser(ctx, owner._id, owner.realtorVerified)
+      : false;
     return {
       ...listing,
+      contactInstagram: listingIg || ownerIg || undefined,
       ownerName: owner?.name ?? "Vendedor Musas",
+      ownerAvatarUrl: owner?.avatarUrl,
       ownerAccountKind: owner?.accountKind ?? null,
-      ownerRealtorVerified: owner?.realtorVerified === true,
+      ownerRealtorVerified,
+      ownerContactPhone: owner?.contactPhone,
+      ownerEmail: owner?.email,
       isOwner,
     };
   },
@@ -196,6 +230,7 @@ export const updateListing = mutation({
     images: v.optional(v.array(v.string())),
     alt: v.optional(v.string()),
     contactWhatsapp: v.optional(v.string()),
+    contactInstagram: v.optional(v.string()),
     lat: v.optional(v.number()),
     lng: v.optional(v.number()),
   },
@@ -225,6 +260,7 @@ export const updateListing = mutation({
       "images",
       "alt",
       "contactWhatsapp",
+      "contactInstagram",
       "lat",
       "lng",
     ] as const;

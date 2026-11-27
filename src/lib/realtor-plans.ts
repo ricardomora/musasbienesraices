@@ -81,12 +81,42 @@ export function realtorStatusLabel(status: string): string {
 
 export function realtorBillingLabel(period: string | undefined): string {
   if (period === "annual") {
-    return `Anual · ${REALTOR_ANNUAL_PRICE}/año (−15%)`;
+    return `Anual · $${REALTOR_ANNUAL_PRICE}/año (−15%)`;
   }
-  return `Mensual · ${REALTOR_MONTHLY_PRICE}/mes`;
+  return `Mensual · $${REALTOR_MONTHLY_PRICE}/mes`;
+}
+
+export function realtorPaymentStartedLabel(
+  paymentApprovedAt: number | undefined,
+): string | null {
+  if (!paymentApprovedAt) return null;
+  return new Date(paymentApprovedAt).toLocaleDateString("es-VE", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 export function realtorAmountLabel(period: string | undefined): string {
   if (period === "annual") return String(REALTOR_ANNUAL_PRICE);
   return String(REALTOR_MONTHLY_PRICE);
+}
+
+export function realtorPeriodEndsLabel(periodEndsAt: number | undefined): string | null {
+  if (!periodEndsAt) return null;
+  return new Date(periodEndsAt).toLocaleDateString("es-VE", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+export function isRealtorPlanPeriodActive(
+  status: string,
+  periodEndsAt: number | undefined,
+  now = Date.now(),
+): boolean {
+  if (status !== "approved") return false;
+  if (periodEndsAt == null) return true;
+  return periodEndsAt > now;
 }

@@ -2,12 +2,7 @@
 
 import Link from "next/link";
 import { SignInButton, UserButton, useAuth } from "@clerk/nextjs";
-import {
-  ArrowUpRight,
-  Home,
-  LayoutDashboard,
-  MessageSquare,
-} from "lucide-react";
+import { Home, LayoutDashboard } from "lucide-react";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 
 type HomeHeaderProps = {
@@ -50,22 +45,6 @@ export function HomeHeader({
             >
               Publicar un inmueble
             </button>
-            {isLoaded && isSignedIn ? (
-              <>
-                <Link
-                  href="/dashboard/inmuebles"
-                  className="interactive-surface hidden text-neon hover:text-white md:inline"
-                >
-                  Mis inmuebles
-                </Link>
-                <Link
-                  href="/dashboard/mensajes"
-                  className="interactive-surface hidden hover:text-white md:inline"
-                >
-                  Mensajes
-                </Link>
-              </>
-            ) : null}
           </nav>
         </div>
 
@@ -91,17 +70,10 @@ export function HomeHeader({
               <Link
                 href="/dashboard/inmuebles"
                 className="interactive-surface inline-flex items-center gap-1.5 rounded-full border border-neon/45 bg-neon/10 px-3 py-2 text-sm font-medium text-neon hover:bg-neon/20 sm:px-4"
-                aria-label="Mi panel: inmuebles y mensajes"
+                aria-label="Mi panel"
               >
                 <LayoutDashboard className="size-3.5" aria-hidden />
                 <span className="hidden sm:inline">Mi panel</span>
-              </Link>
-              <Link
-                href="/dashboard/mensajes"
-                className="interactive-surface inline-flex size-9 items-center justify-center rounded-full border border-white/25 text-white/85 hover:border-white/45 hover:text-white md:hidden"
-                aria-label="Mensajes"
-              >
-                <MessageSquare className="size-3.5" aria-hidden />
               </Link>
               <UserButton
                 appearance={{
@@ -115,16 +87,6 @@ export function HomeHeader({
                     label="Mis inmuebles"
                     href="/dashboard/inmuebles"
                     labelIcon={<LayoutDashboard className="size-4" />}
-                  />
-                  <UserButton.Link
-                    label="Mensajes"
-                    href="/dashboard/mensajes"
-                    labelIcon={<MessageSquare className="size-4" />}
-                  />
-                  <UserButton.Link
-                    label="Preferencial"
-                    href="/dashboard/preferencial"
-                    labelIcon={<ArrowUpRight className="size-4" />}
                   />
                 </UserButton.MenuItems>
               </UserButton>

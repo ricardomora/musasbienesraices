@@ -1614,3 +1614,512 @@ El producto actual ya es un **marketplace FSBO venta USD** con publicación, exp
 - **Design:** review copy Plan 1 + badges.  
 - **Owner:** stress-test Verificado vs Musas Revisado.  
 - **User/QA:** scripts R1–R7 + MR8 con realtors reales (D20).
+
+---
+
+## INFORME-OWNER-5 — Triage feedback beta (asesores + particular)
+
+*Fecha:* 2026-11-25  
+*Autor:* musas-owner  
+*Input:* Feedback Jimena · Gustavo · Matías · Elaine · Javier (particular) · Robert  
+*Lente:* Happy path producción = **publicar → Preferencial (pagar fuera) → contacto → confiar**. Todo lo demás pelea por oxígeno.
+
+### Veredicto (sin filtro)
+
+El feedback mezcla **dolor real de marketplace VE** con **vanity de portal grande** y **features que matan el MVP**.  
+**Vale dinero / producción:** contacto en ficha, borrar/pausar mi publicación, clarificar quién es quién (particular/asesor/Musas), aceptación de políticas al pedir plan, share sin filtrar teléfono, comprobante Preferencial (ops, no pasarela), y **no fingir pasarela**.  
+**Ruido / prematuro:** team page, Instagram+ads paid como producto, Idealista crédito/financiamiento, pixel ads sin tráfico, “cobrar menos que competencia” sin oferta definida, subir límite fotos (ya 12), persistencia upload background fancy.
+
+**Jimena no pudo probar pasarela = señal correcta del producto, no un bug.** Preferencial = pago fuera. Si le prometimos “pasarela”, el PM mintió.
+
+### Score happy path (contexto vivo)
+
+| # | Criterio | Estado | Nota vs feedback |
+|---|----------|--------|------------------|
+| 1 | Ver venta USD | Local PASS / prod frágil | Sin stock real, ningún “$20 vs Rex” importa |
+| 2 | Publicar + fotos | PASS local; UT `maxFileCount: 12` | Pedido “más fotos” = **ruido** hasta que midamos ≥6 usados |
+| 3 | Contacto en ficha | **WA opt-in ya en wizard/ficha** | Jimena/Robert: validar descubrimiento + copy, no rebuild |
+| 4 | Preferencial + pagar | Form OK; **sin pasarela (correcto)**; D8 ops vacío | Gustavo = email/comprobante **ops**; no Stripe |
+| 5 | Confiar / control dueño | Pause admin sí; **borrar dueño = gap** | Javier = P0 UX dueño |
+| 6 | Identidad 3 tipos | Realtor slice shipped; copy confusa | Robert: onboarding copy, no página “equipo” |
+
+---
+
+### Triage ítem por ítem
+
+| # | Quién | Pedido | Valor mercado | Pri | Veredicto owner |
+|---|-------|--------|---------------|-----|-----------------|
+| 1 | Jimena | Ficha con contacto | **Crítico** (hábito VE) | **P0** | **SHIP / verificar** — `contactWhatsapp` + CTA ya existen. Si “no lo vio”, es discoverability/copy, no feature nueva. |
+| 2 | Javier | Botón solicitud **borrar** publicación | **Alto** (control FSBO = trust) | **P0** | **HACER** — soft-delete o “solicitar baja” + pause inmediato. Sin esto el dueño siente rehén. |
+| 3 | Robert | Clarificar 3 tipos (particular / asesor / Musas) | **Alto** (evita confusión Preferencial vs Plan Realtor) | **P0** | **HACER copy** en onboarding + nav. No landing educativa. |
+| 4 | Robert | Aceptación políticas al suscribirse | **Alto** pre-apertura / Plan Realtor | **P0** | **HACER** checkbox T&C al request Plan/Preferencial. Bloquea litigio, no vanity. |
+| 5 | Gustavo | Comprobante de pago por correo | **Medio-alto** (confianza post-pago fuera) | **P1** | **OPS primero** — plantilla WA/email manual al confirmar pago Preferencial/Plan. Resend automático = después. **No** pasarela. |
+| 6 | Robert | Compartir inmueble **sin** datos de contacto | **Medio-alto** (viral WA grupos sin doxxear) | **P1** | **HACER** — share ya manda título+precio+URL; auditar que **no** meta teléfono en el texto. Toggle “ocultar WA en share” si hace falta. |
+| 7 | Robert | Qué significa WhatsApp grupo | **Medio** (expectativa ops) | **P1** | **COPY** 1 frase en onboarding/beta: canal soporte/invites, no MLS ni leads. Si no hay grupo real → **quitar mención**. |
+| 8 | Robert | Botón Publicar más grande junto a Explorar | **Medio** (descubrimiento vendedor) | **P1** | **HACER** micro-IA (INFORME-6 alineado). No rediseño home. |
+| 9 | Robert | $20 competitivo vs Rex/Wasi | **Comercial** | **P1 decisión** | **NO bajar por vanidad.** $20 solo si Plan Realtor entrega badge+perfil+prioridad ops. Si es “listar gratis + $20 por nada”, somos Rex peor. Decisión Joaquín: precio Plan 1 vs Preferencial floors. |
+| 10 | Jimena | Subir límite fotos | **Bajo** hoy | **P2 / no** | Límite UploadThing = **12**. Pedido prematuro. Empujar **≥3–6 usados**, no techo. |
+| 11 | Jimena | No pudo probar pasarela | **N/A — correcto** | — | **NO construir pasarela.** Educar: pago fuera + comprobante (fila 5). |
+| 12 | Jimena | Instagram + publicidad paga extra | **Prematuro** | **Veto W0–W2** | Sin density Caracas, ads queman plata. Pixel (fila 16) tampoco. |
+| 13 | Matías | Cobrar menos que competencia | **Ruido estratégico** | **Veto precio por miedo** | Competir en **verified + Preferencial humano**, no en race-to-bottom vs Wasi/Rex. Precio bajo sin ops = teatro. |
+| 14 | Matías | Persistencia carga en background | **Nice / mid** | **P2** | Solo si uploads fallan en 3G VE medido. No inventar service worker ahora. |
+| 15 | Matías | Idealista-style crédito/financiamiento | **Vanity mortal** | **VETO** | Bancos VE/USD ≠ Idealista ES. Cero partnerships. Diluye marca venta FSBO. |
+| 16 | Robert | Pixel tracking ads | **Prematuro** | **Veto hasta tráfico pago** | Sin campaña activa = privacidad risk + noise. Meta pixel post-primera ad real. |
+| 17 | Robert | Ficha del equipo Musas | **Vanity** | **Veto** | Trust se gana con listings revisados + ops &lt;24h, no con “About us”. Roster Preferencial = privado. |
+| 18 | Elaine | Todo bien | Señal | — | No diluir scope porque “alguien más pidió features”. |
+
+---
+
+### Orden de importancia (producción)
+
+```
+P0  Contacto ficha usable (verify Jimena) → Borrar/baja listing (Javier)
+    → Copy 3 tipos usuario → Checkbox políticas en request plan/Preferencial
+P1  Comprobante pago ops (Gustavo) → Share limpio sin teléfono → Copy WA grupo
+    → Publicar más visible → Decisión precio Plan ($20?) con oferta real
+P2  Fotos límite (solo si data) · upload background si falla red
+VETO Pasarela · financiamiento bancario · team page · ads/IG paid · pixel sin campaña
+     · “cobrar menos” como estrategia · directorio / Idealista cosplay
+```
+
+### Preguntas duras al PM
+
+1. **¿Le dijimos a Jimena que había pasarela?** Si sí, corrige el pitch YA. Preferencial/Plan = pago fuera + ops.  
+2. **¿D8 tiene nombre?** Sin humano, comprobante de Gustavo y “$20 vs Rex” son humo.  
+3. **¿Plan Realtor a $20 incluye qué en 1 línea?** Si no cabe en una línea, no cobres $20.  
+4. **¿El grupo WA existe y tiene dueño?** Si no, bórralo del copy esta semana.  
+5. **¿Por qué Matías pide financiamiento?** ¿Lo prometimos en demo o es reflejo Idealista? Owner veta scope.  
+6. **Contacto en ficha:** ¿Jimena falló por bug, por listing sin WA opt-in, o por build viejo en prod? Evidencia antes de “reconstruir ficha”.
+
+### Esta semana vs backlog
+
+| Ship esta semana (si hay capacidad post G-Prod) | Backlog / veto |
+|------------------------------------------------|----------------|
+| Verify CTA WA en ficha prod | Pasarela / Stripe / BNC |
+| Botón baja/borrar (o pause dueño + request) | Financiamiento / crédito Idealista |
+| Copy 3 tipos + checkbox T&C en requests | Team page / About Musas |
+| Playbook comprobante Preferencial (WA/email manual) | IG ads + pixel |
+| Share audit sin teléfono; Publicar más visible | Subir max fotos >12 |
+| Decisión precio Plan 1 (¿$20 con qué bundle?) | Background upload fancy |
+
+### Decisiones pedidas a Joaquín / PM
+
+- [ ] **D21 (nueva):** Baja de publicación — **A** soft-delete dueño · **B** pause + “solicitar eliminación” admin · **C** solo admin. **Owner: B** (rápido + audit trail).  
+- [ ] **D22 (nueva):** Precio Plan Realtor — ¿**$20/mes referencial** con bundle X, o “a cotizar” como Preferencial? No race vs Rex sin oferta.  
+- [ ] Confirmar pitch beta: **sin pasarela**; pago fuera + comprobante ops.  
+- [ ] D8 ops nombrado (sigue blocker).  
+- [ ] ¿Grupo WA beta existe? Sí con dueño / No → quitar copy.
+
+### Asks con severidad
+
+| Ask | Para | Sev |
+|-----|------|-----|
+| Auditar ficha WA en prod (repro Jimena) | tech + user | **P0** |
+| Ship baja/borrar listing (D21) | tech | **P0** |
+| Copy 3 tipos + políticas checkbox | design + tech | **P0** |
+| Playbook comprobante pago Preferencial/Plan | PM / ops | **P1** |
+| Share sin contacto + Publicar visible | design + tech | **P1** |
+| Decidir D22 precio Plan vs Preferencial floors | Joaquín | **P1 comercial** |
+| Veto financiamiento / team / ads / pasarela | PM | **scope** |
+
+### Handoff
+
+- **PM:** no metas Idealista/financiamiento ni pasarela en roadmap; cierra D21/D22 con Joaquín; corrige expectativa “pasarela” con beta.  
+- **Tech:** P0 = baja listing + audit WA/share; no max fotos; no pixel.  
+- **Design:** copy 3 tipos + políticas + WA grupo (o borrar mención); Publicar más visible.  
+- **User:** repro Jimena contacto; script Javier borrar; no marcar PASS pasarela.  
+- **Coordinador:** refresh Oficina — INFORME-OWNER-5.
+
+---
+
+## INFORME-8 — Triage feedback beta (asesores + particular)
+
+*Fecha:* 2026-11-25  
+*Autor:* musas-pm  
+*Input:* 6 beta testers (Jimena, Gustavo, Matias, Elaine, Javier, Robert)  
+*Contexto precio:* Preferencial / plan ~**USD 20** vs Rex **37** / Wasi **60** (señal Robert)  
+*Estado del gate:* **ABIERTO** — sin asumir D21–D23; no expandir a pasarela in-app ni crédito Idealista  
+*Aprobaciones nuevas asumidas:* **Ninguna**
+
+### Veredicto PM (1 párrafo)
+
+El feedback confirma **precio competitivo a ~$20** y pide **fricción de publicación + contacto + claridad de audiencia**, no un portal de crédito ni ads internacionales. Ship esta semana = quick wins de contacto/copy/CTA publicar + borrado + (si cabe) más fotos; **no** pasarela, pixel vanity, ficha “quiénes son las Musas”, ni financiamiento tipo Idealista. Comprobante por correo = ops (fuera de app), alineado a “pago fuera”. Persistencia de upload = bug P0 de happy path publicar.
+
+---
+
+### (1) Lista priorizada (orden importancia)
+
+| # | Ítem | Fuente | Veredicto | Por qué | Tipo |
+|---|------|--------|-----------|---------|------|
+| 1 | Carga que se cae / background persistence (llamada o bloquear teléfono) | Matias | **ALTO** | Rompe happy path **publicar+foto**; asesores pierden tiempo → churn a Wasi/Rex | **Epic** (tech mobile/UT) |
+| 2 | Ficha con número de contacto | Jimena | **ALTO** | Hábito VE = WA/tel; alinea **D10**; sin contacto la ficha no convierte | **Quick win** si campo existe; si no → cierra D10=A |
+| 3 | CTA **Publicar** más grande, junto a Explorar | Robert | **ALTO** | Fuente de inventario (= ingreso Preferencial/Realtor); discovery post-login ya falló (INFORME-6) | **Quick win** UX |
+| 4 | Clarificar audiencia: particulares + asesores + Musas (no solo asesores) | Robert | **ALTO** | Confusión de quién puede publicar = menos supply FSBO; copy onboarding/suscripciones | **Quick win** copy |
+| 5 | Clarificar “Whatsapp grupo” (qué significa) | Robert | **ALTO** | Friction de confianza/copy; si nadie entiende el CTA, no hay acción | **Quick win** copy |
+| 6 | Botón solicitud para **borrar** publicación | Javier (particular) | **MEDIO→ALTO** | Trust + ownership; sin delete el particular no controla su anuncio (riesgo reputación) | **Quick win** (request+admin) o soft delete owner |
+| 7 | Aumentar límite de fotos | Jimena | **MEDIO** | Calidad de ficha (Owner: ≥3–6 fotos); no es moat pero desbloquea listings que venden | **Quick win** config + hint |
+| 8 | Aceptación de políticas al suscribirse | Robert | **MEDIO** | Trust / pre-apertura (D9 T&C); no bloquea beta cerrada si invite-only | **Quick win** checkbox + link T&C v0 |
+| 9 | Asesores compartan inmuebles **sin** datos de contacto | Robert | **MEDIO** | Privacy lead para realtor; útil línea Realtors; no bloquea FSBO | **Epic** light (flag hideContact + share) |
+| 10 | Comprobante de pago por correo | Gustavo | **MEDIO** | Señal de que **pagan fuera** y esperan recibo; **no** construir pasarela — ops email/WA | **Ops** (manual o Resend) |
+| 11 | No pudo probar pasarela de pago | Jimena | **MEDIO (señal)** / **DESCARTAR build** | Expectativa de cobro in-app; MVP = pago fuera. Fix = copy + flujo ops, **no** gateway | **Copy/ops** · **no** epic pagos |
+| 12 | $20 competitivo vs Rex/Wasi | Robert (+ Matias “cobrar menos”) | **ALTO valor comercial** / **BAJO feature** | Validación de precio Preferencial/plan; no bajar más sin datos de conversión | **Pricing hold** |
+| 13 | Pixel ads (asesores por publicidad) | Robert | **BAJO** | Útil solo si ya hay campañas activas; sin tráfico ads = vanity | **Diferir** hasta ads reales |
+| 14 | Instagram bidireccional + publicidad paga internacional | Jimena | **BAJO / DESCARTAR producto** | Marketing growth, no MVP marketplace; diluye Semana 0 | **Diferir** marketing |
+| 15 | Ficha “quiénes componen las Musas” | Robert | **BAJO** | Brand vanity; Owner vetó polish sin density | **Diferir** post-stock |
+| 16 | Enfoque “cobrar menos que competencia” como estrategia | Matias | **BAJO como roadmap** | Ya estamos ~$20 vs 37/60; guerra de precios sin density = race to bottom | **Hold precio** |
+| 17 | Crédito/financiamiento tipo Idealista | Matias | **DESCARTAR / diferir** | Epic bancario; fuera de happy path; cero ops Musas para bancos | **Backlog v2+** |
+| 18 | “Todo bien” | Elaine | **Señal positiva** | No pide features; ancla NPS soft | — |
+
+**Regla PM:** no inventar features no pedidas. No pasarela in-app. No Idealista crédito. No directorio Musas team.
+
+---
+
+### (2) Top 5 acciones esta semana (Joaquín)
+
+| # | Acción | Dueño | Por qué esta semana |
+|---|--------|-------|---------------------|
+| 1 | **Bug P0:** diagnosticar/fallar-safe upload cuando app va a background (Matias) | Tech | Sin publicar estable no hay beta útil |
+| 2 | **Ship contacto en ficha** (tel/WA visible) — cierra o ejecuta **D10=A** | Tech + Design | Pedido #1 Jimena; hábito VE |
+| 3 | **UX discovery:** Publicar grande + Explorar; copy audiencia particular/asesor/Musa; renombrar/explicar “Whatsapp grupo” | Design + Tech | 3 quick wins Robert; inventario + claridad |
+| 4 | **Borrar/solicitar baja** de publicación (Javier) + ops admin | Tech | Trust particular; bajo esfuerzo vs epic |
+| 5 | **Ops Preferencial pago fuera:** checklist comprobante email/WA (Gustavo) + copy “no hay pasarela in-app” (Jimena) — **sin** construir gateway | Joaquín / ops (D8) | Cierra expectativa de pago sin scope creep |
+
+*Paralelo si cabe:* subir límite fotos (Jimena). *No esta semana:* Idealista crédito, pixel, IG internacional, ficha equipo Musas.
+
+---
+
+### (3) Señales de validación de precio Preferencial ~$20
+
+| Señal | Lectura PM |
+|-------|------------|
+| Robert: “$20 es competitivo” vs Rex 37 / Wasi 60 | **Validación cualitativa fuerte** — no pedir bajar precio |
+| Matias: “enfoque en cobrar menos” | Confirma sensibilidad a precio; **ya estamos debajo**; no es pedido de feature |
+| Jimena: no pudo probar pasarela | Quiere **pagar/activar**, no necesariamente precio más bajo — gap = **flujo de pago claro fuera de app** |
+| Gustavo: comprobante por correo | Implica **intención de pago real** + necesidad de recibo ops |
+| Elaine: todo bien | No objeta precio |
+| Nadie dijo “$20 es caro” | Ausencia de objeción de precio en 6 testers = **hold $20** |
+
+**Recomendación pricing:** mantener **~$20** Preferencial/plan. No bajar. No subir hasta ≥3 conversiones reales + ops &lt;24h. Paquetes servicio (fotos 120 / acompañamiento 150 / legal 200) = línea distinta; no mezclar con el $20 en pitch.
+
+**Métricas W+1 (feedback loop):**
+
+| Métrica | Umbral |
+|---------|--------|
+| Upload publish sin drop (móvil) | 0 reportes “se cayó” en 5 pubs |
+| % fichas beta con tel/WA visible | ≥70% |
+| Time-to-find Publicar post-login | ≤2 taps |
+| Solicitudes baja listing | Respondidas &lt;24h |
+| Preferencial/plan: pago fuera + comprobante enviado | 100% de pagos reportados |
+| Objeción precio espontánea | Track; si 0 en n≥10 → hold $20 |
+
+---
+
+### Decisiones nuevas (no asumir)
+
+| ID | Tema | Opciones | Rec PM | Estado |
+|----|------|----------|--------|--------|
+| **D21** | Contacto en ficha | **A** WA/tel opt-in visible (D10) · B solo Q&A | **A** | Pendiente (= cierra D10) |
+| **D22** | Borrado listing | **A** owner soft-delete · **B** solicitud → admin · C ambos | **C** (owner delete + admin audit) | Pendiente |
+| **D23** | Persistencia upload | **A** fix P0 esta semana · B defer | **A** | Pendiente |
+| — | Pasarela in-app | — | **Veto** MVP | Confirmado por defaults |
+| — | Precio ~$20 | Hold / bajar / subir | **Hold** | Pendiente OK Joaquín |
+
+### Asks explícitos para Joaquín
+
+1. **¿Apruebas Top 5 de esta semana** (upload P0 → contacto → CTA/copy → borrado → ops comprobante)?  
+2. **D21/D10:** ¿WA/tel en ficha **sí** esta semana?  
+3. **D22:** ¿Owner puede borrar o solo “solicitar baja”? Rec: **ambos**.  
+4. **Precio:** ¿confirmas **hold $20** Preferencial/plan vs Rex/Wasi?  
+5. **¿Hay campañas ads activas?** Si no → pixel = diferir.  
+6. **D8:** ¿quién envía el comprobante hoy cuando alguien paga fuera?
+
+### Handoff
+
+- **Coordinador:** refresh Oficina (INFORME-8).  
+- **Tech:** D23 upload + D21 contacto + CTA Publicar + D22 delete.  
+- **Ops/Joaquín:** playbook comprobante (Gustavo).  
+- **Owner:** veto Idealista crédito / pasarela / ficha equipo esta semana.  
+- **Design:** copy audiencia + “Whatsapp grupo” + tamaño CTA.
+
+---
+
+## INFORME-OWNER-5b — Challenge a INFORME-8 (no rubber-stamp)
+
+*Fecha:* 2026-11-25  
+*Autor:* musas-owner  
+*Antecedente:* INFORME-8 (PM) + INFORME-OWNER-5 (triage propio)
+
+### Acuerdo con PM
+
+- Veto **pasarela / Idealista crédito / pixel sin ads / team page / IG paid**: **OK**.  
+- Hold **no bajar precio por miedo**: **OK**.  
+- Borrado listing + contacto + copy 3 tipos + comprobante ops: **en el happy path**: **OK**.  
+- Jimena “no pudo probar pasarela” = copy/ops, no gateway: **OK**.
+
+### Objeciones (PM no asuma Top5 tal cual)
+
+| # | Objeción | Sev |
+|---|----------|-----|
+| 1 | **D23 upload background como acción #1 P0** sin repro QA (script interrupt + tasa de fallo). Un quote de Matías ≠ epic UT/móvil antes de trust/contacto. Si 1/20 pubs cae → P1; si 5/5 asesores lo reproducen → P0. | **Crítico** |
+| 2 | **Contacto ficha tratado como “ship D10”**. Código ya tiene `contactWhatsapp` + CTA en ficha/wizard (`maxFileCount: 12`). Primero **repro Jimena** (¿no opt-in? ¿prod vieja? ¿UI invisible?). Rebuild = vanity. | **Crítico** |
+| 3 | **“Subir límite fotos” = MEDIO en INFORME-8**. Owner: **ruido**. Techo ya 12. Empujar uso ≥3–6, no ticket maxFileCount. | **Mayor** |
+| 4 | **Mezclar $20 Preferencial con Plan Realtor / paquetes 120–200**. Robert habla competitividad portal (~Rex/Wasi). Preferencial fotos/legal ≠ fee $20. Hold $20 solo del **Plan Realtor** (o fee listing si existe); no reescribir floors Preferencial. | **Mayor** |
+| 5 | **Borrado Javier debajo de CTA Publicar / WA grupo**. Control del dueño sobre su anuncio = trust FSBO. Owner: borrado **≥** Publicar grande. | **Mayor** |
+| 6 | **Políticas al suscribirse = MEDIO**. Pre-apertura Plan/Preferencial: checkbox T&C es P0 legal-light, no “si cabe”. | **Medio** |
+| 7 | **Share sin contacto diferido post-Top5**. Auditar texto share (ya manda título+precio+URL) es 30 min — no epic. | **Menor** |
+
+### Top 5 Owner (reemplaza orden PM si chocan)
+
+| # | Acción | vs INFORME-8 |
+|---|--------|--------------|
+| 1 | **Repro + fix contacto ficha** (no rebuild si ya existe) | Sube; deja de ser “cerrar D10 ciego” |
+| 2 | **Baja/borrar listing (D22)** — rec Owner: pause + request admin **o** soft-delete + audit | Sube vs CTA |
+| 3 | **Copy 3 tipos + checkbox políticas** en request Plan/Preferencial | Políticas suben a P0 |
+| 4 | **Ops comprobante** (Gustavo) + copy “pago fuera / sin pasarela” + **D8 nombre** | Igual; sin D8 = teatro |
+| 5 | **Publicar más visible + clarificar WA grupo** (o borrar mención) | Baja un puesto vs PM |
+
+**D23 upload:** entra al Top5 **solo** si User/QA reproduce drop al bloquear pantalla en ≥2 dispositivos. Si no → cola P1.
+
+**Fuera del Top5 Owner:** límite fotos · pixel · team · Idealista · pasarela · “cobrar menos” como feature.
+
+### Veredicto sobre recs PM (IDs INFORME-8)
+
+| ID | Rec PM | Owner | Condición |
+|----|--------|-------|-----------|
+| D21 contacto | A | **Aprobar condicional** | Repro primero; ship solo si gap real |
+| D22 borrado | C ambos | **Aprobar** (B o C OK) | Pause inmediato mínimo |
+| D23 upload | A P0 esta semana | **Aprobar solo con repro** | Sin repro → B defer / P1 |
+| Hold $20 | Hold Preferencial/plan | **Hold Plan Realtor $20**; no tocar floors Preferencial 120/150/200 sin datos | Separar líneas en copy |
+| Veto pasarela/Idealista/team/pixel | Veto | **Aprobar** | — |
+
+### Preguntas duras al PM
+
+1. ¿Mediste fallo de upload o solo anotaste el quote?  
+2. ¿Jimena vio ficha **sin** WA porque el listing no tenía opt-in?  
+3. ¿El “$20” que defiendes es Plan Realtor o estás baratizando Preferencial fotos?  
+4. ¿D8 tiene nombre esta semana o el “comprobante Gustavo” es slideware?
+
+### Decisión pedida a Joaquín
+
+- [ ] Top5 **Owner** (arriba) vs Top5 PM — ¿cuál apruebas?  
+- [ ] D23: ¿QA repro antes de epic, o forzar P0? (**Owner: repro primero**)  
+- [ ] Hold $20 = **Plan Realtor**; Preferencial paquetes intactos — ¿OK?  
+- [ ] D8 + playbook comprobante
+
+### Handoff
+
+- **PM:** no ship D23 ni “más fotos” sin evidencia; separa precio Plan vs Preferencial.  
+- **Tech:** P0 = audit WA + D22 baja; D23 solo post-repro.  
+- **User/QA:** script interrupt upload + repro Jimena contacto.  
+- **Design:** 3 tipos + políticas + Publicar; no team page.  
+- **Coordinador:** refresh Oficina — OWNER-5 + 5b vs INFORME-8.
+
+---
+
+## INFORME-9 — Publish-first y tag «por revisar»
+
+*Fecha:* 2026-11-26  
+*Autor:* musas-pm  
+*Gate:* Comercial — happy path publicar (D2 / D12)
+
+### Problema
+
+¿Mostrar inmuebles **no validados** en explore con tag público **«por revisar»** es aceptable si el wizard ya dice que la ficha es visible al instante y **Musas Revisado** llega después?
+
+### Impacto
+
+| Dimensión | A publish-first (sin tag negativo público) | B pre-publish | C hybrid (público + orden/filtro) |
+|-----------|---------------------------------------------|---------------|-----------------------------------|
+| **Supply** | Máximo — asesor ve su anuncio vivo al clic (crítico vs Rex/Wasi) | Alto churn beta; ≥3 publicadores en riesgo | Bueno si no penaliza ranking de forma agresiva |
+| **Trust comprador** | OK si solo hay sello **positivo** (Musas Revisado); sin «por revisar» en card | Máximo pero inventario vacío | Mejor discoverability de verificados |
+| **Ops** | Cola admin «por revisar» (ya existe) — **condicionado D8 &lt;24h** | Cuello de botella sin revisor nombrado | Medio: reglas sort + SLA |
+
+### Opciones
+
+- **A** — Publish-first: visible al publicar; badge solo **Musas Revisado**; «por revisar» solo admin / panel vendedor.
+- **B** — Review obligatorio antes de `published`.
+- **C** — Público inmediato pero sin tag negativo; default explore = sort **Revisados primero** + filtro «Musas Revisado» (ya parcial en código).
+
+### Recomendación PM
+
+**A + micro-C (sin tag «por revisar» al comprador).**
+
+- Confirma **D2=A** y **D12=L0→L1** (cola ops, no gate).
+- **No** poner «por revisar» en grid/ficha pública: en VE se lee como «no confíes» y erosiona antes que el moat **Musas Revisado**.
+- En explore/cards: mantener **«Ficha publicada»** o silencio; reservar «por revisar» al dashboard admin y mensaje al vendedor post-publish.
+- **C** solo como producto: ordenar/boost revisados + filtro validados — sin ocultar ni degradar título del no revisado.
+
+### Copy si mantiene A (ajustes mínimos)
+
+**Wizard (paso final)** — sustituir/ampliar el pie actual:
+
+> «Al publicar, tu ficha queda visible de inmediato. **Musas Revisado** es un sello que aplica el equipo cuando revisa datos y fotos (no es certificación legal). Objetivo: en menos de 24 h hábiles. Mientras tanto, los compradores igual pueden preguntarte. ¿Fotos o acompañamiento? Preferencial.»
+
+**Explore** — no añadir «por revisar»; opcional tooltip en filtro «Musas Revisado»: «Anuncios que el equipo ya revisó.»
+
+**Ayuda** — una línea: publicar ≠ revisado; reportar ficha desde detalle.
+
+### Riesgo
+
+Sin **D8** nombrado, prometer revisión en 24h es teatro → acotar copy a «cuando el equipo lo revise» hasta tener ops.
+
+### Decisión
+
+- **D24 — Tag «por revisar» público:** **Pendiente** — PM recomienda **rechazar** en superficie comprador; **Aprobada implícita publish-first** salvo objeción.
+- **Joaquín:** ¿Confirmas **A + no tag negativo** y activamos sort/filtro revisados como **C** en explore?
+
+---
+
+## INFORME-OWNER-6 — ¿Publish-first visible con «revisión pendiente»?
+
+*Fecha:* 2026-11-26  
+*Autor:* musas-owner  
+*Antecedente:* INFORME-9 (PM); D2=A · D12=A condicional · D19=A; copy wizard + ficha en código.
+
+### Respuesta directa a Joaquín
+
+| Pregunta | Veredicto |
+|----------|-----------|
+| **1) ¿Es seguro/aceptable mostrar al instante sin validación previa?** | **Sí — aceptable y obligatorio en cold start.** No es “seguro” en sentido legal si vendes la marca como “todo verificado”; **sí** es aceptable si el único sello de confianza positivo es **Musas Revisado** (admin) y el resto es publicación del anunciante con disclaimer. Alineado con D2/D19 ya aprobados. |
+| **2) ¿Gate pre-publish?** | **No** sin ops 24/7 — mata liquidez y repite error #5 INFORME-OWNER-4. |
+| **3) ¿Híbrido?** | **Sí — publish-first + orden/filtro revisados**, no ocultar ni `under_review` masivo. |
+
+### Evidencia en producto (auditable)
+
+| Superficie | Comportamiento hoy | Owner |
+|------------|-------------------|-------|
+| `publishListing` | `published` + `trustBadge: none` | OK publish-first |
+| Ficha detalle | «Publicado · revisión Musas pendiente» si no `musas_reviewed` | **OK — honesto** |
+| Grid explore | «Ficha publicada» + ✓ sin distinción | **FAIL suave** — parece validado |
+| Filtro | `verifiedOnly` → solo `musas_reviewed` | OK moat |
+| Admin | cola «por revisar» + pause + reportes | OK si D8 existe |
+| Wizard | visible inmediato; Musas Revisado después | OK |
+
+**Objeción al PM (INFORME-9):** quitar «por revisar» al comprador y dejar «Ficha publicada» con check es **peor** que la ficha: en VE, silencio = confianza falsa. Si pitch N2 (listings reales), el comprador debe ver **ausencia de sello**, no un check verde.
+
+### Riesgos reales VE (no teóricos)
+
+| Riesgo | Por qué duele | Mitigación mínima |
+|--------|---------------|-------------------|
+| Precio señuelo USD / anticipo WA | Estafa clásica; 1 caso quema marca | Reporte + pause admin; bandas precio Caracas; **nunca** badge sin humano |
+| Fotos robadas / pin falso | Bait-and-switch visita | Checklist publish + cola L1; Preferencial fotos |
+| Spam competidor / basura | Ruido explore | Pause; no pre-publish global |
+| Confundir con Propiedash | Ellos verifican **agente**, no inmueble | Copy: Musas Revisado = revisión ficha, no certificación legal/título |
+| «Verificado» en marketing sin stock L1 | Publicidad engañosa VE | Beta cerrada; sin ads «validados» hasta ≥5 L1 + T&C v0 |
+| Promesa «&lt;24h» sin D8 | Teatro ops | Copy: «cuando el equipo revise» hasta nombrar revisor |
+
+**Publish-first no inventa estos riesgos** — Propiedash/Rex ya tienen basura visible. El riesgo Musas es **mentir** que revisaste cuando no.
+
+### Pass/fail happy path (moderación)
+
+| Paso | Pass? | Nota |
+|------|-------|------|
+| Vendedor publica → ve ficha live | **Pass** | Liquidez |
+| Comprador distingue revisado vs no | **Parcial** | Detalle sí; grid no |
+| Admin pause &lt;24h ante reporte | **Condicional D8** | Sin nombre = fail ops |
+| Badge solo post-admin | **Pass** | `setTrustBadge` |
+| Moat marketing honesto | **Pass** si no vendes N2 público aún | |
+
+### Recomendación dura (Owner)
+
+**Mantener publish-first. Veto pre-publish. Híbrido C sin ocultar.**
+
+1. **No cambiar** a cola `under_review` antes de explore — confirma **D2=A**.  
+2. **Mantener** en ficha pública la línea de revisión pendiente (o renombrar a «Sin sello Musas Revisado» — mismo significado, menos alarmista que «no confíes»).  
+3. **Corregir grid:** quitar ✓ «Ficha publicada» en no revisados; alinear con detalle (misma micro-etiqueta neutra).  
+4. **Ship micro-C:** sort explore **Musas Revisado primero**; filtro ya existe — default «Todos» pero filtro visible arriba. **No** enterrar no-revisados en página 4 (demotion agresiva = supply churn).  
+5. **Admin:** SLA pause/reporte manual; L1 badge solo con checklist 5–10 min.  
+6. **Copy wizard:** PM propuesta INFORME-9 OK salvo **no prometer 24h** hasta D8.  
+7. **Marketing Joaquín:** puedes decir «revisamos fichas y ponemos Musas Revisado» — **no** «todo lo publicado está verificado».
+
+### Decisión pedida
+
+| ID | Decisión Owner | Joaquín |
+|----|----------------|---------|
+| **D24** | Publish-first + etiqueta honesta comprador (detalle + grid alineados); **rechazar** ocultar pendiente | [ ] Confirmo |
+| **D2 / D12** | Sin cambio — post-publish + cola L1 | [ ] Confirmo |
+| Pre-publish | **Veto** | — |
+
+### Esta semana vs backlog
+
+| Esta semana | Backlog |
+|-------------|---------|
+| Alinear grid con etiqueta pendiente / quitar ✓ engañoso | Pre-publish masivo |
+| Sort revisados primero | Auto-reject ML |
+| D8 nombre + playbook pause/reporte | Certificación legal L2 |
+
+### Preguntas al PM
+
+1. ¿Por qué INFORME-9 pide quitar «por revisar» si la ficha **ya** lo muestra? ¿O corregimos código?  
+2. ¿Quién revisa la cola esta semana (nombre)? Sin eso L1 es backlog, no moat.
+
+### Handoff
+
+- **PM:** cerrar **D24** con Owner (no tag negativo ≠ ocultar estado).  
+- **Design:** microcopy neutro «Sin sello Musas Revisado» vs «por revisar».  
+- **Tech:** sort revisados + grid parity con `convex-listing-detail`.  
+- **Coordinador:** refresh Oficina — INFORME-OWNER-6 vs INFORME-9.
+
+---
+
+## INFORME-10 — D25 Preferencial fuera del nav dashboard (por inmueble)
+
+*Fecha:* 2026-11-26  
+*Autor:* musas-pm  
+*Gate:* UX vendedor — alineación modelo comercial (upsell por ficha)  
+*Estado:* **Pendiente Joaquín**
+
+### Problema
+
+Hoy **Preferencial** aparece como ítem global en `DashboardNav` (`/dashboard/preferencial`) junto a Mis inmuebles / Cuenta. El servicio (fotos, legal, acompañamiento) es **por inmueble**: el realtor puede activarlo en una ficha y no en otra. El nav global sugiere un “producto de cuenta”, mezcla con **Suscripciones Realtor** (D17 = productos separados) y el formulario público `/preferencial` no obliga contexto de ficha (`listingId` opcional en schema).
+
+### Opciones UX (vendedor logueado)
+
+| # | Opción | Qué ve el realtor | Pros comerciales / claridad | Contras |
+|---|--------|-------------------|----------------------------|---------|
+| **A** | **CTA en cada tarjeta de Mis inmuebles** — quitar nav; botón «Pedir una Musa» / «Acompañamiento» por ficha → flujo paquetes con ficha preseleccionada | Lista de inmuebles = centro de control | Mental model correcto; mayor conversión en el momento (acabo de publicar o veo ficha débil); ops siempre con `listingId` | Descubrimiento baja si no educas en wizard/post-publish; hay que mostrar estado de solicitud en la tarjeta |
+| **B** | **Bloque en editar inmueble** (`/dashboard/inmuebles/[id]`) — sección «Acompañamiento Preferencial» (paquetes + historial de esa ficha) | Entra por Editar | Claro para quien ya está afinando la ficha; buen sitio para copy «pago y coordinación fuera de la app» | Editar ya es largo; quien no edita nunca ve el upsell; descubrimiento tardío |
+| **C** | **Solo post-publicar** — éxito de wizard + link contextual; sin nav; sin CTA en lista | Flujo único al publicar | Nav limpio; CTA en pico de motivación | Late adopters y fichas viejas casi no convierten; parece one-shot, no servicio ongoing |
+| **D** | **Híbrido A + B (+ agregado en Mis inmuebles)** — CTA en tarjeta + bloque en editar; **historial de solicitudes** al pie de Mis inmuebles (no ítem de nav); `/preferencial` marketing solo con deep link `?listing=` | Primario por ficha; secundario portfolio | Mejor claridad + conversión; respeta D17 (no mezclar con Plan Realtor en nav); agregado sin tercer destino en menú | Dos entradas por ficha (card + editar) — mitigar con mismo copy y estado sincronizado |
+
+### Recomendación #1
+
+**Opción D (híbrido), con prioridad visual en A:**
+
+1. **Quitar** «Preferencial» del `DashboardNav` del dashboard vendedor.  
+2. **Mantener** `/preferencial` público (home, SEO, compradores curiosos) y **Suscripciones** aparte para Realtors (D17).  
+3. **CTA principal** en cada tarjeta de Mis inmuebles: «Acompañamiento» → solicitud amarrada a esa ficha.  
+4. **Bloque compacto** en editar inmueble (mismos paquetes, mismo estado).  
+5. **Agregado** «Mis solicitudes Preferencial» como sección/link en Mis inmuebles (no nav global).  
+6. **Copy VE:** «Una Musa para **este** inmueble» · «Fotos, legal o acompañamiento completo» · «Coordinamos contigo; pago fuera de la app».
+
+### Qué NO hacer
+
+| Anti-patrón | Por qué |
+|-------------|---------|
+| Dejar `/dashboard/preferencial` en nav “por si acaso” | Sigue pareciendo producto de cuenta; compite con Mis inmuebles |
+| Solicitud Preferencial sin ficha (logueado) | Ops no sabe qué propiedad; rompe upsell por listing |
+| Toggle “activar Preferencial en todos mis inmuebles” | No refleja realidad comercial ni paquetes distintos por ficha |
+| Mezclar CTA Plan Realtor ($20) y paquetes 120/150/200 en el mismo control | Confusión de SKU (alerta `precio-hold-20` en Oficina) |
+| Esconder por completo `/preferencial` marketing | Pierdes funnel desde home «Ver Acompañamiento» |
+| Duplicar ítem «Preferencial» en nav guest **y** dashboard como dos productos distintos sin copy | Guest = educación; dashboard = acción por ficha — debe leerse distinto |
+
+### Impacto / riesgo
+
+| Área | Impacto |
+|------|---------|
+| Conversión Preferencial | ↑ si CTA en tarjeta + post-publish; ↓ breve si usuarios buscaban nav viejo |
+| Ops (D8) | ↑ calidad leads (siempre con `listingId`) |
+| Métrica beta | Trackear **solicitudes / ficha publicada** y **% fichas con ≥1 solicitud** |
+
+### Decisión pedida
+
+| ID | Recomendación | Joaquín |
+|----|---------------|---------|
+| **D25** | Quitar nav dashboard; híbrido A+B+agregado en Mis inmuebles; `/preferencial` público con deep link | [ ] Apruebo **D** · [ ] Solo **A** · [ ] Otra: _____ |
+
+### Preguntas a Joaquín
+
+1. ¿Confirmas **D25 = Opción D** (recomendación)?  
+2. ¿Etiqueta del CTA en tarjeta: «Pedir una Musa», «Acompañamiento» o «Preferencial»?  
+3. ¿Solicitudes abiertas sin ficha (legacy) — mostrar igual en agregado o ocultar en MVP?

@@ -22,6 +22,12 @@ export type MusasListingCard = {
   badge?: string;
   trustBadge?: "none" | "musas_reviewed";
   contactWhatsapp?: string;
+  contactInstagram?: string;
+  ownerName?: string;
+  ownerAvatarUrl?: string;
+  ownerRealtorVerified?: boolean;
+  ownerContactPhone?: string;
+  ownerEmail?: string;
   priceUsd: number;
   administrationUsd: number;
   beds: number;
@@ -50,6 +56,7 @@ function fromLocal(listing: Listing): MusasListingCard {
     badge: listing.badge,
     trustBadge: listing.trustBadge,
     contactWhatsapp: listing.contactWhatsapp,
+    contactInstagram: listing.contactInstagram,
     priceUsd: listing.priceUsd,
     administrationUsd: listing.administrationUsd,
     beds: listing.beds,
@@ -136,6 +143,12 @@ export function usePublishedListings(filters: {
     badge: row.badge,
     trustBadge: row.trustBadge,
     contactWhatsapp: row.contactWhatsapp,
+    contactInstagram: row.contactInstagram,
+    ownerName: row.ownerName,
+    ownerAvatarUrl: row.ownerAvatarUrl,
+    ownerRealtorVerified: row.ownerRealtorVerified,
+    ownerContactPhone: row.ownerContactPhone,
+    ownerEmail: row.ownerEmail,
     priceUsd: row.priceUsd,
     administrationUsd: row.administrationUsd,
     beds: row.beds,
