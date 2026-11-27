@@ -186,7 +186,7 @@ export function HeroSearch({
             className="mt-auto w-full max-w-none pt-8 sm:pt-10"
             {...fadeUp(reduce, 0.95)}
           >
-            <div className="mb-3 flex flex-wrap gap-6 text-[15px]">
+            <div className="on-media-shadow mb-3 flex flex-wrap gap-6 text-[15px]">
               {(
                 [
                   ["comprar", "Comprar"],
@@ -206,10 +206,10 @@ export function HeroSearch({
                         })
                   }
                   className={cn(
-                    "interactive-surface border-b-2 pb-2.5 text-white",
+                    "interactive-surface border-b-2 pb-2.5 font-medium text-white",
                     values.mode === mode
-                      ? "border-neon"
-                      : "border-transparent text-white/55 hover:text-white",
+                      ? "border-neon-on-media"
+                      : "border-transparent text-white/80 hover:text-white",
                   )}
                 >
                   {label}

@@ -69,7 +69,7 @@ export function HomeHeader({
             <>
               <Link
                 href="/dashboard/inmuebles"
-                className="interactive-surface inline-flex items-center gap-1.5 rounded-full border border-neon/45 bg-neon/10 px-3 py-2 text-sm font-medium text-neon hover:bg-neon/20 sm:px-4"
+                className="interactive-surface inline-flex items-center gap-1.5 rounded-full border border-white/45 bg-black/45 px-3 py-2 text-sm font-medium text-white shadow-[0_2px_14px_rgba(0,0,0,0.35)] backdrop-blur-sm hover:border-neon-on-media/70 hover:bg-black/55 hover:text-neon-on-media sm:px-4"
                 aria-label="Mi panel"
               >
                 <LayoutDashboard className="size-3.5" aria-hidden />

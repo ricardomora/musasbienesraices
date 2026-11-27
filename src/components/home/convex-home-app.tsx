@@ -291,19 +291,34 @@ export function ConvexHomeApp() {
                 (b) => b.id === next.budgetId,
               );
               if (!budgetStillValid) next.budgetId = "any";
-              syncQuery({
-                cityId: next.cityId,
-                type: next.type,
-                budgetId: next.budgetId,
-                favoritesOnly: next.mode === "favoritos",
-                operation: op,
-                q: next.q,
-                sector: next.sector,
-                verifiedOnly: next.verifiedOnly,
-              });
             }
             return next;
           });
+          // Never call router inside setState updaters (runs during render).
+          if (partial.mode) {
+            const nextMode = partial.mode;
+            const nextBudget =
+              budgetsForOperation(operationFromMode(nextMode)).some(
+                (b) => b.id === (partial.budgetId ?? search.budgetId),
+              )
+                ? (partial.budgetId ?? search.budgetId)
+                : "any";
+            const nextCity = partial.cityId ?? search.cityId;
+            const nextType = partial.type ?? search.type;
+            const nextQ = partial.q ?? search.q;
+            const nextSector = partial.sector ?? search.sector;
+            const nextVerified = partial.verifiedOnly ?? search.verifiedOnly;
+            syncQuery({
+              cityId: nextCity,
+              type: nextType,
+              budgetId: nextBudget,
+              favoritesOnly: nextMode === "favoritos",
+              operation: operationFromMode(nextMode),
+              q: nextQ,
+              sector: nextSector,
+              verifiedOnly: nextVerified,
+            });
+          }
         }}
         onSearch={() => runSearch("lista")}
       />
