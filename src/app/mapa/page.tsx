@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { ArrowLeft, MapPin } from "lucide-react";
 import { CITIES, type CityId } from "@/data/cities";
-import { VE_MAP_CENTER } from "@/data/geo";
 import {
   budgetsForOperation,
   type Listing,
@@ -88,9 +87,8 @@ function MapExplore() {
             Mapa nacional
           </h1>
           <p className="mt-1 max-w-lg text-sm text-muted-foreground">
-            Venezuela · venta y alquiler en USD. Pins por ciudad/sector
-            (aprox.). Centro mapa: {VE_MAP_CENTER.lat.toFixed(1)}N,{" "}
-            {Math.abs(VE_MAP_CENTER.lng).toFixed(1)}W.
+            Pins por ciudad y sector (aprox.). Filtra y abre la ficha desde el
+            mapa.
           </p>
         </div>
         <p className="text-sm text-muted-foreground" aria-live="polite">

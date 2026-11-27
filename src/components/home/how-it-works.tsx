@@ -89,8 +89,7 @@ export function HowItWorks(_props: HowItWorksProps = {}) {
               </Link>
             </nav>
           </div>
-          <div className="flex flex-col gap-2 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
-            <p>Venezuela · precios en USD</p>
+          <div className="border-t border-border pt-4">
             <p>© 2026 Musas</p>
           </div>
         </div>

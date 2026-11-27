@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { SignInButton, UserButton, useAuth } from "@clerk/nextjs";
-import { Home, LayoutDashboard } from "lucide-react";
+import { Home, LayoutDashboard, Plus } from "lucide-react";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 
 type HomeHeaderProps = {
@@ -20,11 +20,11 @@ export function HomeHeader({
 
   return (
     <header className="absolute inset-x-0 top-0 z-30">
-      <div className="mx-auto flex max-w-[96rem] items-center justify-between gap-4 px-5 py-5 sm:px-8 lg:px-12 xl:px-16">
-        <div className="flex items-center gap-6 sm:gap-8">
+      <div className="mx-auto flex max-w-[96rem] items-center justify-between gap-3 px-5 py-4 sm:gap-4 sm:px-8 sm:py-5 lg:px-12 xl:px-16">
+        <div className="flex min-w-0 items-center gap-6 sm:gap-8">
           <Link
             href="/"
-            className="interactive-surface on-media-shadow inline-flex items-center gap-2.5 text-white"
+            className="interactive-surface on-media-shadow inline-flex shrink-0 items-center gap-2.5 text-white"
           >
             <span className="inline-flex size-8 items-center justify-center rounded-full border border-white/80 bg-black/45 text-white shadow-[0_2px_14px_rgba(0,0,0,0.45)] backdrop-blur-sm">
               <Home className="size-3.5" strokeWidth={2.25} aria-hidden />
@@ -34,7 +34,8 @@ export function HomeHeader({
             </span>
           </Link>
 
-          <nav className="on-media-shadow flex items-center gap-6 text-[14px] text-white/90 sm:gap-8">
+          {/* Desktop only — mobile stays brand + actions to avoid wrap/cramp */}
+          <nav className="on-media-shadow hidden items-center gap-6 text-[14px] text-white/90 md:flex sm:gap-8">
             <a href="#inmuebles" className="interactive-surface hover:text-white">
               Explorar
             </a>
@@ -48,7 +49,7 @@ export function HomeHeader({
           </nav>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
           <ThemeToggle
             compact
             className="border-white/30 bg-ink/40 text-white hover:border-white/50"
@@ -58,9 +59,10 @@ export function HomeHeader({
             <SignInButton mode="modal">
               <button
                 type="button"
-                className="interactive-surface rounded-full border border-white/25 px-3 py-2 text-sm text-white/85 hover:border-white/45 hover:text-white"
+                className="interactive-surface rounded-full border border-white/25 px-2.5 py-2 text-sm text-white/85 hover:border-white/45 hover:text-white sm:px-3"
               >
-                Iniciar sesión
+                <span className="sm:hidden">Entrar</span>
+                <span className="hidden sm:inline">Iniciar sesión</span>
               </button>
             </SignInButton>
           ) : null}
@@ -69,7 +71,7 @@ export function HomeHeader({
             <>
               <Link
                 href="/dashboard/inmuebles"
-                className="interactive-surface inline-flex items-center gap-1.5 rounded-full border border-white/45 bg-black/45 px-3 py-2 text-sm font-medium text-white shadow-[0_2px_14px_rgba(0,0,0,0.35)] backdrop-blur-sm hover:border-neon-on-media/70 hover:bg-black/55 hover:text-neon-on-media sm:px-4"
+                className="interactive-surface inline-flex items-center gap-1.5 rounded-full border border-white/45 bg-black/45 px-2.5 py-2 text-sm font-medium text-white shadow-[0_2px_14px_rgba(0,0,0,0.35)] backdrop-blur-sm hover:border-neon-on-media/70 hover:bg-black/55 hover:text-neon-on-media sm:px-4"
                 aria-label="Mi panel"
               >
                 <LayoutDashboard className="size-3.5" aria-hidden />
@@ -87,6 +89,11 @@ export function HomeHeader({
                     label="Mis inmuebles"
                     href="/dashboard/inmuebles"
                     labelIcon={<LayoutDashboard className="size-4" />}
+                  />
+                  <UserButton.Link
+                    label="Publicar un inmueble"
+                    href="/publicar"
+                    labelIcon={<Plus className="size-4" />}
                   />
                 </UserButton.MenuItems>
               </UserButton>

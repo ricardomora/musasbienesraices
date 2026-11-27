@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export const instant = false;
 
 const LINKS = [
-  { href: "/#inmuebles", label: "Explorar inmuebles", body: "Filtros, chips de zona y bandas en USD." },
+  { href: "/#inmuebles", label: "Explorar inmuebles", body: "Filtros, chips de zona y presupuesto." },
   { href: "/mapa", label: "Mapa", body: "Pins por sector (aprox.) en Caracas y otras ciudades." },
   { href: "/publicar", label: "Publicar", body: "Wizard en 3 pasos. Sale a la venta de inmediato." },
   { href: "/dashboard/inmuebles", label: "Mi panel", body: "Tus fichas, edición y estado de publicación." },
@@ -26,11 +26,11 @@ export default function AyudaPage() {
         <div>
           <h1 className="text-3xl font-semibold text-foreground">Ayuda Musas</h1>
           <p className="mt-3 text-muted-foreground">
-            Marketplace de{" "}
-            <strong className="text-foreground">venta y alquiler en USD</strong> en
-            Venezuela (alquiler = USD/mes). Publicas primero; el equipo puede
-            marcar <span className="text-neon">Musas Revisado</span> después
-            (no es verificación de agente). Mapa nacional en{" "}
+            Publicas primero; el equipo puede marcar{" "}
+            <span className="text-neon">Musas Revisado</span> después (no es
+            verificación de agente). En alquiler, el precio es{" "}
+            <strong className="text-foreground">USD / mes</strong>. Mapa
+            nacional en{" "}
             <Link href="/mapa" className="text-neon hover:underline">
               /mapa
             </Link>
