@@ -90,15 +90,24 @@ export function Providers({ children }: { children: ReactNode }) {
   const convex = useConvexClient(convexUrl);
   const waitingForConvex = Boolean(convexUrl) && !convex;
 
+  const isClient = useIsClient();
+
+  // Without Clerk, many trees call useAuth (header, gates, etc.). Rendering them
+  // during prerender crashes Vercel Preview when Preview env lacks the key
+  // (Production usually has it — that is why only Preview fails).
+  const canMountApp = Boolean(clerkKey) && isClient && !waitingForConvex;
+
   const shell = (
     <ThemeProvider>
       {missing.length > 0 ? <SetupBanner missing={missing} /> : null}
-      {waitingForConvex ? (
-        <div className="flex flex-1 items-center justify-center px-5 py-24 text-sm text-muted-foreground">
-          Cargando Musas…
-        </div>
-      ) : (
+      {canMountApp ? (
         children
+      ) : (
+        <div className="flex flex-1 items-center justify-center px-5 py-24 text-sm text-muted-foreground">
+          {missing.length > 0
+            ? "Configura las variables de entorno de Musas para este deploy."
+            : "Cargando Musas…"}
+        </div>
       )}
       <ThemedToaster />
     </ThemeProvider>
