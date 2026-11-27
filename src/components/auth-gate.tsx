@@ -19,10 +19,25 @@ function useIsClient() {
 /**
  * Client-side route protection.
  * Avoids server `auth()` which requires clerkMiddleware (hangs under Next 16 proxy).
- * useAuth only after hydration so static prerender never runs outside ClerkProvider.
+ *
+ * Preview vs Production: Vercel Preview often lacks Clerk env while Production has it.
+ * Never call useAuth without a publishable key, and never during SSR/prerender.
  */
 export function AuthGate({ children }: { children: ReactNode }) {
   const isClient = useIsClient();
+  const hasClerk = Boolean(
+    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.trim(),
+  );
+
+  if (!hasClerk) {
+    return (
+      <p className="p-10 text-center text-sm text-muted-foreground">
+        Auth no configurada en este entorno (falta{" "}
+        <code className="text-neon">NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY</code>
+        ).
+      </p>
+    );
+  }
 
   if (!isClient) {
     return (

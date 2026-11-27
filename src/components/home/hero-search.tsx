@@ -150,8 +150,8 @@ export function HeroSearch({
               Compra, venta y alquileres
             </motion.p>
 
-            <h1 className="on-media-shadow mt-5 text-[clamp(2.45rem,6.5vw,4.75rem)] leading-[0.98] font-semibold tracking-[-0.03em] text-white">
-              <span className="block overflow-hidden">
+            <h1 className="on-media-shadow mt-5 text-[clamp(2.45rem,6.5vw,4.75rem)] leading-[1.05] font-semibold tracking-[-0.03em] text-white">
+              <span className="block overflow-hidden pb-[0.18em]">
                 <motion.span
                   className="block"
                   initial={reduce ? false : { y: "110%", opacity: 0 }}
@@ -161,7 +161,7 @@ export function HeroSearch({
                   Tu próximo lugar.
                 </motion.span>
               </span>
-              <span className="block overflow-hidden">
+              <span className="block overflow-hidden pb-[0.18em]">
                 <motion.span
                   className="block text-neon-on-media"
                   initial={reduce ? false : { y: "110%", opacity: 0 }}
