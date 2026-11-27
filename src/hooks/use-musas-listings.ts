@@ -2,13 +2,7 @@
 
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import {
-  LISTINGS,
-  listingOperation,
-  type Listing,
-  type OperationType,
-  type PropertyType,
-} from "@/data/listings";
+import type { OperationType, PropertyType } from "@/data/listings";
 import { BACKEND_CONFIGURED } from "@/lib/backend";
 
 export type MusasListingCard = {
@@ -27,7 +21,6 @@ export type MusasListingCard = {
   ownerAvatarUrl?: string;
   ownerRealtorVerified?: boolean;
   ownerContactPhone?: string;
-  ownerEmail?: string;
   priceUsd: number;
   administrationUsd: number;
   beds: number;
@@ -44,36 +37,10 @@ export type MusasListingCard = {
   source: "convex" | "local";
 };
 
-function fromLocal(listing: Listing): MusasListingCard {
-  return {
-    id: listing.id,
-    slug: listing.slug,
-    type: listing.type,
-    operationType: listingOperation(listing),
-    cityId: listing.cityId,
-    neighborhood: listing.neighborhood,
-    title: listing.title,
-    badge: listing.badge,
-    trustBadge: listing.trustBadge,
-    contactWhatsapp: listing.contactWhatsapp,
-    contactInstagram: listing.contactInstagram,
-    priceUsd: listing.priceUsd,
-    administrationUsd: listing.administrationUsd,
-    beds: listing.beds,
-    baths: listing.baths,
-    areaM2: listing.areaM2,
-    lotM2: listing.lotM2,
-    image: listing.image,
-    images: listing.images ?? [listing.image],
-    alt: listing.alt,
-    description: listing.description,
-    features: listing.features,
-    lat: listing.lat,
-    lng: listing.lng,
-    source: "local",
-  };
-}
-
+/**
+ * Published listings for explore/home/map.
+ * Prod path is Convex-only (decision A: no offline LISTINGS fallback).
+ */
 export function usePublishedListings(filters: {
   cityId?: string | "all";
   type?: PropertyType | "all";
@@ -108,19 +75,10 @@ export function usePublishedListings(filters: {
   );
 
   if (!BACKEND_CONFIGURED) {
-    let local = LISTINGS.map(fromLocal);
-    if (operationType) {
-      local = local.filter((l) => l.operationType === operationType);
-    }
-    if (cityId) local = local.filter((l) => l.cityId === cityId);
-    if (type) local = local.filter((l) => l.type === type);
-    if (filters.budgetMaxUsd != null) {
-      local = local.filter((l) => l.priceUsd <= filters.budgetMaxUsd!);
-    }
     return {
-      listings: local,
+      listings: [] as MusasListingCard[],
       loading: false,
-      source: "local" as const,
+      source: "convex" as const,
     };
   }
 
@@ -148,7 +106,6 @@ export function usePublishedListings(filters: {
     ownerAvatarUrl: row.ownerAvatarUrl,
     ownerRealtorVerified: row.ownerRealtorVerified,
     ownerContactPhone: row.ownerContactPhone,
-    ownerEmail: row.ownerEmail,
     priceUsd: row.priceUsd,
     administrationUsd: row.administrationUsd,
     beds: row.beds,

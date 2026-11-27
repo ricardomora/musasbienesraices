@@ -1,15 +1,14 @@
 import { headers } from "next/headers";
 import type { WebhookEvent } from "@clerk/nextjs/server";
-import { ConvexHttpClient } from "convex/browser";
 import { Webhook } from "svix";
-import { api } from "../../../../convex/_generated/api";
+import { convexSiteUrl } from "@/lib/convex-site";
 
 export async function POST(req: Request) {
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
-  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
   const syncSecret = process.env.USER_SYNC_SECRET;
+  const siteUrl = convexSiteUrl();
 
-  if (!WEBHOOK_SECRET || !convexUrl || !syncSecret) {
+  if (!WEBHOOK_SECRET || !syncSecret || !siteUrl) {
     return new Response("Webhook or Convex not configured for Musas", {
       status: 500,
     });
@@ -47,14 +46,22 @@ export async function POST(req: Request) {
     }
 
     const name = [first_name, last_name].filter(Boolean).join(" ");
-    const convex = new ConvexHttpClient(convexUrl);
-    await convex.mutation(api.users.syncUser, {
-      clerkId: id,
-      email,
-      name: name || undefined,
-      avatarUrl: image_url || undefined,
-      syncSecret,
+    const res = await fetch(`${siteUrl}/internal/sync-user`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-musas-sync-secret": syncSecret,
+      },
+      body: JSON.stringify({
+        clerkId: id,
+        email,
+        name: name || undefined,
+        avatarUrl: image_url || undefined,
+      }),
     });
+    if (!res.ok) {
+      return new Response("Convex sync failed", { status: 502 });
+    }
   }
 
   return new Response("ok", { status: 200 });

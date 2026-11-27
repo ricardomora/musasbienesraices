@@ -1,19 +1,6 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
-
-const propertyType = v.union(
-  v.literal("apartamentos"),
-  v.literal("casas"),
-  v.literal("locales"),
-  v.literal("terrenos"),
-  v.literal("galpones"),
-  v.literal("oficinas"),
-  v.literal("quintas"),
-  v.literal("fondos_comercio"),
-);
-
-/** venta = precio total USD; alquiler = USD / mes. */
-const operationType = v.union(v.literal("venta"), v.literal("alquiler"));
+import { operationType, propertyType } from "./lib/propertyTypes";
 
 const listingStatus = v.union(
   v.literal("draft"),

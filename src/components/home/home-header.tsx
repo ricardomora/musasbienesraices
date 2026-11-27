@@ -24,17 +24,17 @@ export function HomeHeader({
         <div className="flex items-center gap-6 sm:gap-8">
           <Link
             href="/"
-            className="interactive-surface inline-flex items-center gap-2.5 text-white"
+            className="interactive-surface on-media-shadow inline-flex items-center gap-2.5 text-white"
           >
-            <span className="inline-flex size-8 items-center justify-center rounded-full border border-neon/45 text-neon">
-              <Home className="size-3.5" aria-hidden />
+            <span className="inline-flex size-8 items-center justify-center rounded-full border border-white/80 bg-black/45 text-white shadow-[0_2px_14px_rgba(0,0,0,0.45)] backdrop-blur-sm">
+              <Home className="size-3.5" strokeWidth={2.25} aria-hidden />
             </span>
             <span className="text-[17px] font-semibold tracking-tight">
-              musas<span className="text-neon">.</span>
+              musas<span className="text-neon-on-media">.</span>
             </span>
           </Link>
 
-          <nav className="flex items-center gap-6 text-[14px] text-white/80 sm:gap-8">
+          <nav className="on-media-shadow flex items-center gap-6 text-[14px] text-white/90 sm:gap-8">
             <a href="#inmuebles" className="interactive-surface hover:text-white">
               Explorar
             </a>

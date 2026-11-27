@@ -28,10 +28,24 @@ export const create = mutation({
       throw new Error("Inmueble no disponible");
     }
     const user = await getAuthenticatedUser(ctx);
+    if (!user) {
+      throw new Error("Inicia sesión para reportar un inmueble");
+    }
+    const recent = await ctx.db
+      .query("listingReports")
+      .withIndex("by_status", (q) => q.eq("status", "open"))
+      .collect();
+    const since = Date.now() - 60 * 60 * 1000;
+    const mineRecent = recent.filter(
+      (r) => r.reporterId === user._id && r.createdAt > since,
+    );
+    if (mineRecent.length >= 5) {
+      throw new Error("Demasiados reportes. Intenta más tarde.");
+    }
     const details = args.details?.trim().slice(0, 500);
     return await ctx.db.insert("listingReports", {
       listingId: args.listingId,
-      reporterId: user?._id,
+      reporterId: user._id,
       reason: args.reason,
       details: details || undefined,
       status: "open",

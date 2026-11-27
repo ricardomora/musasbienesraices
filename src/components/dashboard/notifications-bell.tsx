@@ -17,16 +17,12 @@ export function NotificationsBell() {
     api.notifications.unreadCount,
     BACKEND_CONFIGURED && isSignedIn ? {} : "skip",
   );
-  const msgUnread = useQuery(
-    api.questions.inboxUnreadCount,
+  const inboxBundle = useQuery(
+    api.questions.inboxUnreadBundle,
     BACKEND_CONFIGURED && isSignedIn ? {} : "skip",
   );
   const rows = useQuery(
     api.notifications.myNotifications,
-    BACKEND_CONFIGURED && isSignedIn && open ? {} : "skip",
-  );
-  const messagePreview = useQuery(
-    api.questions.inboxUnreadPreview,
     BACKEND_CONFIGURED && isSignedIn && open ? {} : "skip",
   );
   const markRead = useMutation(api.notifications.markRead);
@@ -48,10 +44,10 @@ export function NotificationsBell() {
   }, [open]);
 
   const avisosCount = notifUnread ?? 0;
-  const mensajesCount = msgUnread ?? 0;
+  const mensajesCount = inboxBundle?.count ?? 0;
   const count = avisosCount + mensajesCount;
   const avisos = (rows ?? []).slice(0, 4);
-  const mensajes = messagePreview ?? [];
+  const mensajes = open ? (inboxBundle?.preview ?? []) : [];
 
   return (
     <div ref={rootRef} className="relative">
@@ -122,12 +118,12 @@ export function NotificationsBell() {
                   </Link>
                 </li>
               ))}
-              {messagePreview?.length === 0 ? (
+              {inboxBundle && mensajes.length === 0 ? (
                 <li className="border-b border-border px-4 py-4 text-sm text-muted-foreground">
                   Sin preguntas pendientes.
                 </li>
               ) : null}
-              {messagePreview === undefined ? (
+              {inboxBundle === undefined ? (
                 <li className="border-b border-border px-4 py-4 text-sm text-muted-foreground">
                   Cargando mensajes…
                 </li>

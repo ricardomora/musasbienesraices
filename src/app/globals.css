@@ -50,6 +50,7 @@
   --color-sand: var(--sand);
   --color-neon: var(--neon);
   --color-neon-soft: var(--neon-soft);
+  --color-neon-on-media: var(--neon-on-media);
   --color-glow: var(--glow);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
@@ -104,6 +105,8 @@
   --sidebar-ring: #0d8a94;
   --surface-translucent: rgba(255, 255, 255, 0.86);
   --on-media: #ffffff;
+  /* Always bright mint on photo heroes (light --neon is too dark on day sky). */
+  --neon-on-media: #5ef0d4;
   --realtor-amber: #c9972a;
   --realtor-amber-dim: #8a6a1a;
 }
@@ -151,6 +154,7 @@ html.dark {
   --sidebar-ring: #6ff5d8;
   --surface-translucent: rgba(7, 17, 15, 0.78);
   --on-media: #ffffff;
+  --neon-on-media: #6ff5d8;
   --realtor-amber: #e4b84a;
   --realtor-amber-dim: #a67c1a;
 }
@@ -182,6 +186,12 @@ html.dark {
   /* Text/icons on hero photos — always light for contrast */
   .on-media {
     color: var(--on-media);
+  }
+
+  .on-media-shadow {
+    text-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.55),
+      0 6px 24px rgba(0, 0, 0, 0.35);
   }
 
   .neon-orb {

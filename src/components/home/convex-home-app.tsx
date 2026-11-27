@@ -123,7 +123,6 @@ export function ConvexHomeApp() {
         ownerAvatarUrl: p.ownerAvatarUrl,
         ownerRealtorVerified: p.ownerRealtorVerified,
         ownerContactPhone: p.ownerContactPhone,
-        ownerEmail: p.ownerEmail,
         priceUsd: p.priceUsd,
         beds: p.beds,
         baths: p.baths,
