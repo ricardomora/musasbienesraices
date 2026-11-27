@@ -5,8 +5,6 @@ Agente: **musas-user** / **musas-qa** · Dry-run: **2026-11-11** · Live local c
 
 > **Corrida 3b final:** Admin **PASS** tras `ADMIN_EMAILS=ricardo10mora@gmail.com,ricardo10moraco@gmail.com`. Seed → 6 publicadas/12 fichas; pause `Casa Ávila` → `paused` (5 pub). Imagen UT **PASS**. Q&A **N/A** (1 cuenta).
 
-> **Post-security smoke (musas-qa live):** **2026-11-27 ~17:47Z** · `http://127.0.0.1:4321` · sin sesión. Home hero día **PASS** (`musas.` + «Sin complicaciones.»). Explore **PASS** (5 Convex listings, `ConvexHomeApp`). `/admin` → Clerk sign-in `redirect_url=/admin` **PASS** (AuthGate). Ficha `/inmuebles/apt-de-lujo` contacto sin email **PASS**. Consola: sin crashes; badge Next.js Security Insight only (**minor**).
-
 ---
 
 ## Matriz rápida

@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-27T17:48:00Z",
-  "updatedBy": "qa",
+  "updatedAt": "2026-11-27T01:20:00Z",
+  "updatedBy": "pm",
   "phase": "fase-beta-feedback-triage",
   "summary": "OWNER-6 vs INFORME-9 D24: publish-first sí; híbrido sort revisados; Owner mantiene etiqueta honesta ficha/grid. PM pedía ocultar «por revisar». Joaquín confirma D24.",
   "protocol": "Owner cuestiona → PM informa → Tech/Design/User ejecutan → Joaquín aprueba",
@@ -32,9 +32,9 @@
       "blocker": "URL usable"
     },
     "qa": {
-      "status": "done",
-      "task": "Post-security smoke local (home/explore/admin gate/ficha email/console) 2026-11-27",
-      "blocker": null
+      "status": "needs_help",
+      "task": "PASS/FAIL upload background en ≥2 devices antes de epic D23",
+      "blocker": "Script interrupt"
     }
   },
   "alerts": [
