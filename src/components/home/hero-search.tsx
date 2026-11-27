@@ -103,7 +103,11 @@ export function HeroSearch({
           </div>
 
           <div
-            className="absolute inset-0 bg-gradient-to-r from-black/28 via-black/10 to-transparent transition-opacity duration-700 dark:from-black/42 dark:via-black/14"
+            className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/22 to-transparent transition-opacity duration-700 dark:from-black/48 dark:via-black/16"
+            aria-hidden
+          />
+          <div
+            className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-black/45 to-transparent transition-opacity duration-700 dark:from-black/35"
             aria-hidden
           />
           {/* Soft bottom desvanecido → page bg */}
@@ -131,22 +135,22 @@ export function HeroSearch({
         <div className="relative z-10 mx-auto flex h-full w-full max-w-[96rem] flex-col px-5 sm:px-8 lg:px-12 xl:px-16">
           <div className="max-w-4xl pt-2 xl:max-w-5xl sm:pt-4">
             <motion.p
-              className="font-display text-[clamp(2rem,5vw,3.25rem)] leading-none tracking-tight text-white"
+              className="on-media-shadow font-display text-[clamp(2rem,5vw,3.25rem)] leading-none tracking-tight text-white"
               {...fadeUp(reduce, 0.08)}
             >
               Musas
-              <span className="text-neon">.</span>
+              <span className="text-neon-on-media">.</span>
             </motion.p>
 
             <motion.p
-              className="mt-3 inline-flex items-center gap-2.5 text-[11px] font-medium tracking-[0.22em] text-white/70 uppercase sm:text-xs"
+              className="on-media-shadow mt-3 inline-flex items-center gap-2.5 text-[11px] font-medium tracking-[0.22em] text-white/80 uppercase sm:text-xs"
               {...fadeUp(reduce, 0.16)}
             >
-              <span className="size-1.5 rounded-full bg-neon" aria-hidden />
+              <span className="size-1.5 rounded-full bg-neon-on-media" aria-hidden />
               Compra, venta y alquileres
             </motion.p>
 
-            <h1 className="mt-5 text-[clamp(2.45rem,6.5vw,4.75rem)] leading-[0.98] font-semibold tracking-[-0.03em] text-white">
+            <h1 className="on-media-shadow mt-5 text-[clamp(2.45rem,6.5vw,4.75rem)] leading-[0.98] font-semibold tracking-[-0.03em] text-white">
               <span className="block overflow-hidden">
                 <motion.span
                   className="block"
@@ -159,7 +163,7 @@ export function HeroSearch({
               </span>
               <span className="block overflow-hidden">
                 <motion.span
-                  className="block text-neon"
+                  className="block text-neon-on-media"
                   initial={reduce ? false : { y: "110%", opacity: 0 }}
                   animate={{ y: "0%", opacity: 1 }}
                   transition={{ duration: 0.95, delay: 0.4, ease }}
@@ -170,7 +174,7 @@ export function HeroSearch({
             </h1>
 
             <motion.p
-              className="mt-6 max-w-2xl text-[1.05rem] leading-relaxed text-white/90 sm:text-xl sm:leading-relaxed xl:max-w-3xl"
+              className="on-media-shadow mt-6 max-w-2xl text-[1.05rem] leading-relaxed text-white/95 sm:text-xl sm:leading-relaxed xl:max-w-3xl"
               {...fadeUp(reduce, 0.62)}
             >
               Hazlo por ti mismo, o solicita a una Musa que te ayude en este

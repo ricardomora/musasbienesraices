@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { CITY_CENTROIDS } from "@/data/geo";
 import { cityName, type CityId } from "@/data/cities";
+import { clientIp, rateLimit } from "@/lib/rate-limit";
 
 type NominatimItem = {
   place_id: number;
@@ -13,9 +14,24 @@ type NominatimItem = {
 
 /**
  * Proxy Nominatim (OpenStreetMap) para autocompletar sectores en VE.
- * Bias por ciudad Musas.
+ * Bias por ciudad Musas. Rate-limited per IP.
  */
 export async function GET(req: Request) {
+  const limited = rateLimit({
+    key: `geocode:${clientIp(req)}`,
+    limit: 30,
+    windowMs: 60_000,
+  });
+  if (!limited.ok) {
+    return NextResponse.json(
+      { results: [], error: "rate_limited" },
+      {
+        status: 429,
+        headers: { "Retry-After": String(limited.retryAfterSec) },
+      },
+    );
+  }
+
   const { searchParams } = new URL(req.url);
   const q = searchParams.get("q")?.trim() ?? "";
   const cityId = searchParams.get("cityId")?.trim() || "caracas";
@@ -25,9 +41,7 @@ export async function GET(req: Request) {
   }
 
   const center = CITY_CENTROIDS[cityId] ?? CITY_CENTROIDS.caracas;
-  const city =
-    cityName(cityId as CityId) ||
-    cityId.replace(/-/g, " ");
+  const city = cityName(cityId as CityId) || cityId.replace(/-/g, " ");
   const query = `${q}, ${city}, Venezuela`;
 
   const url = new URL("https://nominatim.openstreetmap.org/search");
@@ -36,7 +50,6 @@ export async function GET(req: Request) {
   url.searchParams.set("limit", "6");
   url.searchParams.set("countrycodes", "ve");
   url.searchParams.set("addressdetails", "0");
-  // Soft viewbox ~0.35° around city center
   const d = 0.35;
   url.searchParams.set(
     "viewbox",

@@ -1,5 +1,9 @@
 import { v } from "convex/values";
-import { mutation, type MutationCtx } from "./_generated/server";
+import {
+  internalMutation,
+  mutation,
+  type MutationCtx,
+} from "./_generated/server";
 import { requireAdmin } from "./lib";
 
 const DEMO = [
@@ -216,16 +220,10 @@ export const clearMarketplaceData = mutation({
   },
 });
 
-/** CLI/ops wipe with USER_SYNC_SECRET (no JWT). */
-export const clearMarketplaceDataWithSecret = mutation({
-  args: { syncSecret: v.string() },
-  handler: async (ctx, args) => {
-    const expected = process.env.USER_SYNC_SECRET;
-    if (!expected || args.syncSecret !== expected) {
-      throw new Error("Forbidden");
-    }
-    return await wipeMarketplace(ctx);
-  },
+/** Ops wipe via HTTP action only (not callable from browser). */
+export const clearMarketplaceDataWithSecret = internalMutation({
+  args: {},
+  handler: async (ctx) => wipeMarketplace(ctx),
 });
 
 export const seedDemoListings = mutation({

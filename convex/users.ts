@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { internalMutation, mutation, query } from "./_generated/server";
 import { getAuthenticatedUser, requireAdmin, requireUser } from "./lib";
 
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
@@ -11,21 +11,15 @@ function resolveRole(email: string): "user" | "admin" {
   return ADMIN_EMAILS.includes(email.toLowerCase()) ? "admin" : "user";
 }
 
-export const syncUser = mutation({
+/** Server-only (HTTP action / ops). Not callable from the browser. */
+export const syncUser = internalMutation({
   args: {
     clerkId: v.string(),
     email: v.string(),
     name: v.optional(v.string()),
     avatarUrl: v.optional(v.string()),
-    /** Must match Convex env USER_SYNC_SECRET (same value in Next .env.local). */
-    syncSecret: v.string(),
   },
   handler: async (ctx, args) => {
-    const expected = process.env.USER_SYNC_SECRET;
-    if (!expected || args.syncSecret !== expected) {
-      throw new Error("Forbidden");
-    }
-
     const existing = await ctx.db
       .query("users")
       .withIndex("by_clerkId", (q) => q.eq("clerkId", args.clerkId))

@@ -1,29 +1,57 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, query, type QueryCtx } from "./_generated/server";
+import type { Doc, Id } from "./_generated/dataModel";
 import {
   listingIsComplete,
   requireAdmin,
   requireUser,
   uniqueListingSlug,
 } from "./lib";
+import { assertListingImages } from "./lib/listingImages";
+import { operationType, propertyType } from "./lib/propertyTypes";
 import { isRealtorPlanActiveForUser } from "./lib/realtorPlan";
-
-const propertyType = v.union(
-  v.literal("apartamentos"),
-  v.literal("casas"),
-  v.literal("locales"),
-  v.literal("terrenos"),
-  v.literal("galpones"),
-  v.literal("oficinas"),
-  v.literal("quintas"),
-  v.literal("fondos_comercio"),
-);
-const operationType = v.union(v.literal("venta"), v.literal("alquiler"));
 
 function listingOperation(
   l: { operationType?: "venta" | "alquiler" },
 ): "venta" | "alquiler" {
   return l.operationType ?? "venta";
+}
+
+type OwnerCache = Map<
+  Id<"users">,
+  { owner: Doc<"users"> | null; realtor: boolean }
+>;
+
+async function enrichPublishedListing(
+  ctx: QueryCtx,
+  listing: Doc<"listings">,
+  ownerCache: OwnerCache,
+) {
+  let cached = ownerCache.get(listing.ownerId);
+  if (!cached) {
+    const owner = await ctx.db.get(listing.ownerId);
+    const realtor = owner
+      ? await isRealtorPlanActiveForUser(
+          ctx,
+          owner._id,
+          owner.realtorVerified,
+        )
+      : false;
+    cached = { owner, realtor };
+    ownerCache.set(listing.ownerId, cached);
+  }
+  const { owner, realtor } = cached;
+  const listingIg = listing.contactInstagram?.trim() || "";
+  const ownerIg = owner?.contactInstagram?.trim() || "";
+  return {
+    ...listing,
+    contactInstagram: listingIg || ownerIg || undefined,
+    ownerName: owner?.name ?? "Vendedor Musas",
+    ownerAvatarUrl: owner?.avatarUrl,
+    ownerAccountKind: owner?.accountKind ?? null,
+    ownerRealtorVerified: realtor,
+    ownerContactPhone: owner?.contactPhone,
+  };
 }
 
 export const listPublished = query({
@@ -37,18 +65,54 @@ export const listPublished = query({
     verifiedOnly: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
-    let items = await ctx.db
-      .query("listings")
-      .withIndex("by_status", (q) => q.eq("status", "published"))
-      .collect();
+    const city =
+      args.cityId && args.cityId !== "all" ? args.cityId : undefined;
+    let items: Doc<"listings">[];
 
-    if (args.cityId && args.cityId !== "all") {
-      items = items.filter((l) => l.cityId === args.cityId);
+    if (city) {
+      items = await ctx.db
+        .query("listings")
+        .withIndex("by_city_status", (q) =>
+          q.eq("cityId", city).eq("status", "published"),
+        )
+        .collect();
+    } else if (args.type) {
+      items = await ctx.db
+        .query("listings")
+        .withIndex("by_type_status", (q) =>
+          q.eq("type", args.type!).eq("status", "published"),
+        )
+        .collect();
+    } else if (args.operationType) {
+      items = await ctx.db
+        .query("listings")
+        .withIndex("by_operation_status", (q) =>
+          q.eq("operationType", args.operationType!).eq("status", "published"),
+        )
+        .collect();
+      // Legacy rows without operationType are venta
+      if (args.operationType === "venta") {
+        const legacy = await ctx.db
+          .query("listings")
+          .withIndex("by_status", (q) => q.eq("status", "published"))
+          .collect();
+        const missing = legacy.filter((l) => l.operationType == null);
+        const ids = new Set(items.map((i) => i._id));
+        for (const row of missing) {
+          if (!ids.has(row._id)) items.push(row);
+        }
+      }
+    } else {
+      items = await ctx.db
+        .query("listings")
+        .withIndex("by_status", (q) => q.eq("status", "published"))
+        .collect();
     }
-    if (args.type) {
+
+    if (args.type && city) {
       items = items.filter((l) => l.type === args.type);
     }
-    if (args.operationType) {
+    if (args.operationType && (city || args.type)) {
       items = items.filter(
         (l) => listingOperation(l) === args.operationType,
       );
@@ -74,29 +138,11 @@ export const listPublished = query({
     }
 
     const sorted = items.sort((a, b) => b.updatedAt - a.updatedAt);
+    const ownerCache: OwnerCache = new Map();
     return await Promise.all(
-      sorted.map(async (listing) => {
-        const owner = await ctx.db.get(listing.ownerId);
-        const listingIg = listing.contactInstagram?.trim() || "";
-        const ownerIg = owner?.contactInstagram?.trim() || "";
-        const ownerRealtorVerified = owner
-          ? await isRealtorPlanActiveForUser(
-              ctx,
-              owner._id,
-              owner.realtorVerified,
-            )
-          : false;
-        return {
-          ...listing,
-          contactInstagram: listingIg || ownerIg || undefined,
-          ownerName: owner?.name ?? "Vendedor Musas",
-          ownerAvatarUrl: owner?.avatarUrl,
-          ownerAccountKind: owner?.accountKind ?? null,
-          ownerRealtorVerified,
-          ownerContactPhone: owner?.contactPhone,
-          ownerEmail: owner?.email,
-        };
-      }),
+      sorted.map((listing) =>
+        enrichPublishedListing(ctx, listing, ownerCache),
+      ),
     );
   },
 });
@@ -124,23 +170,8 @@ export const getBySlug = query({
       return null;
     }
 
-    const owner = await ctx.db.get(listing.ownerId);
-    const listingIg = listing.contactInstagram?.trim() || "";
-    const ownerIg = owner?.contactInstagram?.trim() || "";
-    const ownerRealtorVerified = owner
-      ? await isRealtorPlanActiveForUser(ctx, owner._id, owner.realtorVerified)
-      : false;
-    return {
-      ...listing,
-      contactInstagram: listingIg || ownerIg || undefined,
-      ownerName: owner?.name ?? "Vendedor Musas",
-      ownerAvatarUrl: owner?.avatarUrl,
-      ownerAccountKind: owner?.accountKind ?? null,
-      ownerRealtorVerified,
-      ownerContactPhone: owner?.contactPhone,
-      ownerEmail: owner?.email,
-      isOwner,
-    };
+    const enriched = await enrichPublishedListing(ctx, listing, new Map());
+    return { ...enriched, isOwner };
   },
 });
 
@@ -268,6 +299,10 @@ export const updateListing = mutation({
 
     for (const key of fields) {
       if (args[key] !== undefined) patch[key] = args[key];
+    }
+
+    if (args.images !== undefined) {
+      assertListingImages(args.images);
     }
 
     if (typeof args.title === "string" && args.title.trim() !== listing.title) {

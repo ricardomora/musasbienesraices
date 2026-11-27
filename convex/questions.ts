@@ -160,7 +160,21 @@ export const inboxForSeller = query({
   },
 });
 
-/** Preguntas en tus fichas sin respuesta (= mensajes pendientes). */
+/** Una sola lectura: count + preview (campana). */
+export const inboxUnreadBundle = query({
+  args: {},
+  handler: async (ctx) => {
+    const unanswered = (await sellerInboxThreads(ctx)).filter(
+      (t) => t.unanswered,
+    );
+    return {
+      count: unanswered.length,
+      preview: unanswered.slice(0, 5),
+    };
+  },
+});
+
+/** @deprecated Prefer inboxUnreadBundle */
 export const inboxUnreadCount = query({
   args: {},
   handler: async (ctx) => {
@@ -169,6 +183,7 @@ export const inboxUnreadCount = query({
   },
 });
 
+/** @deprecated Prefer inboxUnreadBundle */
 export const inboxUnreadPreview = query({
   args: {},
   handler: async (ctx) => {

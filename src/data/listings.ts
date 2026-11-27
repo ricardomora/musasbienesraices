@@ -1,7 +1,9 @@
 import { cityName, type CityId } from "./cities";
+import { formatUsd } from "@/lib/money";
 import type { PropertyType } from "@/lib/property-types";
 
 export type { PropertyType } from "@/lib/property-types";
+export { formatUsd } from "@/lib/money";
 export type OperationType = "venta" | "alquiler";
 
 export type Listing = {
@@ -22,7 +24,6 @@ export type Listing = {
   ownerAvatarUrl?: string;
   ownerRealtorVerified?: boolean;
   ownerContactPhone?: string;
-  ownerEmail?: string;
   priceUsd: number;
   beds: number;
   baths: number;
@@ -421,14 +422,6 @@ export type SearchFilters = {
   sector?: string;
   verifiedOnly?: boolean;
 };
-
-export function formatUsd(amount: number): string {
-  return new Intl.NumberFormat("es-VE", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
 
 export function formatListingPrice(
   listing: Pick<Listing, "priceUsd" | "operationType">,

@@ -104,10 +104,13 @@ export function ConvexListingDetail({ slug }: { slug: string }) {
   const ig = listing.contactInstagram
     ? instagramHref(listing.contactInstagram)
     : null;
+  const siteBase = (
+    process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://www.musasbienesraices.com"
+  ).replace(/\/$/, "");
   const pageUrl =
     typeof window !== "undefined"
       ? window.location.href
-      : `https://musas.app/inmuebles/${listing.slug}`;
+      : `${siteBase}/inmuebles/${listing.slug}`;
   const op = listingOperation(listing);
   const shareWa = `https://wa.me/?text=${encodeURIComponent(
     `${listing.title} — ${formatListingPrice(listing)} USD en Musas (${op})\n${pageUrl}`,

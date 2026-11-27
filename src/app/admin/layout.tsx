@@ -1,12 +1,12 @@
 import { Suspense, type ReactNode } from "react";
-import { AuthGate } from "@/components/auth-gate";
+import { AdminGate } from "@/components/auth/admin-gate";
 
 export const instant = false;
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <Suspense fallback={null}>
-      <AuthGate>{children}</AuthGate>
+      <AdminGate>{children}</AdminGate>
     </Suspense>
   );
 }

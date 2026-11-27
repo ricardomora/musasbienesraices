@@ -1,6 +1,5 @@
 import { createClerkClient } from "@clerk/backend";
-import { ConvexHttpClient } from "convex/browser";
-import { api } from "../../../../../convex/_generated/api";
+import { convexSiteUrl } from "@/lib/convex-site";
 
 function authorizedParties(): string[] {
   const parties = new Set([
@@ -17,13 +16,13 @@ function authorizedParties(): string[] {
 
 /**
  * Sync Clerk profile → Convex with real email (JWT template may omit email).
- * Called from Providers after sign-in so ADMIN_EMAILS / role resolve correctly.
+ * Calls Convex HTTP action (internal mutation) — not a public Convex mutation.
  */
 export async function POST(req: Request) {
   const secretKey = process.env.CLERK_SECRET_KEY;
-  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
   const syncSecret = process.env.USER_SYNC_SECRET;
-  if (!secretKey || !convexUrl || !syncSecret) {
+  const siteUrl = convexSiteUrl();
+  if (!secretKey || !syncSecret || !siteUrl) {
     return Response.json({ error: "not_configured" }, { status: 503 });
   }
 
@@ -52,14 +51,26 @@ export async function POST(req: Request) {
   }
 
   const name = [user.firstName, user.lastName].filter(Boolean).join(" ");
-  const convex = new ConvexHttpClient(convexUrl);
-  await convex.mutation(api.users.syncUser, {
-    clerkId: userId,
-    email,
-    name: name || undefined,
-    avatarUrl: user.imageUrl || undefined,
-    syncSecret,
+  const res = await fetch(`${siteUrl}/internal/sync-user`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-musas-sync-secret": syncSecret,
+    },
+    body: JSON.stringify({
+      clerkId: userId,
+      email,
+      name: name || undefined,
+      avatarUrl: user.imageUrl || undefined,
+    }),
   });
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    return Response.json(
+      { error: "sync_failed", detail: text.slice(0, 200) },
+      { status: 502 },
+    );
+  }
 
   return Response.json({ ok: true, email });
 }

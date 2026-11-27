@@ -9,7 +9,10 @@
  */
 
 import type * as favorites from "../favorites.js";
+import type * as http from "../http.js";
 import type * as lib from "../lib.js";
+import type * as lib_listingImages from "../lib/listingImages.js";
+import type * as lib_propertyTypes from "../lib/propertyTypes.js";
 import type * as lib_realtorPlan from "../lib/realtorPlan.js";
 import type * as listings from "../listings.js";
 import type * as notifications from "../notifications.js";
@@ -28,7 +31,10 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   favorites: typeof favorites;
+  http: typeof http;
   lib: typeof lib;
+  "lib/listingImages": typeof lib_listingImages;
+  "lib/propertyTypes": typeof lib_propertyTypes;
   "lib/realtorPlan": typeof lib_realtorPlan;
   listings: typeof listings;
   notifications: typeof notifications;

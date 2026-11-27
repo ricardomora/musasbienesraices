@@ -41,15 +41,32 @@ async function requireClerkUserId(req: Request) {
   return userId;
 }
 
+/** Soft cap: uploads started per user per rolling hour (in-memory per instance). */
+const uploadHourly = new Map<string, { count: number; resetAt: number }>();
+
+function assertUploadBudget(userId: string) {
+  const now = Date.now();
+  const row = uploadHourly.get(userId);
+  if (!row || row.resetAt <= now) {
+    uploadHourly.set(userId, { count: 1, resetAt: now + 60 * 60 * 1000 });
+    return;
+  }
+  if (row.count >= 40) {
+    throw new UploadThingError("Límite de subidas por hora. Intenta más tarde.");
+  }
+  row.count += 1;
+}
+
 export const ourFileRouter = {
   listingImageUploader: f({
     image: {
       maxFileSize: "8MB",
-      maxFileCount: 12,
+      maxFileCount: 8,
     },
   })
     .middleware(async ({ req }) => {
       const userId = await requireClerkUserId(req);
+      assertUploadBudget(userId);
       return { userId };
     })
     .onUploadComplete(async ({ metadata, file }) => {
