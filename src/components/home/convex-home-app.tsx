@@ -11,6 +11,7 @@ import {
   type OperationType,
   type PropertyType,
 } from "@/data/listings";
+import { isPropertyType } from "@/lib/property-types";
 import { useAuthFavorites } from "@/hooks/use-auth-favorites";
 import { usePublishedListings } from "@/hooks/use-musas-listings";
 import { HomeHeader } from "./home-header";
@@ -24,17 +25,7 @@ function parseCity(value: string | null): CityId | "all" {
 }
 
 function parseType(value: string | null): PropertyType | "all" {
-  if (
-    value === "apartamentos" ||
-    value === "casas" ||
-    value === "locales" ||
-    value === "terrenos" ||
-    value === "galpones" ||
-    value === "oficinas" ||
-    value === "quintas"
-  ) {
-    return value;
-  }
+  if (value && isPropertyType(value)) return value;
   return "all";
 }
 

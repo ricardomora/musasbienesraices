@@ -16,6 +16,7 @@ const propertyType = v.union(
   v.literal("galpones"),
   v.literal("oficinas"),
   v.literal("quintas"),
+  v.literal("fondos_comercio"),
 );
 const operationType = v.union(v.literal("venta"), v.literal("alquiler"));
 

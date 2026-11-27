@@ -8,6 +8,7 @@ export const PROPERTY_TYPES = [
   "galpones",
   "oficinas",
   "quintas",
+  "fondos_comercio",
 ] as const;
 
 export type PropertyType = (typeof PROPERTY_TYPES)[number];
@@ -20,6 +21,7 @@ export const PROPERTY_TYPE_LABELS: Record<PropertyType, string> = {
   galpones: "Galpón",
   oficinas: "Oficina",
   quintas: "Quinta",
+  fondos_comercio: "Fondo de Comercio",
 };
 
 export const PROPERTY_TYPE_PLURAL: Record<PropertyType, string> = {
@@ -30,6 +32,7 @@ export const PROPERTY_TYPE_PLURAL: Record<PropertyType, string> = {
   galpones: "Galpones",
   oficinas: "Oficinas",
   quintas: "Quintas",
+  fondos_comercio: "Fondos de Comercio",
 };
 
 export function isPropertyType(value: string): value is PropertyType {
@@ -53,5 +56,10 @@ export function showsConstructionM2(type: PropertyType): boolean {
 
 /** Habitaciones/baños no aplican a terreno. */
 export function showsBedsBaths(type: PropertyType): boolean {
-  return type !== "terrenos" && type !== "locales" && type !== "galpones";
+  return (
+    type !== "terrenos" &&
+    type !== "locales" &&
+    type !== "galpones" &&
+    type !== "fondos_comercio"
+  );
 }

@@ -155,6 +155,7 @@ const FILTERS: {
   { id: "galpones", label: "Galpones", icon: Building2 },
   { id: "oficinas", label: "Oficinas", icon: Building2 },
   { id: "quintas", label: "Quintas", icon: Home },
+  { id: "fondos_comercio", label: "Fondos de Comercio", icon: Building2 },
 ];
 
 export function ListingsGrid({

@@ -9,6 +9,7 @@ const propertyType = v.union(
   v.literal("galpones"),
   v.literal("oficinas"),
   v.literal("quintas"),
+  v.literal("fondos_comercio"),
 );
 
 /** venta = precio total USD; alquiler = USD / mes. */

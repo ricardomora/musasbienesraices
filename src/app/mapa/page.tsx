@@ -11,6 +11,10 @@ import {
   type OperationType,
   type PropertyType,
 } from "@/data/listings";
+import {
+  PROPERTY_TYPES,
+  PROPERTY_TYPE_PLURAL,
+} from "@/lib/property-types";
 import { ListingsMapLazy } from "@/components/explore/listings-map-lazy";
 import { usePublishedListings } from "@/hooks/use-musas-listings";
 import { BackendGate } from "@/components/system/backend-gate";
@@ -127,13 +131,11 @@ function MapExplore() {
           className="rounded-full border border-border bg-background px-4 py-2 text-sm text-foreground"
         >
           <option value="all">Todos los tipos</option>
-          <option value="apartamentos">Apartamentos</option>
-          <option value="casas">Casas</option>
-          <option value="locales">Locales</option>
-          <option value="terrenos">Terrenos</option>
-          <option value="galpones">Galpones</option>
-          <option value="oficinas">Oficinas</option>
-          <option value="quintas">Quintas</option>
+          {PROPERTY_TYPES.map((t) => (
+            <option key={t} value={t}>
+              {PROPERTY_TYPE_PLURAL[t]}
+            </option>
+          ))}
         </select>
         {operation !== "all" ? (
           <select
