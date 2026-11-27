@@ -59,9 +59,9 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <UploadThingSSR />
         </Suspense>
-        {/* Providers must not sit in Suspense — gated routes prerender useAuth
-            and need a stable ClerkProvider ancestor at build time. */}
-        <Providers>{children}</Providers>
+        <Suspense fallback={null}>
+          <Providers>{children}</Providers>
+        </Suspense>
       </body>
     </html>
   );
