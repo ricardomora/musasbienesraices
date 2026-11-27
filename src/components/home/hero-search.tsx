@@ -78,7 +78,18 @@ export function HeroSearch({
         }}
       >
         <div className="absolute inset-0 overflow-hidden">
+          {/* Day / dusk same crop — only opacity flips with theme (cambio de luz). */}
           <div className="absolute inset-0 w-full">
+            <Image
+              src="/home-hero-day.jpg"
+              alt=""
+              fill
+              priority
+              quality={90}
+              sizes="100vw"
+              className="h-full w-full object-cover object-[62%_38%] opacity-100 transition-opacity duration-700 ease-out dark:opacity-0"
+              aria-hidden
+            />
             <Image
               src="/home-hero.jpg"
               alt=""
@@ -86,18 +97,18 @@ export function HeroSearch({
               priority
               quality={100}
               sizes="100vw"
-              className="h-full w-full object-cover object-[62%_38%]"
+              className="h-full w-full object-cover object-[62%_38%] opacity-0 transition-opacity duration-700 ease-out dark:opacity-100"
               aria-hidden
             />
           </div>
 
           <div
-            className="absolute inset-0 bg-gradient-to-r from-black/38 via-black/12 to-transparent"
+            className="absolute inset-0 bg-gradient-to-r from-black/28 via-black/10 to-transparent transition-opacity duration-700 dark:from-black/42 dark:via-black/14"
             aria-hidden
           />
-          {/* Soft bottom desvanecido */}
+          {/* Soft bottom desvanecido → page bg */}
           <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 h-36 sm:h-40"
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-36 transition-[background] duration-700 sm:h-40"
             style={{
               background:
                 "linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--background) 40%, transparent) 55%, var(--background) 100%)",
@@ -172,56 +183,44 @@ export function HeroSearch({
             {...fadeUp(reduce, 0.95)}
           >
             <div className="mb-3 flex flex-wrap gap-6 text-[15px]">
-              <button
-                type="button"
-                onClick={() =>
-                  onChange({ mode: "comprar", budgetId: "any" })
-                }
-                className={cn(
-                  "interactive-surface border-b-2 pb-2.5",
-                  values.mode === "comprar"
-                    ? "border-neon text-white"
-                    : "border-transparent text-white/55 hover:text-white",
-                )}
-              >
-                Comprar
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  onChange({ mode: "alquilar", budgetId: "any" })
-                }
-                className={cn(
-                  "interactive-surface border-b-2 pb-2.5",
-                  values.mode === "alquilar"
-                    ? "border-neon text-white"
-                    : "border-transparent text-white/55 hover:text-white",
-                )}
-              >
-                Alquilar
-              </button>
-              <button
-                type="button"
-                onClick={() => onChange({ mode: "favoritos" })}
-                className={cn(
-                  "interactive-surface border-b-2 pb-2.5",
-                  values.mode === "favoritos"
-                    ? "border-neon text-white"
-                    : "border-transparent text-white/55 hover:text-white",
-                )}
-              >
-                Mis favoritos ({favoriteCount})
-              </button>
+              {(
+                [
+                  ["comprar", "Comprar"],
+                  ["alquilar", "Alquilar"],
+                  ["favoritos", `Mis favoritos (${favoriteCount})`],
+                ] as const
+              ).map(([mode, label]) => (
+                <button
+                  key={mode}
+                  type="button"
+                  onClick={() =>
+                    mode === "favoritos"
+                      ? onChange({ mode })
+                      : onChange({
+                          mode,
+                          budgetId: "any",
+                        })
+                  }
+                  className={cn(
+                    "interactive-surface border-b-2 pb-2.5 text-white",
+                    values.mode === mode
+                      ? "border-neon"
+                      : "border-transparent text-white/55 hover:text-white",
+                  )}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
 
-            <div className="rounded-2xl border border-white/12 bg-black/40 p-2 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.55)] backdrop-blur-xl sm:p-2.5">
-              <label className="mb-2 flex min-h-[3.25rem] cursor-text items-center gap-3 border-b border-white/10 px-4 py-2">
+            <div className="hero-search-panel rounded-2xl border border-white/55 bg-white/82 p-2 shadow-[0_20px_60px_-20px_rgba(15,40,50,0.28)] backdrop-blur-xl transition-[background-color,border-color,box-shadow] duration-700 dark:border-white/12 dark:bg-black/40 dark:shadow-[0_20px_60px_-20px_rgba(0,0,0,0.55)] sm:p-2.5">
+              <label className="mb-2 flex min-h-[3.25rem] cursor-text items-center gap-3 border-b border-black/8 px-4 py-2 dark:border-white/10">
                 <Search
-                  className="size-4 shrink-0 text-neon/85"
+                  className="size-4 shrink-0 text-neon"
                   aria-hidden
                 />
                 <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  <span className="text-[10px] tracking-[0.16em] text-white/45 uppercase">
+                  <span className="text-[10px] tracking-[0.16em] text-foreground/45 uppercase dark:text-white/45">
                     Buscar por zona o título
                   </span>
                   <input
@@ -231,19 +230,19 @@ export function HeroSearch({
                       if (e.key === "Enter") onSearch();
                     }}
                     placeholder="Ej. Altamira, terraza, 3 habitaciones…"
-                    className="w-full bg-transparent text-[15px] text-white outline-none placeholder:text-white/35"
+                    className="w-full bg-transparent text-[15px] text-foreground outline-none placeholder:text-foreground/35 dark:text-white dark:placeholder:text-white/35"
                   />
                 </span>
               </label>
 
               <div className="lg:grid lg:grid-cols-[1.15fr_1.15fr_1.15fr_auto] lg:items-stretch lg:gap-0">
-                <label className="flex min-h-[4.25rem] cursor-pointer items-center gap-3 border-b border-white/10 px-4 py-3 lg:border-b-0 lg:border-r">
+                <label className="flex min-h-[4.25rem] cursor-pointer items-center gap-3 border-b border-black/8 px-4 py-3 dark:border-white/10 lg:border-b-0 lg:border-r lg:border-black/8 dark:lg:border-white/10">
                   <MapPin
-                    className="size-4 shrink-0 text-neon/85"
+                    className="size-4 shrink-0 text-neon"
                     aria-hidden
                   />
                   <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                    <span className="text-[10px] tracking-[0.16em] text-white/45 uppercase">
+                    <span className="text-[10px] tracking-[0.16em] text-foreground/45 uppercase dark:text-white/45">
                       Ubicación
                     </span>
                     <select
@@ -254,16 +253,16 @@ export function HeroSearch({
                           sector: "",
                         })
                       }
-                      className="w-full appearance-none bg-transparent text-[15px] text-white outline-none"
+                      className="w-full appearance-none bg-transparent text-[15px] text-foreground outline-none dark:text-white"
                     >
-                      <option value="all" className="bg-ink text-white">
+                      <option value="all" className="bg-card text-foreground">
                         Elige tu ciudad
                       </option>
                       {CITIES.map((city) => (
                         <option
                           key={city.id}
                           value={city.id}
-                          className="bg-ink text-white"
+                          className="bg-card text-foreground"
                         >
                           {city.name}
                         </option>
@@ -272,10 +271,10 @@ export function HeroSearch({
                   </span>
                 </label>
 
-                <label className="flex min-h-[4.25rem] cursor-pointer items-center gap-3 border-b border-white/10 px-4 py-3 lg:border-b-0 lg:border-r">
-                  <Home className="size-4 shrink-0 text-neon/85" aria-hidden />
+                <label className="flex min-h-[4.25rem] cursor-pointer items-center gap-3 border-b border-black/8 px-4 py-3 dark:border-white/10 lg:border-b-0 lg:border-r lg:border-black/8 dark:lg:border-white/10">
+                  <Home className="size-4 shrink-0 text-neon" aria-hidden />
                   <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                    <span className="text-[10px] tracking-[0.16em] text-white/45 uppercase">
+                    <span className="text-[10px] tracking-[0.16em] text-foreground/45 uppercase dark:text-white/45">
                       Tipo de inmueble
                     </span>
                     <select
@@ -285,13 +284,17 @@ export function HeroSearch({
                           type: e.target.value as PropertyType | "all",
                         })
                       }
-                      className="w-full appearance-none bg-transparent text-[15px] text-white outline-none"
+                      className="w-full appearance-none bg-transparent text-[15px] text-foreground outline-none dark:text-white"
                     >
-                      <option value="all" className="bg-ink text-white">
+                      <option value="all" className="bg-card text-foreground">
                         Todos los tipos
                       </option>
                       {PROPERTY_TYPES.map((t) => (
-                        <option key={t} value={t} className="bg-ink text-white">
+                        <option
+                          key={t}
+                          value={t}
+                          className="bg-card text-foreground"
+                        >
                           {PROPERTY_TYPE_PLURAL[t]}
                         </option>
                       ))}
@@ -299,13 +302,13 @@ export function HeroSearch({
                   </span>
                 </label>
 
-                <label className="flex min-h-[4.25rem] cursor-pointer items-center gap-3 border-b border-white/10 px-4 py-3 lg:border-b-0 lg:border-r">
+                <label className="flex min-h-[4.25rem] cursor-pointer items-center gap-3 border-b border-black/8 px-4 py-3 dark:border-white/10 lg:border-b-0 lg:border-r lg:border-black/8 dark:lg:border-white/10">
                   <Wallet
-                    className="size-4 shrink-0 text-neon/85"
+                    className="size-4 shrink-0 text-neon"
                     aria-hidden
                   />
                   <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                    <span className="text-[10px] tracking-[0.16em] text-white/45 uppercase">
+                    <span className="text-[10px] tracking-[0.16em] text-foreground/45 uppercase dark:text-white/45">
                       {operation === "alquiler"
                         ? "Renta USD / mes"
                         : "Presupuesto USD"}
@@ -315,13 +318,13 @@ export function HeroSearch({
                       onChange={(e) =>
                         onChange({ budgetId: e.target.value })
                       }
-                      className="w-full appearance-none bg-transparent text-[15px] text-white outline-none"
+                      className="w-full appearance-none bg-transparent text-[15px] text-foreground outline-none dark:text-white"
                     >
                       {budgetOptions.map((opt) => (
                         <option
                           key={opt.id}
                           value={opt.id}
-                          className="bg-ink text-white"
+                          className="bg-card text-foreground"
                         >
                           {opt.label}
                         </option>
@@ -334,7 +337,7 @@ export function HeroSearch({
                   <button
                     type="button"
                     onClick={onSearch}
-                    className="interactive-surface inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-neon px-5 text-[15px] font-semibold text-primary-foreground hover:bg-white lg:min-w-[12rem]"
+                    className="interactive-surface inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-neon px-5 text-[15px] font-semibold text-primary-foreground hover:brightness-110 dark:hover:bg-white lg:min-w-[12rem]"
                   >
                     <Search className="size-4" aria-hidden />
                     Buscar

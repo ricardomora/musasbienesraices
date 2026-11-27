@@ -60,49 +60,49 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Light (default) — sunrise turquoise mist (contrast with photos, not flat white) */
+/* Light (default) — daytime sky / pool turquoise (same layout as dark, brighter light) */
 :root {
-  --background: #d9eef2;
+  --background: #eef6f8;
   --foreground: #0a1c22;
   --ink: #06141a;
-  --mist: #4f6d75;
-  --pine: #0e8f9a;
-  --pine-deep: #c5e6eb;
+  --mist: #5a737a;
+  --pine: #0d8a94;
+  --pine-deep: #d7eef1;
   --sand: #243a42;
-  --neon: #0e8f9a;
-  --neon-soft: #9fd5dc;
+  --neon: #0d8a94;
+  --neon-soft: #b5dde2;
   --glow: #1aabb8;
-  --card: #e8f6f8;
+  --card: #ffffff;
   --card-foreground: #0a1c22;
-  --popover: #eaf7f9;
+  --popover: #ffffff;
   --popover-foreground: #0a1c22;
-  --primary: #0e8f9a;
+  --primary: #0d8a94;
   --primary-foreground: #ffffff;
-  --secondary: #cfe8ed;
+  --secondary: #e2f1f4;
   --secondary-foreground: #0c1f26;
-  --muted: #d3ebef;
-  --muted-foreground: #4f6d75;
-  --accent: #c5e4ea;
+  --muted: #e8f2f4;
+  --muted-foreground: #5a737a;
+  --accent: #d9eef2;
   --accent-foreground: #0a1c22;
   --destructive: #dc4a3f;
-  --border: rgba(10, 55, 65, 0.14);
-  --input: rgba(10, 55, 65, 0.16);
-  --ring: #0e8f9a;
-  --chart-1: #0e8f9a;
+  --border: rgba(10, 55, 65, 0.12);
+  --input: rgba(10, 55, 65, 0.14);
+  --ring: #0d8a94;
+  --chart-1: #0d8a94;
   --chart-2: #3da8b0;
-  --chart-3: #4f6d75;
+  --chart-3: #5a737a;
   --chart-4: #243a42;
-  --chart-5: #9fd5dc;
+  --chart-5: #b5dde2;
   --radius: 0.625rem;
-  --sidebar: #d9eef2;
+  --sidebar: #eef6f8;
   --sidebar-foreground: #0a1c22;
-  --sidebar-primary: #0e8f9a;
+  --sidebar-primary: #0d8a94;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #cfe8ed;
+  --sidebar-accent: #e2f1f4;
   --sidebar-accent-foreground: #0a1c22;
-  --sidebar-border: rgba(10, 55, 65, 0.14);
-  --sidebar-ring: #0e8f9a;
-  --surface-translucent: rgba(232, 246, 248, 0.82);
+  --sidebar-border: rgba(10, 55, 65, 0.12);
+  --sidebar-ring: #0d8a94;
+  --surface-translucent: rgba(255, 255, 255, 0.86);
   --on-media: #ffffff;
   --realtor-amber: #c9972a;
   --realtor-amber-dim: #8a6a1a;
@@ -159,11 +159,14 @@ html.dark {
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
   html {
     @apply font-sans;
+  }
+  body {
+    @apply bg-background text-foreground;
+    transition:
+      background-color 700ms cubic-bezier(0.22, 1, 0.36, 1),
+      color 700ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 }
 
@@ -244,6 +247,22 @@ html.dark {
   .field-surface {
     @apply rounded-xl border border-border bg-card px-4 py-3 text-foreground;
   }
+
+  /* Native select chevron needs room; avoid flush-to-edge arrows. */
+  select:not([multiple]) {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-inline-end: 2.5rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' viewBox='0 0 24 24' stroke='%23888' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.85rem center;
+    background-size: 1rem;
+  }
+
+}
+
+html.dark select:not([multiple]) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' viewBox='0 0 24 24' stroke='%23a8b4b8' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
 }
 
 @keyframes musas-drift-a {
@@ -265,6 +284,10 @@ html.dark {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  body {
+    transition: none;
+  }
+
   .neon-orb-a,
   .neon-orb-b,
   .interactive-surface {

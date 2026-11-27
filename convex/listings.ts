@@ -326,7 +326,14 @@ export const setTrustBadge = mutation({
 export const setListingStatus = mutation({
   args: {
     id: v.id("listings"),
-    status: v.union(v.literal("draft"), v.literal("published"), v.literal("paused")),
+    status: v.union(
+      v.literal("draft"),
+      v.literal("published"),
+      v.literal("paused"),
+      v.literal("sold"),
+    ),
+    reason: v.optional(v.string()),
+    soldPriceUsd: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const user = await requireUser(ctx);
@@ -341,9 +348,36 @@ export const setListingStatus = mutation({
       throw new Error("Ficha incompleta");
     }
 
+    const now = Date.now();
+    const reason = args.reason?.trim() ?? "";
+
+    if (
+      isOwner &&
+      (args.status === "paused" || args.status === "sold") &&
+      reason.length < 5
+    ) {
+      throw new Error("Indica el motivo (mín. 5 caracteres)");
+    }
+    if (args.status === "sold") {
+      const price = args.soldPriceUsd;
+      if (
+        isOwner &&
+        (typeof price !== "number" || !Number.isFinite(price) || price <= 0)
+      ) {
+        throw new Error("Indica el monto de cierre en USD");
+      }
+    }
+
     await ctx.db.patch(args.id, {
       status: args.status,
-      updatedAt: Date.now(),
+      statusReason:
+        args.status === "paused" || args.status === "sold"
+          ? reason || (isAdmin ? "Acción admin" : reason)
+          : undefined,
+      soldPriceUsd:
+        args.status === "sold" ? args.soldPriceUsd : undefined,
+      statusChangedAt: now,
+      updatedAt: now,
     });
     return args.id;
   },

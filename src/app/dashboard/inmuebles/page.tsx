@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMutation, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
 import {
   Bath,
   BedDouble,
@@ -11,7 +11,6 @@ import {
   Plus,
   Ruler,
 } from "lucide-react";
-import { toast } from "sonner";
 import { api } from "../../../../convex/_generated/api";
 import { BackendGate } from "@/components/system/backend-gate";
 import { DashboardNav } from "@/components/dashboard/dashboard-nav";
@@ -22,22 +21,18 @@ import {
 import { cityName, type CityId } from "@/data/cities";
 import { formatUsd } from "@/data/listings";
 import { PROPERTY_TYPE_LABELS, type PropertyType } from "@/lib/property-types";
-import {
-  packageName,
-  preferentialStatusLabel,
-} from "@/lib/preferential-packages";
 import { cn } from "@/lib/utils";
 
 const STATUS_LABEL: Record<string, string> = {
   draft: "Borrador",
   published: "Publicado",
   paused: "Pausado",
+  sold: "Vendida",
 };
 
 function MyListings() {
   const listings = useQuery(api.listings.myListings);
   const requests = useQuery(api.preferential.myRequests);
-  const setStatus = useMutation(api.listings.setListingStatus);
 
   return (
     <div className="mx-auto w-full max-w-[96rem] px-5 py-10 sm:px-8 lg:px-12">
@@ -47,7 +42,7 @@ function MyListings() {
             Mis inmuebles
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Edita, pausa o publica tus fichas. Preferencial se pide por inmueble.
+            Edita cada ficha para pausar, marcar vendida o pedir Preferencial.
             {listings
               ? ` · ${listings.length} ficha${listings.length === 1 ? "" : "s"}`
               : ""}
@@ -84,7 +79,10 @@ function MyListings() {
             const op = l.operationType ?? "venta";
             const typeLabel =
               PROPERTY_TYPE_LABELS[l.type as PropertyType] ?? l.type;
-            const status = STATUS_LABEL[l.status] ?? l.status;
+            const status =
+              l.status === "sold" && op === "alquiler"
+                ? "Alquilada"
+                : (STATUS_LABEL[l.status] ?? l.status);
             const activePref = activeRequestForListing(requests, l._id);
             return (
               <li
@@ -111,7 +109,9 @@ function MyListings() {
                           ? "border border-neon/50 bg-ink/75 text-neon"
                           : l.status === "paused"
                             ? "bg-amber-500/80 text-white"
-                            : "bg-ink/70 text-white/80",
+                            : l.status === "sold"
+                              ? "bg-emerald-600/90 text-white"
+                              : "bg-ink/70 text-white/80",
                       )}
                     >
                       {status}
@@ -177,7 +177,7 @@ function MyListings() {
                       href={`/inmuebles/${l.slug}`}
                       className="rounded-full border border-border px-3 py-1.5 text-xs text-foreground hover:bg-accent"
                     >
-                      Ver ficha
+                      Ver publicación
                     </Link>
                   ) : null}
                   <Link
@@ -187,39 +187,12 @@ function MyListings() {
                     <Pencil className="size-3" aria-hidden />
                     Editar
                   </Link>
-                  {l.status === "published" ? (
-                    <button
-                      type="button"
-                      className="rounded-full border border-border px-3 py-1.5 text-xs text-foreground hover:bg-accent"
-                      onClick={() =>
-                        void setStatus({ id: l._id, status: "paused" })
-                          .then(() => toast.success("Pausado"))
-                          .catch((e) =>
-                            toast.error(
-                              e instanceof Error ? e.message : "Error",
-                            ),
-                          )
-                      }
-                    >
-                      Pausar
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      className="rounded-full border border-neon/40 px-3 py-1.5 text-xs text-neon"
-                      onClick={() =>
-                        void setStatus({ id: l._id, status: "published" })
-                          .then(() => toast.success("Publicado"))
-                          .catch((e) =>
-                            toast.error(
-                              e instanceof Error ? e.message : "Error",
-                            ),
-                          )
-                      }
-                    >
-                      Publicar
-                    </button>
-                  )}
+                  <Link
+                    href={`/dashboard/inmuebles/${l._id}`}
+                    className="rounded-full border border-border px-3 py-1.5 text-xs text-muted-foreground hover:bg-accent hover:text-foreground"
+                  >
+                    Estado
+                  </Link>
                   <ListingPreferentialChip
                     listingId={l._id}
                     active={activePref}
@@ -230,70 +203,6 @@ function MyListings() {
           })}
         </ul>
       )}
-
-      <section
-        id="solicitudes-preferencial"
-        className="mt-14 scroll-mt-8 border-t border-border pt-10"
-      >
-        <h2 className="text-xl font-semibold text-foreground">
-          Mis solicitudes Preferencial
-        </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Fotos, legal o acompañamiento por ficha. Coordinación y pago fuera de
-          la app.
-        </p>
-        {requests === undefined ? (
-          <p className="mt-6 text-sm text-muted-foreground">Cargando…</p>
-        ) : requests.length === 0 ? (
-          <p className="mt-6 text-sm text-muted-foreground">
-            Aún no hay solicitudes. Usa{" "}
-            <span className="text-neon">Pedir una Musa</span> en la ficha que
-            quieras potenciar.
-          </p>
-        ) : (
-          <ul className="mt-6 space-y-3">
-            {requests.map((r) => (
-              <li
-                key={r._id}
-                className="rounded-xl border border-border bg-card px-4 py-3 text-sm"
-              >
-                <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <p className="font-medium text-neon">
-                    {preferentialStatusLabel(r.status)}
-                  </p>
-                  <p className="text-[11px] text-muted-foreground">
-                    {new Date(r.createdAt).toLocaleString("es-VE")}
-                  </p>
-                </div>
-                <p className="mt-1 text-foreground">
-                  {r.packageKeys.map(packageName).join(" · ")}
-                </p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {r.listingTitle
-                    ? r.listingTitle
-                    : "Sin inmueble vinculado"}
-                  {r.listingId ? (
-                    <>
-                      {" · "}
-                      <Link
-                        href={`/dashboard/inmuebles/${r.listingId}`}
-                        className="text-neon hover:underline"
-                      >
-                        Editar
-                      </Link>
-                    </>
-                  ) : null}
-                </p>
-                {r.notes ? (
-                  <p className="mt-2 line-clamp-2 text-muted-foreground">
-                    {r.notes}
-                  </p>
-                ) : null}
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
     </div>
   );
 }

@@ -197,7 +197,7 @@ function CuentaPanel() {
 
       <section
         id="plan-agente"
-        className="scroll-mt-24 w-full shrink-0 rounded-2xl border border-border p-5 lg:sticky lg:top-6 lg:w-[30%] lg:max-w-sm"
+        className="scroll-mt-24 w-full shrink-0 rounded-2xl border border-border p-5 lg:sticky lg:top-6 lg:w-[35%] lg:max-w-md"
       >
         <h2 className="text-lg font-semibold text-foreground">Plan Agente</h2>
         <ul className="mt-3 space-y-2 text-sm text-muted-foreground">

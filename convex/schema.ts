@@ -19,6 +19,7 @@ const listingStatus = v.union(
   v.literal("draft"),
   v.literal("published"),
   v.literal("paused"),
+  v.literal("sold"),
 );
 
 const preferentialStatus = v.union(
@@ -109,6 +110,11 @@ export default defineSchema({
     images: v.array(v.string()),
     alt: v.optional(v.string()),
     isDemo: v.optional(v.boolean()),
+    /** Motivo al pausar o marcar vendida/alquilada. */
+    statusReason: v.optional(v.string()),
+    /** Monto de cierre USD cuando status = sold. */
+    soldPriceUsd: v.optional(v.number()),
+    statusChangedAt: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
